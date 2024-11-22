@@ -1,0 +1,10 @@
+Name: HalvingMetallurgy
+Version: 1.0.0
+Icon: hm_icon
+Desc: Introduces the concept of half promotion, and the associated atoms and gylph.
+DLL: "HalvingMetallurgy.dll"
+Dependences:
+- Name: Quintessential
+  Version: 0.5.1
+- Name: ReductiveMetallurgy
+  Version: 1.0.1
