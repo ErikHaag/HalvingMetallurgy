@@ -2,13 +2,13 @@
 
 namespace HalvingMetallurgy;
 
-internal static class Atoms
+internal static class HalvingMetallurgyAtoms
 {
     public static AtomType Wolfram, Vulcan, Nickel, Zinc, Sednum, Osmium;
 
     public static void AddAtomTypes()
     {
-        Quintessential.Logger.Log("HalvingMetallurgy: Creating atoms!");
+        Quintessential.Logger.Log("HalvingMetallurgy: Creating atoms.");
         Osmium = new()
         {
             field_2283 = 130, //Id
@@ -42,7 +42,7 @@ internal static class Atoms
                 field_14 = class_235.method_615("textures/atoms/erikhaag/HalvingMetallurgy/sednum_lightramp"), //Lightramp
                 field_15 = class_238.field_1989.field_81.field_613.field_633 //Shiny!
             },
-            field_2297 = Maybe<AtomType>.method_1089(Atoms.Osmium), //Promotion Atom
+            field_2297 = Maybe<AtomType>.method_1089(HalvingMetallurgyAtoms.Osmium), //Promotion Atom
             QuintAtomType = "HalvingMetallurgy:sednum"
         };
         QApi.AddAtomType(Sednum);
@@ -61,7 +61,7 @@ internal static class Atoms
                 field_14 = class_235.method_615("textures/atoms/erikhaag/HalvingMetallurgy/zinc_lightramp"), //Lightramp
                 field_15 = class_238.field_1989.field_81.field_613.field_633 //Shiny!
             },
-            field_2297 = Maybe<AtomType>.method_1089(Atoms.Sednum), //Promotion Atom
+            field_2297 = Maybe<AtomType>.method_1089(HalvingMetallurgyAtoms.Sednum), //Promotion Atom
             QuintAtomType = "HalvingMetallurgy:zinc"
         };
         QApi.AddAtomType(Zinc);
@@ -80,7 +80,7 @@ internal static class Atoms
                 field_14 = class_235.method_615("textures/atoms/erikhaag/HalvingMetallurgy/nickel_lightramp"), //Lightramp
                 field_15 = class_238.field_1989.field_81.field_613.field_633 //Shiny!
             },
-            field_2297 = Maybe<AtomType>.method_1089(Atoms.Zinc), //Promotion Atom
+            field_2297 = Maybe<AtomType>.method_1089(HalvingMetallurgyAtoms.Zinc), //Promotion Atom
             QuintAtomType = "HalvingMetallurgy:nickel"
         };
         QApi.AddAtomType(Nickel);
@@ -99,7 +99,7 @@ internal static class Atoms
                 field_14 = class_235.method_615("textures/atoms/erikhaag/HalvingMetallurgy/vulcan_lightramp"), //Lightramp
                 field_15 = class_238.field_1989.field_81.field_613.field_633 //Shiny!
             },
-            field_2297 = Maybe<AtomType>.method_1089(Atoms.Nickel), //Promotion Atom
+            field_2297 = Maybe<AtomType>.method_1089(HalvingMetallurgyAtoms.Nickel), //Promotion Atom
             QuintAtomType = "HalvingMetallurgy:vulcan"
         };
         QApi.AddAtomType(Vulcan);
@@ -118,15 +118,10 @@ internal static class Atoms
                 field_14 = class_235.method_615("textures/atoms/erikhaag/HalvingMetallurgy/wolfram_lightramp"), //Lightramp
                 field_15 = class_238.field_1989.field_81.field_613.field_633 //Shiny! (textures/atoms/elements/specular_highlight.png)
             },
-            field_2297 = Maybe<AtomType>.method_1089(Atoms.Vulcan), //Promotion Atom
+            field_2297 = Maybe<AtomType>.method_1089(HalvingMetallurgyAtoms.Vulcan), //Promotion Atom
             QuintAtomType = "HalvingMetallurgy:wolfram"
         };
         QApi.AddAtomType(Wolfram);
-        Quintessential.Logger.Log("HalvingMetallurgy: Atoms added!");
-    }
-
-    public static void Unload()
-    {
-
+        Quintessential.Logger.Log("HalvingMetallurgy: Atoms added.");
     }
 }
