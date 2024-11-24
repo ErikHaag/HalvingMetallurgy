@@ -13,6 +13,10 @@
       <HintPath>..\ReductiveMetallurgy_1.0.1\ReductiveMetallurgy.dll</HintPath>
       <CopyLocal>False</CopyLocal>
     </Reference>
+    <Reference Include="Brimstone">
+      <HintPath>..\Brimstone\Brimstone.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference> 
     <Reference Include="Lightning">
       <HintPath>..\..\ModdedLightning.exe</HintPath>
       <CopyLocal>False</CopyLocal>
