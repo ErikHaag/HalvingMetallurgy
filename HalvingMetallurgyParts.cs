@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using Quintessential;
+using Brimstone;
 using ReductiveMetallurgy;
 using PartType = class_139;
 using Permissions = enum_149;
 using Texture = class_256;
+
 
 namespace HalvingMetallurgy;
 
@@ -99,10 +101,10 @@ internal static class HalvingMetallurgyParts
                             && HalvingMetallurgyAPI.HalvingPromotions.TryGetValue(metal2.field_2280, out AtomType hp2))
                             {
                                 // Delete the quicksilver
-                                quicksilver.field_2277.method_1107(quicksilver.field_2278);
+                                BrimstoneAPI.RemoveAtom(quicksilver);
                                 // Promote the metals
-                                metal1.field_2277.method_1106(hp1, metal1.field_2278);
-                                metal2.field_2277.method_1106(hp2, metal2.field_2278);
+                                BrimstoneAPI.ChangeAtom(metal1, hp1);
+                                BrimstoneAPI.ChangeAtom(metal2, hp2);
                                 // Play deletion animation
                                 seb.field_3937.Add(new(seb, quicksilver.field_2278, API.quicksilverAtomType)); 
                                 // Play promotion animations
