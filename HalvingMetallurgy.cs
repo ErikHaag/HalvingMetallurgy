@@ -6,6 +6,7 @@ namespace HalvingMetallurgy;
 public class HalvingMetallurgy : QuintessentialMod
 {
     public const string HalvingPermission = "HalvingMetallurgy:halving";
+    public static string contentPath;
 
     public override void Load()
     {
@@ -22,14 +23,8 @@ public class HalvingMetallurgy : QuintessentialMod
         Quintessential.Logger.Log("icwass made the dictionaries private and didn't add a remove method.\nSo my atoms are still in there, if this is a problem, reload the game.");
     }
 
-    private static bool contentLoaded = false;
     public override void LoadPuzzleContent()
     {
-        if (contentLoaded)
-        {
-            return;
-        }
-        contentLoaded = true;
         Quintessential.Logger.Log("HalvingMetallurgy: Loading!");
         HalvingMetallurgyAtoms.AddAtomTypes();
         //ReductiveMetallurgy API
@@ -53,7 +48,10 @@ public class HalvingMetallurgy : QuintessentialMod
         API.addProliferationRule(HalvingMetallurgyAtoms.Nickel);
         API.addProliferationRule(HalvingMetallurgyAtoms.Vulcan);
         API.addProliferationRule(HalvingMetallurgyAtoms.Wolfram);
-        Quintessential.Logger.Log("HalvingMetallurgy: Reduction metallurgy rules added."); 
+        Quintessential.Logger.Log("HalvingMetallurgy: Reduction metallurgy rules added.");
+        Quintessential.Logger.Log("HalvingMetallurgy: Loading Sounds");
+        contentPath = Brimstone.BrimstoneAPI.GetContentPath("HalvingMetallurgy");
+        HalvingMetallurgyParts.LoadSounds();
         HalvingMetallurgyParts.AddPartTypes();
         Quintessential.Logger.Log("HalvingMetallurgy: Adding own rules.");
         HalvingMetallurgyAPI.HalvingPromotions.Add(API.leadAtomType, HalvingMetallurgyAtoms.Wolfram);
