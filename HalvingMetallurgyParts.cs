@@ -15,6 +15,7 @@ internal static class HalvingMetallurgyParts
     public static PartType Halves;
 
     public static Texture halvesBase = BrimstoneAPI.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_base");
+    public static Texture halvesEngraving = BrimstoneAPI.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_engraving");
     public static Texture halvesGlow = BrimstoneAPI.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_glow");
     public static Texture halvesOutline = BrimstoneAPI.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_outline");
     public static Texture halvesIcon = BrimstoneAPI.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_icon");
@@ -69,6 +70,7 @@ internal static class HalvingMetallurgyParts
         QApi.AddPartType(Halves, static (part, pos, editor, renderer) => {
             Vector2 offset = new(82f, 48f);
             renderer.method_523(halvesBase, new Vector2(0f, 0f), offset, 0f);
+            renderer.method_523(halvesEngraving, new Vector2(0f, 0f), offset, 0f);
             // quicksilver
             renderer.method_530(class_238.field_1989.field_90.field_255.field_293, halvesInputHex, 0);
             renderer.method_529(class_238.field_1989.field_90.field_255.field_294, halvesInputHex, Vector2.Zero);
