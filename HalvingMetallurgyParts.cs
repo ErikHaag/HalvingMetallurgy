@@ -85,7 +85,7 @@ internal static class HalvingMetallurgyParts
             SolutionEditorBase seb = sim.field_3818;
             List<Part> parts = seb.method_502().field_3919;
             Dictionary<Part,PartSimState> simStates = sim.field_3821;
-            // If there are a lot of part-adding mods, having each one loop over all the parts could get slow.
+
             foreach (Part part in parts) {
                 PartType type = part.method_1159();
                 // Is it mine?
