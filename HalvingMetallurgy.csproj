@@ -6,11 +6,15 @@
   
   <PropertyGroup>
     <LangVersion>10</LangVersion>
+    <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="Brimstone">
       <HintPath>..\Brimstone\Brimstone.dll</HintPath>
+    </Reference>
+    <Reference Include="FTSIGCTU">
+      <HintPath>..\FTSIGCTU_0.7.4\FTSIGCTU.dll</HintPath>
     </Reference>
     <Reference Include="Lightning">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Opus Magnum\ModdedLightning.exe</HintPath>

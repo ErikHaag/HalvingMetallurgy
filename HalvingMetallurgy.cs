@@ -1,6 +1,7 @@
 ﻿using Brimstone;
-using Quintessential;
+using FTSIGCTU;
 using ReductiveMetallurgy;
+using Quintessential;
 
 namespace HalvingMetallurgy;
 
@@ -10,6 +11,14 @@ public class HalvingMetallurgy : QuintessentialMod
     public const string HalvingPermission = "HalvingMetallurgy:halving";
     public static string contentPath;
 
+    public static bool mirrorHalfProjectionPart(SolutionEditorScreen ses, Part part, bool mirrorVert, HexIndex pivot)
+    {
+        MirrorTool.shiftRotation(part, HexRotation.Counterclockwise);
+        MirrorTool.mirrorSimplePart(ses, part, mirrorVert, pivot);
+        MirrorTool.shiftRotation(part, HexRotation.Clockwise);
+        return true;
+    }
+
     public override void Load()
     {
 
@@ -17,7 +26,11 @@ public class HalvingMetallurgy : QuintessentialMod
 
     public override void PostLoad()
     {
-
+        if (BrimstoneAPI.IsModLoaded("FTSIGCTU"))
+        {
+            Quintessential.Logger.Log("Halving Metallurgy: Found FTSIGCTU, adding mirroring compatiblity.");
+            FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Halves, mirrorHalfProjectionPart);
+        }
     }
 
     public override void Unload()
