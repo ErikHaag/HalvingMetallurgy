@@ -6,6 +6,7 @@ namespace HalvingMetallurgy;
 
 public class HalvingMetallurgy : QuintessentialMod
 {
+    public static readonly bool ReductiveMetallurgyLoaded = BrimstoneAPI.IsModLoaded("ReductiveMetallurgy");
     public const string HalvingPermission = "HalvingMetallurgy:halving";
     public static string contentPath;
 
@@ -28,28 +29,6 @@ public class HalvingMetallurgy : QuintessentialMod
     {
         Quintessential.Logger.Log("HalvingMetallurgy: Loading!");
         HalvingMetallurgyAtoms.AddAtomTypes();
-        //ReductiveMetallurgy API
-        Quintessential.Logger.Log("HalvingMetallurgy: Adding reduction metallurgy rules.");
-        //Add Rejection Rules for new atoms
-        API.addRejectionRule(HalvingMetallurgyAtoms.Osmium, HalvingMetallurgyAtoms.Sednum);
-        API.addRejectionRule(HalvingMetallurgyAtoms.Sednum, HalvingMetallurgyAtoms.Zinc);
-        API.addRejectionRule(HalvingMetallurgyAtoms.Zinc, HalvingMetallurgyAtoms.Nickel);
-        API.addRejectionRule(HalvingMetallurgyAtoms.Nickel, HalvingMetallurgyAtoms.Vulcan);
-        API.addRejectionRule(HalvingMetallurgyAtoms.Vulcan, HalvingMetallurgyAtoms.Wolfram);
-        // Add Deposition Rules
-        API.addDepositionRule(HalvingMetallurgyAtoms.Osmium, HalvingMetallurgyAtoms.Nickel, BrimstoneAPI.VanillaAtoms["iron"]);
-        API.addDepositionRule(HalvingMetallurgyAtoms.Sednum, BrimstoneAPI.VanillaAtoms["iron"], HalvingMetallurgyAtoms.Vulcan);
-        API.addDepositionRule(HalvingMetallurgyAtoms.Zinc, HalvingMetallurgyAtoms.Vulcan, BrimstoneAPI.VanillaAtoms["tin"]);
-        API.addDepositionRule(HalvingMetallurgyAtoms.Nickel, BrimstoneAPI.VanillaAtoms["tin"], HalvingMetallurgyAtoms.Wolfram);
-        API.addDepositionRule(HalvingMetallurgyAtoms.Vulcan, HalvingMetallurgyAtoms.Wolfram, BrimstoneAPI.VanillaAtoms["lead"]);
-        // Add Proliferation
-        API.addProliferationRule(HalvingMetallurgyAtoms.Osmium);
-        API.addProliferationRule(HalvingMetallurgyAtoms.Sednum);
-        API.addProliferationRule(HalvingMetallurgyAtoms.Zinc);
-        API.addProliferationRule(HalvingMetallurgyAtoms.Nickel);
-        API.addProliferationRule(HalvingMetallurgyAtoms.Vulcan);
-        API.addProliferationRule(HalvingMetallurgyAtoms.Wolfram);
-        Quintessential.Logger.Log("HalvingMetallurgy: Reduction metallurgy rules added.");
         Quintessential.Logger.Log("HalvingMetallurgy: Loading Sounds");
         contentPath = BrimstoneAPI.GetContentPath("HalvingMetallurgy");
         HalvingMetallurgyParts.LoadSounds();
@@ -71,6 +50,30 @@ public class HalvingMetallurgy : QuintessentialMod
         Quintessential.Logger.Log("HalvingMetallurgy: Adding permission.");
         QApi.AddPuzzlePermission(HalvingPermission, "Glyph of Halves", "Halving Metallurgy");
         Quintessential.Logger.Log("HalvingMetallurgy: Permission added.");
+        if (HalvingMetallurgy.ReductiveMetallurgyLoaded)
+        {
+            Quintessential.Logger.Log("HalvingMetallurgy: Found Reductive metallurgy, adding reduction metallurgy rules.");
+            //Add Rejection Rules for new atoms
+            API.addRejectionRule(HalvingMetallurgyAtoms.Osmium, HalvingMetallurgyAtoms.Sednum);
+            API.addRejectionRule(HalvingMetallurgyAtoms.Sednum, HalvingMetallurgyAtoms.Zinc);
+            API.addRejectionRule(HalvingMetallurgyAtoms.Zinc, HalvingMetallurgyAtoms.Nickel);
+            API.addRejectionRule(HalvingMetallurgyAtoms.Nickel, HalvingMetallurgyAtoms.Vulcan);
+            API.addRejectionRule(HalvingMetallurgyAtoms.Vulcan, HalvingMetallurgyAtoms.Wolfram);
+            // Add Deposition Rules
+            API.addDepositionRule(HalvingMetallurgyAtoms.Osmium, HalvingMetallurgyAtoms.Nickel, BrimstoneAPI.VanillaAtoms["iron"]);
+            API.addDepositionRule(HalvingMetallurgyAtoms.Sednum, BrimstoneAPI.VanillaAtoms["iron"], HalvingMetallurgyAtoms.Vulcan);
+            API.addDepositionRule(HalvingMetallurgyAtoms.Zinc, HalvingMetallurgyAtoms.Vulcan, BrimstoneAPI.VanillaAtoms["tin"]);
+            API.addDepositionRule(HalvingMetallurgyAtoms.Nickel, BrimstoneAPI.VanillaAtoms["tin"], HalvingMetallurgyAtoms.Wolfram);
+            API.addDepositionRule(HalvingMetallurgyAtoms.Vulcan, HalvingMetallurgyAtoms.Wolfram, BrimstoneAPI.VanillaAtoms["lead"]);
+            // Add Proliferation
+            API.addProliferationRule(HalvingMetallurgyAtoms.Osmium);
+            API.addProliferationRule(HalvingMetallurgyAtoms.Sednum);
+            API.addProliferationRule(HalvingMetallurgyAtoms.Zinc);
+            API.addProliferationRule(HalvingMetallurgyAtoms.Nickel);
+            API.addProliferationRule(HalvingMetallurgyAtoms.Vulcan);
+            API.addProliferationRule(HalvingMetallurgyAtoms.Wolfram);
+            Quintessential.Logger.Log("HalvingMetallurgy: Reduction metallurgy rules added.");
+        }
         Quintessential.Logger.Log("HalvingMetallurgy: Loading complete, have fun!");
     }
 }

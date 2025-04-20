@@ -98,7 +98,7 @@ internal static class HalvingMetallurgyParts
                     if (sim.FindAtomRelative(part, halvesMetal1Hex).method_99(out AtomReference metal1))
                     {
                         metal1Exists = true;
-                    } else if (!first && Wheel.maybeFindRavariWheelAtom(sim, part, halvesMetal1Hex).method_99(out metal1))
+                    } else if (HalvingMetallurgy.ReductiveMetallurgyLoaded && !first && Wheel.maybeFindRavariWheelAtom(sim, part, halvesMetal1Hex).method_99(out metal1))
                     {
                         metal1Exists = true;
                         isMetal1Ravari = true;
@@ -107,7 +107,7 @@ internal static class HalvingMetallurgyParts
                     {
                         metal2Exists = true;
                     }
-                    else if (!first && Wheel.maybeFindRavariWheelAtom(sim, part, halvesMetal2Hex).method_99(out metal2))
+                    else if (HalvingMetallurgy.ReductiveMetallurgyLoaded && !first && Wheel.maybeFindRavariWheelAtom(sim, part, halvesMetal2Hex).method_99(out metal2))
                     {
                         metal2Exists = true;
                         isMetal2Ravari = true;
@@ -118,7 +118,7 @@ internal static class HalvingMetallurgyParts
                         // Is the quicksilver singular and not held?
                         if (!quicksilver.field_2281 && !quicksilver.field_2282) {
                             // Are they valid atoms
-                            if (quicksilver.field_2280 == API.quicksilverAtomType
+                            if (quicksilver.field_2280 == BrimstoneAPI.VanillaAtoms["quicksilver"]
                             && HalvingMetallurgyAPI.HalvingPromotions.TryGetValue(metal1.field_2280, out AtomType hp1)
                             && HalvingMetallurgyAPI.HalvingPromotions.TryGetValue(metal2.field_2280, out AtomType hp2))
                             {
@@ -128,7 +128,7 @@ internal static class HalvingMetallurgyParts
                                 BrimstoneAPI.ChangeAtom(metal1, hp1);
                                 BrimstoneAPI.ChangeAtom(metal2, hp2);
                                 // Play deletion animation
-                                seb.field_3937.Add(new(seb, quicksilver.field_2278, API.quicksilverAtomType)); 
+                                seb.field_3937.Add(new(seb, quicksilver.field_2278, BrimstoneAPI.VanillaAtoms["quicksilver"])); 
                                 // Play promotion animations
                                 if (isMetal1Ravari) {
                                     Wheel.DrawRavariFlash(seb, part, halvesMetal1Hex);
