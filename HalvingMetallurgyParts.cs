@@ -45,7 +45,7 @@ internal static class HalvingMetallurgyParts
     public static readonly HexIndex halvesMetal2Hex = new(-1, 1);
     public static void AddPartTypes()
     {
-        Quintessential.Logger.Log("HalvingMetallurgy: Creating glyph.");
+        Quintessential.Logger.Log("Creating glyph.");
         Halves = new()
         {
             field_1528 = "halving-metallurgy-halves", // ID
@@ -148,6 +148,5 @@ internal static class HalvingMetallurgyParts
                 }
             }
         });
-        Quintessential.Logger.Log("HalvingMetallurgy: Glyph added.");
     }
 }
