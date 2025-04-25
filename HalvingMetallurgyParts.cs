@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Quintessential;
-using Brimstone;
 using ReductiveMetallurgy;
 using PartType = class_139;
 using Permissions = enum_149;
@@ -14,17 +13,17 @@ internal static class HalvingMetallurgyParts
 {
     public static PartType Halves;
 
-    public static Texture halvesBase = BrimstoneAPI.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_base");
-    public static Texture halvesEngraving = BrimstoneAPI.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_engraving");
-    public static Texture halvesGlow = BrimstoneAPI.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_glow");
-    public static Texture halvesOutline = BrimstoneAPI.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_outline");
-    public static Texture halvesIcon = BrimstoneAPI.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_icon");
-    public static Texture halvesIconHover = BrimstoneAPI.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_icon_hover");
+    public static Texture halvesBase = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_base");
+    public static Texture halvesEngraving = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_engraving");
+    public static Texture halvesGlow = Brimstone.API.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_glow");
+    public static Texture halvesOutline = Brimstone.API.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_outline");
+    public static Texture halvesIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_icon");
+    public static Texture halvesIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_icon_hover");
 
     public static Sound halvesSound;
     public static void LoadSounds()
     {
-        halvesSound = BrimstoneAPI.GetSound(HalvingMetallurgy.contentPath, "sounds/halves");
+        halvesSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/halves");
 
         FieldInfo field = typeof(class_11).GetField("field_52", BindingFlags.Static | BindingFlags.NonPublic);
         Dictionary<string, float> dictionary = (Dictionary<string, float>)field.GetValue(null);
@@ -118,17 +117,17 @@ internal static class HalvingMetallurgyParts
                         // Is the quicksilver singular and not held?
                         if (!quicksilver.field_2281 && !quicksilver.field_2282) {
                             // Are they valid atoms
-                            if (quicksilver.field_2280 == BrimstoneAPI.VanillaAtoms["quicksilver"]
+                            if (quicksilver.field_2280 == Brimstone.API.VanillaAtoms["quicksilver"]
                             && HalvingMetallurgyAPI.HalvingPromotions.TryGetValue(metal1.field_2280, out AtomType hp1)
                             && HalvingMetallurgyAPI.HalvingPromotions.TryGetValue(metal2.field_2280, out AtomType hp2))
                             {
                                 // Delete the quicksilver
-                                BrimstoneAPI.RemoveAtom(quicksilver);
+                                Brimstone.API.RemoveAtom(quicksilver);
                                 // Promote the metals
-                                BrimstoneAPI.ChangeAtom(metal1, hp1);
-                                BrimstoneAPI.ChangeAtom(metal2, hp2);
+                                Brimstone.API.ChangeAtom(metal1, hp1);
+                                Brimstone.API.ChangeAtom(metal2, hp2);
                                 // Play deletion animation
-                                seb.field_3937.Add(new(seb, quicksilver.field_2278, BrimstoneAPI.VanillaAtoms["quicksilver"])); 
+                                seb.field_3937.Add(new(seb, quicksilver.field_2278, Brimstone.API.VanillaAtoms["quicksilver"])); 
                                 // Play promotion animations
                                 if (isMetal1Ravari) {
                                     Wheel.DrawRavariFlash(seb, part, halvesMetal1Hex);
@@ -141,7 +140,7 @@ internal static class HalvingMetallurgyParts
                                     metal2.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal2.field_2280, class_238.field_1989.field_81.field_614, 30f);
                                 }
                                 // Play custom sound
-                                BrimstoneAPI.PlaySound(sim, halvesSound);
+                                Brimstone.API.PlaySound(sim, halvesSound);
                             }
                         }
                     }
