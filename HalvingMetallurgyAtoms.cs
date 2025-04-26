@@ -47,7 +47,8 @@ internal static class HalvingMetallurgyAtoms
             name: "Vulcan",
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/vulcan_symbol",
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/vulcan_lightramp",
-            promotesTo: Nickel);
+            promotesTo: Nickel
+        );
         Wolfram = Brimstone.API.CreateMetalAtom(
             ID: 125,
             modName: "HalvingMetallurgy",
