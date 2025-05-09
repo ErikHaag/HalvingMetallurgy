@@ -9,7 +9,6 @@ internal static class HalvingMetallurgyAtoms
 
     public static void AddAtomTypes()
     {
-        Quintessential.Logger.Log("Creating atoms.");
         Osmium = Brimstone.API.CreateMetalAtom(
             ID: 130, 
             modName: "HalvingMetallurgy",

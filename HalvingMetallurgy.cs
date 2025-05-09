@@ -8,6 +8,7 @@ public class HalvingMetallurgy : QuintessentialMod
     public static readonly bool ReductiveMetallurgyLoaded = Brimstone.API.IsModLoaded("ReductiveMetallurgy");
     public static readonly bool FTSIGCTULoaded = Brimstone.API.IsModLoaded("FTSIGCTU");
     public const string HalvingPermission = "HalvingMetallurgy:halving";
+    public const string QuakePermission = "HalvingMetallurgy:quake";
     public static string contentPath;
 
     public static bool MirrorHalfProjectionPart(SolutionEditorScreen ses, Part part, bool mirrorVert, HexIndex pivot)
@@ -34,7 +35,6 @@ public class HalvingMetallurgy : QuintessentialMod
     {
         if (FTSIGCTULoaded)
         {
-            Quintessential.Logger.Log("Halving Metallurgy: Adding mirroring compatiblity.");
             FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Halves, MirrorHalfProjectionPart);
         }
     }
@@ -48,12 +48,11 @@ public class HalvingMetallurgy : QuintessentialMod
     {
         Quintessential.Logger.Log("HalvingMetallurgy: Loading!");
         HalvingMetallurgyAtoms.AddAtomTypes();
-        Quintessential.Logger.Log("Loading sounds");
+        // Load sounds
         contentPath = Brimstone.API.GetContentPath("HalvingMetallurgy");
         HalvingMetallurgyParts.LoadSounds();
-        Quintessential.Logger.Log("Sounds loaded");
         HalvingMetallurgyParts.AddPartTypes();
-        Quintessential.Logger.Log("Adding own rules.");
+        // Add glyph of halves promotions
         HalvingMetallurgyAPI.HalvingPromotions.Add(Brimstone.API.VanillaAtoms["lead"], HalvingMetallurgyAtoms.Wolfram);
         HalvingMetallurgyAPI.HalvingPromotions.Add(HalvingMetallurgyAtoms.Wolfram, Brimstone.API.VanillaAtoms["tin"]);
         HalvingMetallurgyAPI.HalvingPromotions.Add(Brimstone.API.VanillaAtoms["tin"], HalvingMetallurgyAtoms.Vulcan);
@@ -65,18 +64,16 @@ public class HalvingMetallurgy : QuintessentialMod
         HalvingMetallurgyAPI.HalvingPromotions.Add(Brimstone.API.VanillaAtoms["silver"], HalvingMetallurgyAtoms.Sednum);
         HalvingMetallurgyAPI.HalvingPromotions.Add(HalvingMetallurgyAtoms.Sednum, Brimstone.API.VanillaAtoms["gold"]);
         HalvingMetallurgyAPI.HalvingPromotions.Add(Brimstone.API.VanillaAtoms["gold"], HalvingMetallurgyAtoms.Osmium);
-        Quintessential.Logger.Log("Own rules added.");
-        Quintessential.Logger.Log("Adding permission.");
+        // Add permissions
         QApi.AddPuzzlePermission(HalvingPermission, "Glyph of Halves", "Halving Metallurgy");
-        Quintessential.Logger.Log("Permission added.");
+        QApi.AddPuzzlePermission(QuakePermission, "Gylph of Quake", "Halving Metallurgy");
         if (FTSIGCTULoaded)
         {
-            Quintessential.Logger.Log("Adding Glyph of halves to FTSIGCTU's map");
+            // Add Glyphs to FTSIGCTU's map
             FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Halves, FTSIGCTU.Navigation.PartsMap.glyphRule);
         }
         if (ReductiveMetallurgyLoaded)
         {
-            Quintessential.Logger.Log("Adding reduction metallurgy rules.");
             //Add Rejection Rules for new atoms
             ReductiveMetallurgy.API.addRejectionRule(HalvingMetallurgyAtoms.Osmium, HalvingMetallurgyAtoms.Sednum);
             ReductiveMetallurgy.API.addRejectionRule(HalvingMetallurgyAtoms.Sednum, HalvingMetallurgyAtoms.Zinc);
