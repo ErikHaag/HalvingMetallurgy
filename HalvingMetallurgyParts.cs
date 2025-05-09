@@ -179,6 +179,24 @@ internal static class HalvingMetallurgyParts
             Dictionary<Part, PartSimState> pss = sim.field_3821;
             List<Part> parts = seb.method_502().field_3919;
 
+            List<HexIndexPair> bonders = new();
+            // should technically pre-compute at startup, but I don't exactly know where that is, also I really don't want to deal with ILCursor right now, maybe later!
+            foreach (Part potential_bonder in parts)
+            {
+                if (potential_bonder.method_1159().field_1528 == "bonder")
+                {
+                    bonders.Add(new HexIndexPair(potential_bonder.method_1184(new HexIndex(0, 0)), potential_bonder.method_1184(new HexIndex(1, 0))));
+                }
+                else if (potential_bonder.method_1159().field_1528 == "bonder-speed")
+                {
+                    HexIndex center = potential_bonder.method_1184(new HexIndex(0, 0));
+                    bonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(1, 0))));
+                    bonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(-1, 1))));
+                    bonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(0, -1))));
+                }
+
+            }
+
             foreach (Part part in parts)
             {
                 PartType type = part.method_1159();
@@ -277,26 +295,7 @@ internal static class HalvingMetallurgyParts
                             }
                         }
 
-                        List<HexIndexPair> bonders = new();
-                        // should technically pre-compute at startup, but I don't exactly know where that is, also I really don't want to deal with ILCursor right now, maybe later!
-                        foreach (Part potential_bonder in parts)
-                        {
-                            if (potential_bonder.method_1159().field_1528 == "bonder")
-                            {
-                                bonders.Add(new HexIndexPair(potential_bonder.method_1184(new HexIndex(0, 0)), potential_bonder.method_1184(new HexIndex(1, 0))));
-                            }
-                            else if (potential_bonder.method_1159().field_1528 == "bonder-speed")
-                            {
-                                HexIndex center = potential_bonder.method_1184(new HexIndex(0, 0));
-                                bonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(1, 0))));
-                                bonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(-1, 1))));
-                                bonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(0, -1))));
-                            }
-
-                        }
                         bool hasRemovableBond = false;
-                        bool removedBond = false;
-                        bool unbondResisted = false;
                         // for each atom in a molecule
                         foreach (KeyValuePair<HexIndex, Atom> entry in moleculeAboveBowl.method_1100())
                         {
