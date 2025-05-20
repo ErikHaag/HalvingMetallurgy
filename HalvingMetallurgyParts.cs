@@ -9,6 +9,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System;
 using System.Threading;
+using System.Net;
 
 namespace HalvingMetallurgy;
 
@@ -297,6 +298,7 @@ internal static class HalvingMetallurgyParts
                         }
 
                         bool hasRemovableBond = false;
+                        List<Pair<Vector2, float>> resistingBonds = new();
                         // for each atom in a molecule
                         foreach (KeyValuePair<HexIndex, Atom> entry in moleculeAboveBowl.method_1100())
                         {
@@ -310,14 +312,14 @@ internal static class HalvingMetallurgyParts
                                     enum_126 bondType = moleculeAboveBowl.method_1113(sednumPos, sednumNeighbor);
                                     if (bondType != enum_126.None)
                                     {
-                                        hasRemovableBond = true;
                                         Vector2 midpoint = class_162.method_413(class_187.field_1742.method_492(sednumPos), class_187.field_1742.method_492(sednumNeighbor), 0.5f);
                                         if ((bondType & enum_126.Standard) == enum_126.Standard && willBeRegularBonded)
                                         {
-                                            seb.field_3936.Add(new class_228(seb, (enum_7)1, midpoint, quakeUnbondResistedAnimation, 75f, new Vector2(1.5f, -5f), class_187.field_1742.method_492(sednumNeighbor - sednumPos).Angle()));
+                                            resistingBonds.Add(new Pair<Vector2, float>(midpoint, class_187.field_1742.method_492(offset).Angle()));
                                         }
                                         else
                                         {
+                                            hasRemovableBond = true;
                                             moleculeAboveBowl.method_1114(sednumPos, sednumNeighbor);
                                             Texture[] bondBreakAnimation = ((bondType & enum_126.Standard) != enum_126.Standard) ? class_238.field_1989.field_83.field_156 : class_238.field_1989.field_83.field_154;
                                             seb.field_3935.Add(new class_228(seb, (enum_7)1, midpoint, bondBreakAnimation, 75f, new Vector2(1.5f, -5f), class_187.field_1742.method_492(offset).Angle()));
@@ -330,6 +332,12 @@ internal static class HalvingMetallurgyParts
                         if (hasRemovableBond)
                         {
                             pss[part].field_2743 = true;
+                            foreach (Pair<Vector2, float> pair in resistingBonds)
+                            {
+                                seb.field_3936.Add(new class_228(seb, (enum_7)1, pair.Left, quakeUnbondResistedAnimation, 75f, new Vector2(1.5f, -5f), pair.Right));
+                            }
+
+
                             // play a buzzing sound
                             Brimstone.API.PlaySound(sim, quakeSound);
                         }
