@@ -6,10 +6,7 @@ using Permissions = enum_149;
 using Texture = class_256;
 using System.Reflection;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System;
-using System.Threading;
-using System.Net;
 
 namespace HalvingMetallurgy;
 
@@ -175,6 +172,9 @@ internal static class HalvingMetallurgyParts
             }
         });
 
+
+
+
         QApi.RunAfterCycle((sim, first) =>
         {
             SolutionEditorBase seb = sim.field_3818;
@@ -205,6 +205,11 @@ internal static class HalvingMetallurgyParts
                 if (type == Halves)
                 {
                     // Oh hey, it is
+                    if (!first)
+                    {
+                        continue;
+                    }
+
                     bool metal1Exists = false;
                     bool metal2Exists = false;
                     bool isMetal1Ravari = false;
@@ -213,7 +218,7 @@ internal static class HalvingMetallurgyParts
                     {
                         metal1Exists = true;
                     }
-                    else if (HalvingMetallurgy.ReductiveMetallurgyLoaded && !first && Wheel.maybeFindRavariWheelAtom(sim, part, halvesMetal1Hex).method_99(out metal1))
+                    else if (HalvingMetallurgy.ReductiveMetallurgyLoaded && Wheel.maybeFindRavariWheelAtom(sim, part, halvesMetal1Hex).method_99(out metal1))
                     {
                         metal1Exists = true;
                         isMetal1Ravari = true;
@@ -222,7 +227,7 @@ internal static class HalvingMetallurgyParts
                     {
                         metal2Exists = true;
                     }
-                    else if (HalvingMetallurgy.ReductiveMetallurgyLoaded && !first && Wheel.maybeFindRavariWheelAtom(sim, part, halvesMetal2Hex).method_99(out metal2))
+                    else if (HalvingMetallurgy.ReductiveMetallurgyLoaded && Wheel.maybeFindRavariWheelAtom(sim, part, halvesMetal2Hex).method_99(out metal2))
                     {
                         metal2Exists = true;
                         isMetal2Ravari = true;
@@ -250,18 +255,13 @@ internal static class HalvingMetallurgyParts
                                 {
                                     Wheel.DrawRavariFlash(seb, part, halvesMetal1Hex);
                                 }
-                                else
-                                {
-                                    metal1.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal1.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                                }
+                                metal1.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal1.field_2280, class_238.field_1989.field_81.field_614, 30f);
                                 if (isMetal2Ravari)
                                 {
                                     Wheel.DrawRavariFlash(seb, part, halvesMetal2Hex);
                                 }
-                                else
-                                {
-                                    metal2.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal2.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                                }
+                                metal2.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal2.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                             
                                 // Play custom sound
                                 Brimstone.API.PlaySound(sim, halvesSound);
                             }
@@ -272,7 +272,7 @@ internal static class HalvingMetallurgyParts
                 {
                     if (!first)
                     {
-                        goto nextGlyph;
+                        continue;
                     }
                     HexIndex bowl = part.method_1184(quakeBowlHex);
                     Molecule moleculeAboveBowl = null;
