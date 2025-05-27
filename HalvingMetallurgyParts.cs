@@ -58,10 +58,7 @@ internal static class HalvingMetallurgyParts
     };
 
     public static Sound halvesSound;
-
     public static Sound quakeSound;
-    public static Sound quakeUnbondSound;
-    public static Sound quakeUnbondResistSound;
 
     public static void LoadSounds()
     {
