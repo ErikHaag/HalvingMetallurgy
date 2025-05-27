@@ -69,10 +69,10 @@ internal static class HalvingMetallurgyParts
         quakeSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/quake");
 
         FieldInfo field = typeof(class_11).GetField("field_52", BindingFlags.Static | BindingFlags.NonPublic);
-        Dictionary<string, float> dictionary = (Dictionary<string, float>)field.GetValue(null);
+        Dictionary<string, float> volumeDictionary = (Dictionary<string, float>)field.GetValue(null);
 
-        dictionary.Add("halves", 0.7f);
-        dictionary.Add("quake", 0.4f);
+        volumeDictionary.Add("halves", 0.7f);
+        volumeDictionary.Add("quake", 0.4f);
 
         void Method_540(On.class_201.orig_method_540 orig, class_201 self)
         {
@@ -166,7 +166,8 @@ internal static class HalvingMetallurgyParts
                 // Sinusoid at home:
                 float shakeX = 3 * (float)(-commonDenominator * Math.Pow(x, 5) + 10 * commonDenominator * Math.Pow(x, 4) - 28 * commonDenominator * Math.Pow(x, 3) + 8 * commonDenominator * Math.Pow(x, 2) + 32 * commonDenominator * x);
                 renderer.method_529(quakeBowlShaking, quakeBowlHex, new Vector2(shakeX, 0));
-            } else
+            }
+            else
             {
                 renderer.method_529(quakeBowl, quakeBowlHex, Vector2.Zero);
             }
@@ -210,10 +211,36 @@ internal static class HalvingMetallurgyParts
                         continue;
                     }
 
+                    bool quicksilverExists = false;
                     bool metal1Exists = false;
                     bool metal2Exists = false;
+
+                    bool isQuicksilverRavari = false;
                     bool isMetal1Ravari = false;
                     bool isMetal2Ravari = false;
+
+                    Dictionary<AtomType, AtomType> rejectionRules = new();
+                    AtomType rejectionResult = null;
+
+                    if (HalvingMetallurgy.ReductiveMetallurgyLoaded)
+                    {
+                        rejectionRules = (Dictionary<AtomType, AtomType>)Brimstone.API.PrivateField(typeof(ReductiveMetallurgy.API), "rejectDict").GetValue(null);
+                    }
+
+                    if (sim.FindAtomRelative(part, halvesInputHex).method_99(out AtomReference quicksilver))
+                    {
+                        // Is the quicksilver singular and not held
+                        quicksilverExists = !quicksilver.field_2281 && !quicksilver.field_2282;
+                    }
+                    else if (HalvingMetallurgy.ReductiveMetallurgyLoaded && Wheel.maybeFindRavariWheelAtom(sim, part, halvesInputHex).method_99(out quicksilver))
+                    {
+                        // Is the metal able to be demoted
+                        if (rejectionRules.TryGetValue(quicksilver.field_2280, out rejectionResult))
+                        {
+                            quicksilverExists = true;
+                            isQuicksilverRavari = true;
+                        }
+                    }
                     if (sim.FindAtomRelative(part, halvesMetal1Hex).method_99(out AtomReference metal1))
                     {
                         metal1Exists = true;
@@ -232,39 +259,45 @@ internal static class HalvingMetallurgyParts
                         metal2Exists = true;
                         isMetal2Ravari = true;
                     }
+
                     // Are their atoms in the right spots?
-                    if (sim.FindAtomRelative(part, halvesInputHex).method_99(out AtomReference quicksilver) && metal1Exists && metal2Exists)
+                    if (quicksilverExists && metal1Exists && metal2Exists)
                     {
-                        // Is the quicksilver singular and not held?
-                        if (!quicksilver.field_2281 && !quicksilver.field_2282)
+
+                        // Are they valid atoms
+                        if (HalvingMetallurgyAPI.HalvingPromotions.TryGetValue(metal1.field_2280, out AtomType hp1)
+                        && HalvingMetallurgyAPI.HalvingPromotions.TryGetValue(metal2.field_2280, out AtomType hp2))
                         {
-                            // Are they valid atoms
-                            if (quicksilver.field_2280 == Brimstone.API.VanillaAtoms["quicksilver"]
-                            && HalvingMetallurgyAPI.HalvingPromotions.TryGetValue(metal1.field_2280, out AtomType hp1)
-                            && HalvingMetallurgyAPI.HalvingPromotions.TryGetValue(metal2.field_2280, out AtomType hp2))
+                            if (isQuicksilverRavari)
+                            {
+                                Brimstone.API.ChangeAtom(quicksilver, rejectionResult);
+                                Wheel.DrawRavariFlash(seb, part, halvesMetal1Hex);
+                                quicksilver.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quicksilver.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                            }
+                            else
                             {
                                 // Delete the quicksilver
                                 Brimstone.API.RemoveAtom(quicksilver);
-                                // Promote the metals
-                                Brimstone.API.ChangeAtom(metal1, hp1);
-                                Brimstone.API.ChangeAtom(metal2, hp2);
                                 // Play deletion animation
                                 seb.field_3937.Add(new(seb, quicksilver.field_2278, Brimstone.API.VanillaAtoms["quicksilver"]));
-                                // Play promotion animations
-                                if (isMetal1Ravari)
-                                {
-                                    Wheel.DrawRavariFlash(seb, part, halvesMetal1Hex);
-                                }
-                                metal1.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal1.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                                if (isMetal2Ravari)
-                                {
-                                    Wheel.DrawRavariFlash(seb, part, halvesMetal2Hex);
-                                }
-                                metal2.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal2.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                             
-                                // Play custom sound
-                                Brimstone.API.PlaySound(sim, halvesSound);
                             }
+                            // Promote the metals
+                            Brimstone.API.ChangeAtom(metal1, hp1);
+                            Brimstone.API.ChangeAtom(metal2, hp2);
+                            // Play promotion animations
+                            if (isMetal1Ravari)
+                            {
+                                Wheel.DrawRavariFlash(seb, part, halvesMetal1Hex);
+                            }
+                            metal1.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal1.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                            if (isMetal2Ravari)
+                            {
+                                Wheel.DrawRavariFlash(seb, part, halvesMetal2Hex);
+                            }
+                            metal2.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal2.field_2280, class_238.field_1989.field_81.field_614, 30f);
+
+                            // Play custom sound
+                            Brimstone.API.PlaySound(sim, halvesSound);
                         }
                     }
                 }
