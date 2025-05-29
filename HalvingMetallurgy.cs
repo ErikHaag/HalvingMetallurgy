@@ -42,6 +42,7 @@ public class HalvingMetallurgy : QuintessentialMod
         {
             FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Halves, MirrorHalfProjectionPart);
             FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Quake, FTSIGCTU.MirrorTool.mirrorSingleton);
+            FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Sump, FTSIGCTU.MirrorTool.mirrorHorizontalPart(0));
         }
     }
 
@@ -80,6 +81,8 @@ public class HalvingMetallurgy : QuintessentialMod
             // Add Glyphs to FTSIGCTU's map
             FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Halves, FTSIGCTU.Navigation.PartsMap.glyphRule);
             FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Quake, FTSIGCTU.Navigation.PartsMap.glyphRule);
+            FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Sump, FTSIGCTU.Navigation.PartsMap.glyphRule);
+
         }
         if (ReductiveMetallurgyLoaded)
         {
