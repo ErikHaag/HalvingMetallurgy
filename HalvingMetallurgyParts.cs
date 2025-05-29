@@ -7,6 +7,7 @@ using Texture = class_256;
 using System.Reflection;
 using System.Linq;
 using System;
+using MonoMod.Utils;
 
 namespace HalvingMetallurgy;
 
@@ -23,6 +24,19 @@ internal struct HexIndexPair
     public int R1;
     public int Q2;
     public int R2;
+}
+
+internal struct SumpState
+{
+    public SumpState()
+    {
+        quicksilverCount = 0;
+        drainFlash = false;
+        quicksilverEject = false;
+    }
+    public int quicksilverCount;
+    public bool drainFlash;
+    public bool quicksilverEject;
 }
 
 internal static class HalvingMetallurgyParts
@@ -47,6 +61,15 @@ internal static class HalvingMetallurgyParts
     public static Texture quakeOutline = class_238.field_1989.field_97.field_383;
     public static Texture[] quakeUnbondResistedAnimation = Brimstone.API.GetAnimation("textures/bonds/erikhaag/HalvingMetallurgy/unbond_resist.array", "unbond_resist", 22);
 
+    public static PartType Sump;
+
+    public static Texture sumpBase = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/sump_base");
+    public static Texture sumpIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/sump_icon");
+    public static Texture sumpIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/sump_icon_hover");
+    public static Texture sumpGlow = class_238.field_1989.field_97.field_374;
+    public static Texture sumpOutline = class_238.field_1989.field_97.field_375;
+    public static Texture[] quicksilverIrisAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/iris_full_quicksilver.array", "iris_full_quicksilver", 16);
+    public static Texture[] sumpDrainFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/sump_drain_flash.array", "sump_flash", 8);
 
     public static HexIndex[] HexMoves = {
         new(1,0),
@@ -86,6 +109,9 @@ internal static class HalvingMetallurgyParts
     public static readonly HexIndex halvesMetal2Hex = new(-1, 1);
 
     public static readonly HexIndex quakeBowlHex = new(0, 0);
+
+    public static readonly HexIndex sumpInputHex = new(0, 0);
+    public static readonly HexIndex sumpOutputHex = new(1, 0);
 
     public static void AddPartTypes()
     {
@@ -130,14 +156,36 @@ internal static class HalvingMetallurgyParts
             CustomPermissionCheck = perms => perms.Contains(HalvingMetallurgy.QuakePermission)
         };
 
+        Sump = new()
+        {
+            field_1528 = "halving-metallurgy-sump",
+            field_1529 = class_134.method_253("Quicksilver Sump", string.Empty),
+            field_1530 = class_134.method_253("The quicksilver sump can hold 6 quicksilver for storage, excess quicksilver is drained out of the engine.", string.Empty),
+            field_1531 = 15,
+            field_1539 = true,
+            field_1549 = sumpGlow,
+            field_1550 = sumpOutline,
+            field_1547 = sumpIcon,
+            field_1548 = sumpIconHover,
+            field_1540 = new HexIndex[]
+            {
+                sumpInputHex,
+                sumpOutputHex
+            },
+            field_1551 = Permissions.None,
+            field_1552 = true, // only one is allowed.
+            CustomPermissionCheck = perms => perms.Contains(HalvingMetallurgy.SumpPermission)
+        };
+
         QApi.AddPartTypeToPanel(Halves, false);
         QApi.AddPartTypeToPanel(Quake, false);
+        QApi.AddPartTypeToPanel(Sump, false);
 
         QApi.AddPartType(Halves, static (part, pos, editor, renderer) =>
         {
             Vector2 offset = new(83f, 50f);
-            renderer.method_523(halvesBase, new Vector2(0f, 0f), offset, 0f);
-            renderer.method_523(halvesEngraving, new Vector2(0f, 0f), offset, 0f);
+            renderer.method_523(halvesBase, Vector2.Zero, offset, 0f);
+            renderer.method_523(halvesEngraving, Vector2.Zero, offset, 0f);
             // quicksilver
             renderer.method_530(class_238.field_1989.field_90.field_255.field_293, halvesInputHex, 0);
             renderer.method_529(class_238.field_1989.field_90.field_255.field_294, halvesInputHex, Vector2.Zero);
@@ -153,7 +201,7 @@ internal static class HalvingMetallurgyParts
             PartSimState pss = editor.method_507().method_481(part);
             float time = editor.method_504();
             Vector2 offset = new(41f, 49f);
-            renderer.method_523(quakeBase, new Vector2(0f, 0f), offset, 0f);
+            renderer.method_523(quakeBase, Vector2.Zero, offset, 0f);
             if (pss.field_2743 && time < 0.75f)
             {
                 double x = (10.6666667 * time) % 4.0;
@@ -170,7 +218,67 @@ internal static class HalvingMetallurgyParts
             }
         });
 
+        QApi.AddPartType(Sump, static (part, pos, editor, renderer) =>
+        {
+            PartSimState pss = editor.method_507().method_481(part);
 
+            // A dictionary that acts like the original object, and also allow extra data to be added,
+            // It also magically remembers data put in it, even across multiple instantiations.
+            DynamicData dyn_pss = new(pss);
+            object stateOb = dyn_pss.Get("state");
+            SumpState state = new();
+            if (stateOb is not null)
+            {
+                // if there was something there, use that
+                state = (SumpState)stateOb;
+            } else
+            {
+                // if there isn't, set it to a default value
+                dyn_pss.Set("state", state);
+            }
+            // unknown class object
+            class_236 uco = editor.method_1989(part, pos);
+            float time = editor.method_504();
+            Vector2 offset = new(41f, 49f);
+            renderer.method_523(sumpBase, Vector2.Zero, offset, 0f);
+            // quicksilver
+            renderer.method_530(class_238.field_1989.field_90.field_255.field_293, halvesInputHex, 0);
+            renderer.method_529(class_238.field_1989.field_90.field_255.field_294, halvesInputHex, Vector2.Zero);
+
+            // input ring
+            if (state.drainFlash)
+            {
+                int flashFrame = (int)(8 * time);
+                flashFrame = flashFrame > 7 ? 7 : flashFrame;
+            renderer.method_529(sumpDrainFlashAnimation[flashFrame], sumpInputHex, Vector2.Zero);
+            }
+            // output iris
+            int irisFrame = 15;
+            bool afterIrisOpens = false;
+
+            Molecule risingQuicksilver = Molecule.method_1121(Brimstone.API.VanillaAtoms["quicksilver"]);
+            // from SolutionEditorBase.method_1999 which was a private static method,
+            // and I kept getting a null reference exception when trying the access modifier ignoring method.
+            Vector2 risingOffset = uco.field_1984 + class_187.field_1742.method_492(sumpOutputHex).Rotated(uco.field_1985);
+
+            if (state.quicksilverEject)
+            {
+                irisFrame = class_162.method_404((int)(class_162.method_411(1f, -1f, time) * 16f), 0, 15);
+                afterIrisOpens = time > 0.5f;
+            }
+            if (state.quicksilverEject && !afterIrisOpens)
+            {
+                // show quicksilver rising behind iris
+                Editor.method_925(risingQuicksilver, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
+            }
+            renderer.method_530(quicksilverIrisAnimation[irisFrame], sumpOutputHex, 0);
+            renderer.method_528(class_238.field_1989.field_90.field_228.field_271, sumpOutputHex, Vector2.Zero);
+            if (state.quicksilverEject && afterIrisOpens)
+            {
+                // show quicksilver rising infront of iris
+                Editor.method_925(risingQuicksilver, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
+            }
+        });
 
 
         QApi.RunAfterCycle((sim, first) =>
@@ -367,11 +475,58 @@ internal static class HalvingMetallurgyParts
                                 seb.field_3936.Add(new class_228(seb, (enum_7)1, pair.Left, quakeUnbondResistedAnimation, 75f, new Vector2(1.5f, -5f), pair.Right));
                             }
 
-
                             // play a buzzing sound
                             Brimstone.API.PlaySound(sim, quakeSound);
                         }
                     }
+                }
+                else if (type == Sump)
+                {
+                    Quintessential.Logger.Log("477");
+                    DynamicData dyn_pss = new(pss[part]);
+                    Quintessential.Logger.Log("479");
+                    object stateOb = dyn_pss.Get("state");
+                    SumpState state = new();
+                    if (stateOb is not null)
+                    {
+                        state = (SumpState)stateOb;
+                    }
+                    Quintessential.Logger.Log("486");
+                    if (first)
+                    {
+                        if (sim.FindAtomRelative(part, sumpInputHex).method_99(out AtomReference quicksilver) && !quicksilver.field_2281 && !quicksilver.field_2282)
+                        {
+                            // Delete the quicksilver
+                            Brimstone.API.RemoveAtom(quicksilver);
+                            // Play deletion animation
+                            seb.field_3937.Add(new(seb, quicksilver.field_2278, Brimstone.API.VanillaAtoms["quicksilver"]));
+                            if (state.quicksilverCount < 5)
+                            {
+                                state.quicksilverCount++;
+                            }
+                            else
+                            {
+                                state.drainFlash = true;
+                            }
+                        }
+                        if (state.quicksilverCount > 0 && !sim.FindAtomRelative(part, sumpOutputHex).method_99(out _))
+                        {
+                            state.quicksilverEject = true;
+                            state.quicksilverCount--;
+                        }
+                    }
+                    else
+                    {
+                        state.drainFlash = false;
+                        if (state.quicksilverEject)
+                        {
+                            state.quicksilverEject = false;
+                            Molecule wellingQuicksilver = new();
+                            wellingQuicksilver.method_1105(new Atom(Brimstone.API.VanillaAtoms["quicksilver"]), part.method_1184(sumpOutputHex));
+                            sim.field_3823.Add(wellingQuicksilver);
+                        }
+                    }
+                    dyn_pss.Set("state", state);
                 }
             nextGlyph:;
             }

@@ -5,10 +5,15 @@ namespace HalvingMetallurgy;
 
 public class HalvingMetallurgy : QuintessentialMod
 {
+    // optional dependencies
     public static readonly bool ReductiveMetallurgyLoaded = Brimstone.API.IsModLoaded("ReductiveMetallurgy");
     public static readonly bool FTSIGCTULoaded = Brimstone.API.IsModLoaded("FTSIGCTU");
+
+    // permissions
     public const string HalvingPermission = "HalvingMetallurgy:halving";
     public const string QuakePermission = "HalvingMetallurgy:quake";
+    public const string SumpPermission = "HalvingMetallurgy:sump";
+
     public static string contentPath;
 
     public static bool MirrorHalfProjectionPart(SolutionEditorScreen ses, Part part, bool mirrorVert, HexIndex pivot)
@@ -68,6 +73,8 @@ public class HalvingMetallurgy : QuintessentialMod
         // Add permissions
         QApi.AddPuzzlePermission(HalvingPermission, "Glyph of Halves", "Halving Metallurgy");
         QApi.AddPuzzlePermission(QuakePermission, "Gylph of Quake", "Halving Metallurgy");
+        QApi.AddPuzzlePermission(SumpPermission, "Quicksilver Sump", "Halving Metallurgy");
+
         if (FTSIGCTULoaded)
         {
             // Add Glyphs to FTSIGCTU's map
