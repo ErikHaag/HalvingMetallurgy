@@ -231,7 +231,8 @@ internal static class HalvingMetallurgyParts
             {
                 // if there was something there, use that
                 state = (SumpState)stateOb;
-            } else
+            }
+            else
             {
                 // if there isn't, set it to a default value
                 dyn_pss.Set("state", state);
@@ -242,15 +243,15 @@ internal static class HalvingMetallurgyParts
             Vector2 offset = new(41f, 49f);
             renderer.method_523(sumpBase, Vector2.Zero, offset, 0f);
             // quicksilver
-            renderer.method_530(class_238.field_1989.field_90.field_255.field_293, halvesInputHex, 0);
-            renderer.method_529(class_238.field_1989.field_90.field_255.field_294, halvesInputHex, Vector2.Zero);
+            renderer.method_530(class_238.field_1989.field_90.field_255.field_293, sumpInputHex, 0);
+            renderer.method_529(class_238.field_1989.field_90.field_255.field_294, sumpInputHex, Vector2.Zero);
 
             // input ring
             if (state.drainFlash)
             {
                 int flashFrame = (int)(8 * time);
                 flashFrame = flashFrame > 7 ? 7 : flashFrame;
-            renderer.method_529(sumpDrainFlashAnimation[flashFrame], sumpInputHex, Vector2.Zero);
+                renderer.method_529(sumpDrainFlashAnimation[flashFrame], sumpInputHex, Vector2.Zero);
             }
             // output iris
             int irisFrame = 15;
@@ -271,7 +272,7 @@ internal static class HalvingMetallurgyParts
                 // show quicksilver rising behind iris
                 Editor.method_925(risingQuicksilver, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
             }
-            renderer.method_530(quicksilverIrisAnimation[irisFrame], sumpOutputHex, 0);
+            renderer.method_529(quicksilverIrisAnimation[irisFrame], sumpOutputHex, Vector2.Zero);
             renderer.method_528(class_238.field_1989.field_90.field_228.field_271, sumpOutputHex, Vector2.Zero);
             if (state.quicksilverEject && afterIrisOpens)
             {
@@ -482,16 +483,13 @@ internal static class HalvingMetallurgyParts
                 }
                 else if (type == Sump)
                 {
-                    Quintessential.Logger.Log("477");
                     DynamicData dyn_pss = new(pss[part]);
-                    Quintessential.Logger.Log("479");
                     object stateOb = dyn_pss.Get("state");
                     SumpState state = new();
                     if (stateOb is not null)
                     {
                         state = (SumpState)stateOb;
                     }
-                    Quintessential.Logger.Log("486");
                     if (first)
                     {
                         if (sim.FindAtomRelative(part, sumpInputHex).method_99(out AtomReference quicksilver) && !quicksilver.field_2281 && !quicksilver.field_2282)
@@ -513,6 +511,7 @@ internal static class HalvingMetallurgyParts
                         {
                             state.quicksilverEject = true;
                             state.quicksilverCount--;
+                            Brimstone.API.AddSmallCollider(sim, part, sumpOutputHex);
                         }
                     }
                     else
@@ -521,9 +520,7 @@ internal static class HalvingMetallurgyParts
                         if (state.quicksilverEject)
                         {
                             state.quicksilverEject = false;
-                            Molecule wellingQuicksilver = new();
-                            wellingQuicksilver.method_1105(new Atom(Brimstone.API.VanillaAtoms["quicksilver"]), part.method_1184(sumpOutputHex));
-                            sim.field_3823.Add(wellingQuicksilver);
+                            Brimstone.API.AddAtom(sim, Brimstone.API.VanillaAtoms["quicksilver"], part, sumpOutputHex);
                         }
                     }
                     dyn_pss.Set("state", state);
