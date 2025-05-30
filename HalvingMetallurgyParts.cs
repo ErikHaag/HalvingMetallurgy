@@ -34,7 +34,8 @@ internal struct SumpState
         drainFlash = false;
         quicksilverEject = false;
     }
-    public int quicksilverCount;
+    // could compress these into one byte, but readablity would suck.
+    public byte quicksilverCount;
     public bool drainFlash;
     public bool quicksilverEject;
 }
@@ -44,19 +45,19 @@ internal static class HalvingMetallurgyParts
     public static PartType Halves;
 
     public static Texture halvesBase = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_base");
-    public static Texture halvesEngraving = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_engraving");
     public static Texture halvesGlow = Brimstone.API.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_glow");
     public static Texture halvesOutline = Brimstone.API.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_outline");
-    public static Texture halvesIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_icon");
-    public static Texture halvesIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_icon_hover");
+    public static Texture halvesIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/halves_icon");
+    public static Texture halvesIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/halves_icon_hover");
+    public static Texture[] halvesEngravingFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/halves_engraving_flash.array", "halves_engraving", 6);
 
     public static PartType Quake;
 
     public static Texture quakeBase = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/quake_base");
     public static Texture quakeBowl = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/quake_bowl");
     public static Texture quakeBowlShaking = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/quake_bowl_shaking");
-    public static Texture quakeIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/quake_icon");
-    public static Texture quakeIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/quake_icon_hover");
+    public static Texture quakeIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/quake_icon");
+    public static Texture quakeIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/quake_icon_hover");
     public static Texture quakeGlow = class_238.field_1989.field_97.field_382;
     public static Texture quakeOutline = class_238.field_1989.field_97.field_383;
     public static Texture[] quakeUnbondResistedAnimation = Brimstone.API.GetAnimation("textures/bonds/erikhaag/HalvingMetallurgy/unbond_resist.array", "unbond_resist", 22);
@@ -64,8 +65,8 @@ internal static class HalvingMetallurgyParts
     public static PartType Sump;
 
     public static Texture sumpBase = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/sump_base");
-    public static Texture sumpIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/sump_icon");
-    public static Texture sumpIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/sump_icon_hover");
+    public static Texture sumpIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/sump_icon");
+    public static Texture sumpIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/sump_icon_hover");
     public static Texture sumpGlow = class_238.field_1989.field_97.field_374;
     public static Texture sumpOutline = class_238.field_1989.field_97.field_375;
     public static Texture[] quicksilverIrisAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/iris_full_quicksilver.array", "iris_full_quicksilver", 16);
@@ -183,9 +184,17 @@ internal static class HalvingMetallurgyParts
 
         QApi.AddPartType(Halves, static (part, pos, editor, renderer) =>
         {
+            PartSimState pss = editor.method_507().method_481(part);
+            float time = editor.method_504();
+            int frame = 0;
             Vector2 offset = new(83f, 50f);
+            if (pss.field_2743)
+            {
+                frame = (int)(11f * time);
+                frame = frame >= 6 ? 10 - frame : frame;
+            }
             renderer.method_523(halvesBase, Vector2.Zero, offset, 0f);
-            renderer.method_523(halvesEngraving, Vector2.Zero, offset, 0f);
+            renderer.method_523(halvesEngravingFlashAnimation[frame], Vector2.Zero, offset, 0f);
             // quicksilver
             renderer.method_530(class_238.field_1989.field_90.field_255.field_293, halvesInputHex, 0);
             renderer.method_529(class_238.field_1989.field_90.field_255.field_294, halvesInputHex, Vector2.Zero);
@@ -402,6 +411,7 @@ internal static class HalvingMetallurgyParts
                             }
                             metal2.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal2.field_2280, class_238.field_1989.field_81.field_614, 30f);
 
+                            pss[part].field_2743 = true;
                             // Play custom sound
                             Brimstone.API.PlaySound(sim, halvesSound);
                         }
