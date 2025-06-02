@@ -40,7 +40,7 @@ internal struct SumpState
     public bool quicksilverEject;
 }
 
-internal static class HalvingMetallurgyParts
+public static class HalvingMetallurgyParts
 {
     public static PartType Halves;
 

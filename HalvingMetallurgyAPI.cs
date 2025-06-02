@@ -2,8 +2,7 @@
 
 namespace HalvingMetallurgy;
 
-internal static class HalvingMetallurgyAPI
+public static class HalvingMetallurgyAPI
 {
-    // Use standard dictionary commands. 
     public static Dictionary<AtomType, AtomType> HalvingPromotions = new();
 }

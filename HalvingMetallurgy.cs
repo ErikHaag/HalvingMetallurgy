@@ -73,7 +73,7 @@ public class HalvingMetallurgy : QuintessentialMod
         HalvingMetallurgyAPI.HalvingPromotions.Add(Brimstone.API.VanillaAtoms["gold"], HalvingMetallurgyAtoms.Osmium);
         // Add permissions
         QApi.AddPuzzlePermission(HalvingPermission, "Glyph of Halves", "Halving Metallurgy");
-        QApi.AddPuzzlePermission(QuakePermission, "Gylph of Quake", "Halving Metallurgy");
+        QApi.AddPuzzlePermission(QuakePermission, "Glyph of Quake", "Halving Metallurgy");
         QApi.AddPuzzlePermission(SumpPermission, "Quicksilver Sump", "Halving Metallurgy");
 
         if (FTSIGCTULoaded)

@@ -3,7 +3,7 @@ using Quintessential;
 
 namespace HalvingMetallurgy;
 
-internal static class HalvingMetallurgyAtoms
+public static class HalvingMetallurgyAtoms
 {
     public static AtomType Wolfram, Vulcan, Nickel, Zinc, Sednum, Osmium;
 
