@@ -86,8 +86,8 @@ public static class HalvingMetallurgyParts
 
     public static void LoadSounds()
     {
-        halvesSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/halves");
-        quakeSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/quake");
+        halvesSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/halves").method_1087();
+        quakeSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/quake").method_1087();
 
         FieldInfo field = typeof(class_11).GetField("field_52", BindingFlags.Static | BindingFlags.NonPublic);
         Dictionary<string, float> volumeDictionary = (Dictionary<string, float>)field.GetValue(null);
@@ -214,11 +214,10 @@ public static class HalvingMetallurgyParts
             if (pss.field_2743 && time < 0.75f)
             {
                 double x = (10.6666667 * time) % 4.0;
-                const double commonDenominator = 1.0 / 21.0;
                 // "I want a sinusoid!"
                 // "We have sinusoid at home"
                 // Sinusoid at home:
-                float shakeX = 3 * (float)(-commonDenominator * Math.Pow(x, 5) + 10 * commonDenominator * Math.Pow(x, 4) - 28 * commonDenominator * Math.Pow(x, 3) + 8 * commonDenominator * Math.Pow(x, 2) + 32 * commonDenominator * x);
+                float shakeX = (float)(-Math.Pow(x, 5) + 10 * Math.Pow(x, 4) - 28 * Math.Pow(x, 3) + 8 * Math.Pow(x, 2) + 32 * x) / 7;
                 renderer.method_529(quakeBowlShaking, quakeBowlHex, new Vector2(shakeX, 0));
             }
             else
@@ -458,8 +457,9 @@ public static class HalvingMetallurgyParts
                                     HexIndex sednumPos = entry.Key;
                                     HexIndex sednumNeighbor = sednumPos + offset;
                                     bool willBeRegularBonded = bonders.Contains(new HexIndexPair(sednumPos, sednumNeighbor)) || bonders.Contains(new HexIndexPair(sednumNeighbor, sednumPos));
-                                    enum_126 bondType = moleculeAboveBowl.method_1113(sednumPos, sednumNeighbor);
-                                    if (bondType != enum_126.None)
+                                    enum_126 bondType = Brimstone.API.FindBondType(moleculeAboveBowl, sednumPos, sednumNeighbor);
+
+                                    if (bondType != enum_126.None && bondType != (enum_126.Prisma0 | enum_126.Prisma1 | enum_126.Prisma2))
                                     {
                                         Vector2 midpoint = class_162.method_413(class_187.field_1742.method_492(sednumPos), class_187.field_1742.method_492(sednumNeighbor), 0.5f);
                                         if ((bondType & enum_126.Standard) == enum_126.Standard && willBeRegularBonded)
@@ -469,9 +469,7 @@ public static class HalvingMetallurgyParts
                                         else
                                         {
                                             hasRemovableBond = true;
-                                            moleculeAboveBowl.method_1114(sednumPos, sednumNeighbor);
-                                            Texture[] bondBreakAnimation = ((bondType & enum_126.Standard) != enum_126.Standard) ? class_238.field_1989.field_83.field_156 : class_238.field_1989.field_83.field_154;
-                                            seb.field_3935.Add(new class_228(seb, (enum_7)1, midpoint, bondBreakAnimation, 75f, new Vector2(1.5f, -5f), class_187.field_1742.method_492(offset).Angle()));
+                                            Brimstone.API.RemoveBonds(sim, moleculeAboveBowl, sednumPos, sednumNeighbor, true, false);
                                         }
                                     }
                                 }
@@ -480,6 +478,7 @@ public static class HalvingMetallurgyParts
 
                         if (hasRemovableBond)
                         {
+                            Brimstone.API.ForceRecomputeBonds(moleculeAboveBowl);
                             pss[part].field_2743 = true;
                             foreach (Pair<Vector2, float> pair in resistingBonds)
                             {
@@ -530,10 +529,27 @@ public static class HalvingMetallurgyParts
                         if (state.quicksilverEject)
                         {
                             state.quicksilverEject = false;
-                            Brimstone.API.AddAtom(sim, Brimstone.API.VanillaAtoms["quicksilver"], part, sumpOutputHex);
+                            Brimstone.API.AddAtom(sim, part, sumpOutputHex, Brimstone.API.VanillaAtoms["quicksilver"]);
                         }
                     }
                     dyn_pss.Set("state", state);
+                }
+                else if (type == class_191.field_1775)
+                {
+                    foreach (class_222 bonder in type.field_1538)
+                    {
+                        if (!sim.FindAtomRelative(part, bonder.field_1920).method_99(out AtomReference leftAtom) || !sim.FindAtomRelative(part, bonder.field_1921).method_99(out AtomReference rightAtom))
+                        {
+                            continue;
+                        }
+                        if ((leftAtom.field_2280 == HalvingMetallurgyAtoms.Vulcan && rightAtom.field_2280 == Brimstone.API.VanillaAtoms["fire"]) || (leftAtom.field_2280 == Brimstone.API.VanillaAtoms["fire"] && rightAtom.field_2280 == HalvingMetallurgyAtoms.Vulcan) || (leftAtom.field_2280 == HalvingMetallurgyAtoms.Vulcan && rightAtom.field_2280 == HalvingMetallurgyAtoms.Vulcan))
+                        {
+                            Brimstone.API.JoinMoleculesAtHexes(sim, part, bonder.field_1920, bonder.field_1921);
+                            Brimstone.API.AddBond(sim, part, bonder.field_1920, bonder.field_1921, bonder.field_1922);
+                            break;
+                        }
+
+                    }
                 }
             nextGlyph:;
             }

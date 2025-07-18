@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <Reference Include="Brimstone">
-      <HintPath>..\Brimstone\Brimstone.dll</HintPath>
+      <HintPath>..\Brimstone\bin\Release\net46\Brimstone.dll</HintPath>
     </Reference>
     <Reference Include="FTSIGCTU">
       <HintPath>..\FTSIGCTU_0.7.4\FTSIGCTU.dll</HintPath>

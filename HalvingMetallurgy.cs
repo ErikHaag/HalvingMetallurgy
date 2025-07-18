@@ -56,7 +56,7 @@ public class HalvingMetallurgy : QuintessentialMod
         Quintessential.Logger.Log("HalvingMetallurgy: Loading!");
         HalvingMetallurgyAtoms.AddAtomTypes();
         // Load sounds
-        contentPath = Brimstone.API.GetContentPath("HalvingMetallurgy");
+        contentPath = Brimstone.API.GetContentPath("HalvingMetallurgy").method_1087();
         HalvingMetallurgyParts.LoadSounds();
         HalvingMetallurgyParts.AddPartTypes();
         // Add glyph of halves promotions
