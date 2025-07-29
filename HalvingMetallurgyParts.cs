@@ -161,7 +161,7 @@ public static class HalvingMetallurgyParts
         {
             field_1528 = "halving-metallurgy-sump",
             field_1529 = class_134.method_253("Quicksilver Sump", string.Empty),
-            field_1530 = class_134.method_253("The quicksilver sump can hold 6 quicksilver for storage, excess quicksilver is drained out of the engine.", string.Empty),
+            field_1530 = class_134.method_253("The quicksilver sump can hold 5 quicksilver internally for storage, excess quicksilver is drained out of the engine.", string.Empty),
             field_1531 = 15,
             field_1539 = true,
             field_1549 = sumpGlow,
@@ -546,7 +546,6 @@ public static class HalvingMetallurgyParts
                         {
                             Brimstone.API.JoinMoleculesAtHexes(sim, part, bonder.field_1920, bonder.field_1921);
                             Brimstone.API.AddBond(sim, part, bonder.field_1920, bonder.field_1921, bonder.field_1922);
-                            break;
                         }
 
                     }
