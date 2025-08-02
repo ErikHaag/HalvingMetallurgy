@@ -46,7 +46,7 @@ public static class HalvingMetallurgyParts
 
     public static Texture halvesBase = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_base");
     public static Texture halvesGlow = Brimstone.API.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_glow");
-    public static Texture halvesOutline = Brimstone.API.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_outline");
+    public static Texture halvesStroke = Brimstone.API.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_stroke");
     public static Texture halvesIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/halves_icon");
     public static Texture halvesIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/halves_icon_hover");
     public static Texture[] halvesEngravingFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/halves_engraving_flash.array", "halves_engraving", 6);
@@ -59,7 +59,7 @@ public static class HalvingMetallurgyParts
     public static Texture quakeIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/quake_icon");
     public static Texture quakeIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/quake_icon_hover");
     public static Texture quakeGlow = class_238.field_1989.field_97.field_382;
-    public static Texture quakeOutline = class_238.field_1989.field_97.field_383;
+    public static Texture quakeStroke = class_238.field_1989.field_97.field_383;
     public static Texture[] quakeUnbondResistedAnimation = Brimstone.API.GetAnimation("textures/bonds/erikhaag/HalvingMetallurgy/unbond_resist.array", "unbond_resist", 22);
 
     public static PartType Sump;
@@ -68,7 +68,7 @@ public static class HalvingMetallurgyParts
     public static Texture sumpIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/sump_icon");
     public static Texture sumpIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/sump_icon_hover");
     public static Texture sumpGlow = class_238.field_1989.field_97.field_374;
-    public static Texture sumpOutline = class_238.field_1989.field_97.field_375;
+    public static Texture sumpStroke = class_238.field_1989.field_97.field_375;
     public static Texture[] quicksilverIrisAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/iris_full_quicksilver.array", "iris_full_quicksilver", 16);
     public static Texture[] sumpDrainFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/sump_drain_flash.array", "sump_flash", 8);
 
@@ -125,7 +125,7 @@ public static class HalvingMetallurgyParts
             field_1531 = 30, // Cost
             field_1539 = true, // Is a glyph
             field_1549 = halvesGlow, // Shadow/glow
-            field_1550 = halvesOutline, // Stroke/outline
+            field_1550 = halvesStroke, // Stroke/outline
             field_1547 = halvesIcon, // Panel icon
             field_1548 = halvesIconHover, // Hovered panel icon
             field_1540 = new HexIndex[]
@@ -146,7 +146,7 @@ public static class HalvingMetallurgyParts
             field_1531 = 20,
             field_1539 = true,
             field_1549 = quakeGlow,
-            field_1550 = quakeOutline,
+            field_1550 = quakeStroke,
             field_1547 = quakeIcon,
             field_1548 = quakeIconHover,
             field_1540 = new HexIndex[]
@@ -165,7 +165,7 @@ public static class HalvingMetallurgyParts
             field_1531 = 15,
             field_1539 = true,
             field_1549 = sumpGlow,
-            field_1550 = sumpOutline,
+            field_1550 = sumpStroke,
             field_1547 = sumpIcon,
             field_1548 = sumpIconHover,
             field_1540 = new HexIndex[]
@@ -187,14 +187,24 @@ public static class HalvingMetallurgyParts
             PartSimState pss = editor.method_507().method_481(part);
             float time = editor.method_504();
             int frame = 0;
-            Vector2 offset = new(83f, 50f);
+            Vector2 center = new(83f, 49f);
+            // pixel perfect alignment jank.
+            Vector2[] offsets = {
+                new(0f, 0f),
+                new(-1f, 1f),
+                new(-2f, -1f),
+                new(-1f, -1f),
+                new(0f, -2f),
+                new(1f, -1f)
+            };
+            Vector2 offset = offsets[class_162.method_408(part.method_1163().GetNumberOfTurns(), 6)];
             if (pss.field_2743)
             {
                 frame = (int)(11f * time);
                 frame = frame >= 6 ? 10 - frame : frame;
             }
-            renderer.method_523(halvesBase, Vector2.Zero, offset, 0f);
-            renderer.method_523(halvesEngravingFlashAnimation[frame], Vector2.Zero, offset, 0f);
+            renderer.method_523(halvesBase, offset, center, 0f);
+            renderer.method_523(halvesEngravingFlashAnimation[frame], offset, center, 0f);
             // quicksilver
             renderer.method_530(class_238.field_1989.field_90.field_255.field_293, halvesInputHex, 0);
             renderer.method_529(class_238.field_1989.field_90.field_255.field_294, halvesInputHex, Vector2.Zero);
