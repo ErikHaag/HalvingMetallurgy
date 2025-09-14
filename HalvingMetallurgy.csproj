@@ -70,9 +70,4 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Content\sounds\" />
-    <Folder Include="Content\textures\parts\erikhaag\HalvingMetallurgy\halves_engraving_flash.array\" />
-  </ItemGroup>
-
 </Project>

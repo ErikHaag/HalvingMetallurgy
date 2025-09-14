@@ -50,6 +50,7 @@ public static class HalvingMetallurgyParts
     public static Texture halvesIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/halves_icon");
     public static Texture halvesIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/halves_icon_hover");
     public static Texture[] halvesEngravingFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/halves_engraving_flash.array", "halves_engraving", 6);
+    public static Texture[] halvesBowlFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/halves_bowl_flash.array", "halves_bowl", 10);
 
     public static PartType Quake;
 
@@ -335,13 +336,14 @@ public static class HalvingMetallurgyParts
                         continue;
                     }
 
+                    HexIndex bowl1 = part.method_1184(halvesMetal1Hex);
+                    HexIndex bowl2 = part.method_1184(halvesMetal2Hex);
+
                     bool quicksilverExists = false;
                     bool metal1Exists = false;
                     bool metal2Exists = false;
 
                     bool isQuicksilverRavari = false;
-                    bool isMetal1Ravari = false;
-                    bool isMetal2Ravari = false;
 
                     Dictionary<AtomType, AtomType> rejectionRules = new();
                     AtomType rejectionResult = null;
@@ -365,23 +367,21 @@ public static class HalvingMetallurgyParts
                             isQuicksilverRavari = true;
                         }
                     }
-                    if (sim.FindAtomRelative(part, halvesMetal1Hex).method_99(out AtomReference metal1))
+                    if (sim.FindAtom(bowl1).method_99(out AtomReference metal1))
                     {
                         metal1Exists = true;
                     }
                     else if (HalvingMetallurgy.ReductiveMetallurgyLoaded && Wheel.maybeFindRavariWheelAtom(sim, part, halvesMetal1Hex).method_99(out metal1))
                     {
                         metal1Exists = true;
-                        isMetal1Ravari = true;
                     }
-                    if (sim.FindAtomRelative(part, halvesMetal2Hex).method_99(out AtomReference metal2))
+                    if (sim.FindAtom(bowl2).method_99(out AtomReference metal2))
                     {
                         metal2Exists = true;
                     }
                     else if (HalvingMetallurgy.ReductiveMetallurgyLoaded && Wheel.maybeFindRavariWheelAtom(sim, part, halvesMetal2Hex).method_99(out metal2))
                     {
                         metal2Exists = true;
-                        isMetal2Ravari = true;
                     }
 
                     // Are their atoms in the right spots?
@@ -395,7 +395,7 @@ public static class HalvingMetallurgyParts
                             if (isQuicksilverRavari)
                             {
                                 Brimstone.API.ChangeAtom(quicksilver, rejectionResult);
-                                Wheel.DrawRavariFlash(seb, part, halvesMetal1Hex);
+                                Wheel.DrawRavariFlash(seb, part, halvesInputHex);
                                 quicksilver.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quicksilver.field_2280, class_238.field_1989.field_81.field_614, 30f);
                             }
                             else
@@ -408,18 +408,11 @@ public static class HalvingMetallurgyParts
                             // Promote the metals
                             Brimstone.API.ChangeAtom(metal1, hp1);
                             Brimstone.API.ChangeAtom(metal2, hp2);
-                            // Play promotion animations
-                            if (isMetal1Ravari)
-                            {
-                                Wheel.DrawRavariFlash(seb, part, halvesMetal1Hex);
-                            }
+                            // Play promotion 
+                            seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(bowl1), halvesBowlFlashAnimation, 30f, Vector2.Zero, 0f));
                             metal1.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal1.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                            if (isMetal2Ravari)
-                            {
-                                Wheel.DrawRavariFlash(seb, part, halvesMetal2Hex);
-                            }
+                            seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(bowl2), halvesBowlFlashAnimation, 30f, Vector2.Zero, 0f));
                             metal2.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal2.field_2280, class_238.field_1989.field_81.field_614, 30f);
-
                             pss[part].field_2743 = true;
                             // Play custom sound
                             Brimstone.API.PlaySound(sim, halvesSound);
@@ -486,6 +479,7 @@ public static class HalvingMetallurgyParts
                             }
                         }
 
+                        // only active if not idempotent
                         if (hasRemovableBond)
                         {
                             Brimstone.API.ForceRecomputeBonds(moleculeAboveBowl);
@@ -544,7 +538,7 @@ public static class HalvingMetallurgyParts
                     }
                     dyn_pss.Set("state", state);
                 }
-                else if (type == class_191.field_1775)
+                else if (type == class_191.field_1775) /* Triplex bonder */
                 {
                     foreach (class_222 bonder in type.field_1538)
                     {
