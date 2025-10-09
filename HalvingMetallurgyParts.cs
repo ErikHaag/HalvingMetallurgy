@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using MonoMod.Utils;
 using Quintessential;
 using ReductiveMetallurgy;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using PartType = class_139;
 using Permissions = enum_149;
 using Texture = class_256;
-using System.Reflection;
-using System.Linq;
-using System;
-using MonoMod.Utils;
 
 namespace HalvingMetallurgy;
 
@@ -30,18 +32,68 @@ internal struct SumpState
 {
     public SumpState()
     {
-        quicksilverCount = 0;
-        drainFlash = false;
-        quicksilverEject = false;
+        state = 0;
     }
-    // could compress these into one byte, but readablity would suck.
-    public byte quicksilverCount;
-    public bool drainFlash;
-    public bool quicksilverEject;
+
+    private byte state;
+
+    // bit manipulations!
+    public byte quicksilverCount
+    {
+        get
+        {
+            return (byte)(state & 7);
+        }
+        set
+        {
+            state &= 0xf8; // ~7
+            state |= (byte)(value & 7);
+        }
+    }
+
+    public bool quicksilverEject
+    {
+        get
+        {
+            return (state & 0x08) == 0x08;
+        }
+        set
+        {
+            if (value)
+            {
+                state |= 0x08;
+            }
+            else
+            {
+                state &= 0xf7; // ~8
+            }
+        }
+    }
+
+    public bool drainFlash
+    {
+        get
+        {
+            return (state & 0x10) == 0x10;
+        }
+        set
+        {
+            if (value)
+            {
+                state |= 0x10;
+            }
+            else
+            {
+                state &= 0xef; // ~16
+            }
+        }
+    }
+
 }
 
 public static class HalvingMetallurgyParts
 {
+    #region Glyph Textures
     public static PartType Halves;
 
     public static Texture halvesBase = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_base");
@@ -59,8 +111,6 @@ public static class HalvingMetallurgyParts
     public static Texture quakeBowlShaking = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/quake_bowl_shaking");
     public static Texture quakeIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/quake_icon");
     public static Texture quakeIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/quake_icon_hover");
-    public static Texture quakeGlow = class_238.field_1989.field_97.field_382;
-    public static Texture quakeStroke = class_238.field_1989.field_97.field_383;
     public static Texture[] quakeUnbondResistedAnimation = Brimstone.API.GetAnimation("textures/bonds/erikhaag/HalvingMetallurgy/unbond_resist.array", "unbond_resist", 22);
 
     public static PartType Sump;
@@ -68,44 +118,56 @@ public static class HalvingMetallurgyParts
     public static Texture sumpBase = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/sump_base");
     public static Texture sumpIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/sump_icon");
     public static Texture sumpIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/sump_icon_hover");
-    public static Texture sumpGlow = class_238.field_1989.field_97.field_374;
-    public static Texture sumpStroke = class_238.field_1989.field_97.field_375;
     public static Texture[] quicksilverIrisAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/iris_full_quicksilver.array", "iris_full_quicksilver", 16);
     public static Texture[] sumpDrainFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/sump_drain_flash.array", "sump_flash", 8);
 
-    public static HexIndex[] HexMoves = {
-        new(1,0),
-        new(0,1),
-        new(-1,1),
-        new(-1,0),
-        new(0,-1),
-        new(1,-1)
-    };
+    public static PartType Remission;
 
+    public static Texture remissionArrow = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/remission_arrow");
+    public static Texture remissionConnectors = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/remission_connectors");
+    public static Texture remissionIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/remission_icon");
+    public static Texture remissionIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/remission_icon_hover");
+
+    public static PartType Shearing;
+
+    public static Texture shearingBase = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/shearing_base");
+    public static Texture shearingBowl = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/shearing_bowl");
+    public static Texture shearingIcon = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/shearing_icon");
+    public static Texture shearingIconHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/shearing_icon_hover");
+    public static Texture[] shearingFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/shearing_flash.array", "shearing_flash", 8);
+    public static Texture[] shearingSplitAnimation = Brimstone.API.GetAnimation("textures/atoms/erikhaag/HalvingMetallurgy/split_effect.array", "split", 12);
+    #endregion
+
+    #region Sounds
     public static Sound halvesSound;
     public static Sound quakeSound;
-
+    public static Sound shearingSound;
     public static void LoadSounds()
     {
         halvesSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/halves").method_1087();
         quakeSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/quake").method_1087();
+        shearingSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/shearing").method_1087();
 
         FieldInfo field = typeof(class_11).GetField("field_52", BindingFlags.Static | BindingFlags.NonPublic);
         Dictionary<string, float> volumeDictionary = (Dictionary<string, float>)field.GetValue(null);
 
         volumeDictionary.Add("halves", 0.7f);
         volumeDictionary.Add("quake", 0.4f);
+        volumeDictionary.Add("shearing", 0.7f);
 
         void Method_540(On.class_201.orig_method_540 orig, class_201 self)
         {
             orig(self);
             halvesSound.field_4062 = false;
             quakeSound.field_4062 = false;
+            shearingSound.field_4062 = false;
         }
 
         On.class_201.method_540 += Method_540;
     }
+    #endregion
 
+    #region Hexes
     public static readonly HexIndex halvesInputHex = new(0, 0);
     public static readonly HexIndex halvesMetal1Hex = new(1, 0);
     public static readonly HexIndex halvesMetal2Hex = new(-1, 1);
@@ -115,8 +177,60 @@ public static class HalvingMetallurgyParts
     public static readonly HexIndex sumpInputHex = new(0, 0);
     public static readonly HexIndex sumpOutputHex = new(1, 0);
 
+    public static readonly HexIndex remissionInput1Hex = new(0, 1);
+    public static readonly HexIndex remissionInput2Hex = new(1, -1);
+    public static readonly HexIndex remissionOutputHex = new(1, 0);
+    public static readonly HexIndex remissionBowlHex = new(0, 0);
+
+    public static readonly HexIndex shearingBowlHex = new(0, 0);
+    public static readonly HexIndex shearingOutputHex = new(1, 0);
+    #endregion
+
+
+    internal static List<HexIndexPair> simBonders = new();
+
+    public static void InjectSimStartup(ILContext context)
+    {
+        ILCursor gremlin = new(context);
+        if (!gremlin.TryGotoNext(MoveType.Before,
+            instr => instr.OpCode == OpCodes.Ret
+            ))
+        {
+            throw new Exception("Could not find end of startup function");
+        }
+        gremlin.Emit(OpCodes.Ldarg_1); // get sim object
+        gremlin.EmitDelegate<Action<Sim>>(sim =>
+        {
+            SimStartup(sim);
+        });
+    }
+
+
+    public static void SimStartup(Sim sim)
+    {
+        simBonders.Clear();
+        List<Part> parts = sim.field_3818.method_502().field_3919;
+        foreach (Part potential_bonder in parts)
+        {
+            if (potential_bonder.method_1159().field_1528 == "bonder")
+            {
+                simBonders.Add(new HexIndexPair(potential_bonder.method_1184(new HexIndex(0, 0)), potential_bonder.method_1184(new HexIndex(1, 0))));
+            }
+            else if (potential_bonder.method_1159().field_1528 == "bonder-speed")
+            {
+                HexIndex center = potential_bonder.method_1184(new HexIndex(0, 0));
+                simBonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(1, 0))));
+                simBonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(-1, 1))));
+                simBonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(0, -1))));
+            }
+        }
+    }
+
+
     public static void AddPartTypes()
     {
+
+        #region Glyph Definitions
         // Todo: Add a Brimstone function for this
         Halves = new()
         {
@@ -146,8 +260,8 @@ public static class HalvingMetallurgyParts
             field_1530 = class_134.method_253("The glyph of quake shakes a molecule vigorously, breaking all the weak sednum bonds.", string.Empty),
             field_1531 = 20,
             field_1539 = true,
-            field_1549 = quakeGlow,
-            field_1550 = quakeStroke,
+            field_1549 = class_238.field_1989.field_97.field_382,
+            field_1550 = class_238.field_1989.field_97.field_383,
             field_1547 = quakeIcon,
             field_1548 = quakeIconHover,
             field_1540 = new HexIndex[]
@@ -165,8 +279,8 @@ public static class HalvingMetallurgyParts
             field_1530 = class_134.method_253("The quicksilver sump can hold 5 quicksilver internally for storage, excess quicksilver is drained out of the engine.", string.Empty),
             field_1531 = 15,
             field_1539 = true,
-            field_1549 = sumpGlow,
-            field_1550 = sumpStroke,
+            field_1549 = class_238.field_1989.field_97.field_374,
+            field_1550 = class_238.field_1989.field_97.field_375,
             field_1547 = sumpIcon,
             field_1548 = sumpIconHover,
             field_1540 = new HexIndex[]
@@ -179,10 +293,57 @@ public static class HalvingMetallurgyParts
             CustomPermissionCheck = perms => perms.Contains(HalvingMetallurgy.SumpPermission)
         };
 
+        Remission = new()
+        {
+            field_1528 = "halving-metallurgy-remission", // ID
+            field_1529 = class_134.method_253("Glyph of Remission", string.Empty), // Name
+            field_1530 = class_134.method_253("The glyph of remission transmutes two metal atoms to their next higher form, assuming the metal in the bowl is able to handle the influx of quicksilver", string.Empty), // Description
+            field_1531 = 30, // Cost
+            field_1539 = true, // Is a glyph
+            field_1549 = class_238.field_1989.field_97.field_368, // Shadow/glow
+            field_1550 = class_238.field_1989.field_97.field_369, // Stroke/outline
+            field_1547 = remissionIcon, // Panel icon
+            field_1548 = remissionIconHover, // Hovered panel icon
+            field_1540 = new HexIndex[]
+            {
+                remissionInput1Hex,
+                remissionInput2Hex,
+                remissionBowlHex,
+                remissionOutputHex
+            },
+            field_1551 = Permissions.None,
+            CustomPermissionCheck = perms => perms.Contains(HalvingMetallurgy.RemissionPermission)
+        };
+
+        Shearing = new()
+        {
+            field_1528 = "halving-metallurgy-shearing", // ID
+            field_1529 = class_134.method_253("Glyph of Shearing", string.Empty), // Name
+            field_1530 = class_134.method_253("The glyph of shearing cuts a metal in half, ejecting the leftovers", string.Empty), // Description
+            field_1531 = 30, // Cost
+            field_1539 = true, // Is a glyph
+            field_1549 = class_238.field_1989.field_97.field_374, // Shadow/glow
+            field_1550 = class_238.field_1989.field_97.field_375, // Stroke/outline
+            field_1547 = shearingIcon, // Panel icon
+            field_1548 = shearingIconHover, // Hovered panel icon
+            field_1540 = new HexIndex[]
+            {
+                shearingBowlHex,
+                shearingOutputHex
+            },
+            field_1551 = Permissions.None,
+            CustomPermissionCheck = perms => perms.Contains(HalvingMetallurgy.ShearingPermission)
+        };
+        #endregion
+
         QApi.AddPartTypeToPanel(Halves, false);
         QApi.AddPartTypeToPanel(Quake, false);
         QApi.AddPartTypeToPanel(Sump, false);
+        QApi.AddPartTypeToPanel(Remission, false);
+        QApi.AddPartTypeToPanel(Shearing, false);
 
+
+        #region Glyph Renderers
         QApi.AddPartType(Halves, static (part, pos, editor, renderer) =>
         {
             PartSimState pss = editor.method_507().method_481(part);
@@ -285,11 +446,11 @@ public static class HalvingMetallurgyParts
             {
                 irisFrame = class_162.method_404((int)(class_162.method_411(1f, -1f, time) * 16f), 0, 15);
                 afterIrisOpens = time > 0.5f;
-            }
-            if (state.quicksilverEject && !afterIrisOpens)
-            {
-                // show quicksilver rising behind iris
-                Editor.method_925(risingQuicksilver, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
+                if (!afterIrisOpens)
+                {
+                    // show quicksilver rising behind iris
+                    Editor.method_925(risingQuicksilver, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
+                }
             }
             renderer.method_529(quicksilverIrisAnimation[irisFrame], sumpOutputHex, Vector2.Zero);
             renderer.method_528(class_238.field_1989.field_90.field_228.field_271, sumpOutputHex, Vector2.Zero);
@@ -300,37 +461,100 @@ public static class HalvingMetallurgyParts
             }
         });
 
+        QApi.AddPartType(Remission, static (part, pos, editor, renderer) =>
+        {
+            PartSimState pss = editor.method_507().method_481(part);
+            // unknown class object
+            class_236 uco = editor.method_1989(part, pos);
+            float time = editor.method_504();
+            Vector2 offset = new(41f, 120f);
+            // input
+            renderer.method_523(class_238.field_1989.field_90.field_228.field_265, new Vector2(-1f, -1f), offset, 0f);
+            renderer.method_523(remissionArrow, new Vector2(-1f, -1f), offset, 0f);
+            renderer.method_530(class_238.field_1989.field_90.field_255.field_293, remissionInput1Hex, 0f);
+            renderer.method_530(class_238.field_1989.field_90.field_255.field_293, remissionInput2Hex, 0f);
+            Texture leadSymbol = class_238.field_1989.field_90.field_257.field_363;
+            class_135.method_272(leadSymbol, (class_187.field_1742.method_491(remissionInput1Hex, Vector2.Zero).Rotated(uco.field_1985) + uco.field_1984 - leadSymbol.field_2056.ToVector2() / 2).Rounded());
+            class_135.method_272(leadSymbol, (class_187.field_1742.method_491(remissionInput2Hex, Vector2.Zero).Rotated(uco.field_1985) + uco.field_1984 - leadSymbol.field_2056.ToVector2() / 2).Rounded());
+            // bowl
+            renderer.method_528(class_238.field_1989.field_90.field_255.field_292, remissionBowlHex, Vector2.Zero);
+            renderer.method_529(class_238.field_1989.field_90.field_255.field_291, remissionBowlHex, Vector2.Zero);
+            // iris
+            renderer.method_528(class_238.field_1989.field_90.field_228.field_272, remissionOutputHex, Vector2.Zero);
 
+            int irisFrame = 15;
+            bool afterIrisOpens = false;
+            Molecule risingMetal = null;
+            Vector2 risingOffset = uco.field_1984 + class_187.field_1742.method_492(remissionOutputHex).Rotated(uco.field_1985);
+            if (pss.field_2743)
+            {
+                irisFrame = class_162.method_404((int)(class_162.method_411(1f, -1f, time) * 16f), 0, 15);
+                afterIrisOpens = time > 0.5f;
+                risingMetal = Molecule.method_1121(pss.field_2744[0]);
+                if (!afterIrisOpens)
+                {
+                    // show atom rising behind iris
+                    Editor.method_925(risingMetal, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
+                }
+            }
+            renderer.method_529(class_238.field_1989.field_90.field_246[irisFrame], remissionOutputHex, Vector2.Zero);
+            renderer.method_528(class_238.field_1989.field_90.field_228.field_271, remissionOutputHex, Vector2.Zero);
+            if (pss.field_2743 && afterIrisOpens)
+            {
+                // show atom rising infront of iris
+                Editor.method_925(risingMetal, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
+            }
+            renderer.method_521(remissionConnectors, offset);
+        });
+
+        QApi.AddPartType(Shearing, static (part, pos, editor, renderer) =>
+        {
+            PartSimState pss = editor.method_507().method_481(part);
+            // unknown class object
+            class_236 uco = editor.method_1989(part, pos);
+            float time = editor.method_504();
+            Vector2 offset = new(41f, 49f);
+
+            renderer.method_523(shearingBase, Vector2.Zero, offset, 0f);
+            renderer.method_529(shearingBowl, shearingBowlHex, Vector2.Zero);
+
+            int irisFrame = 15;
+            bool afterIrisOpens = false;
+            Molecule risingMetal = null;
+            Vector2 risingOffset = uco.field_1984 + class_187.field_1742.method_492(shearingOutputHex).Rotated(uco.field_1985);
+            if (pss.field_2743)
+            {
+                irisFrame = class_162.method_404((int)(class_162.method_411(1f, -1f, time) * 16f), 0, 15);
+                afterIrisOpens = time > 0.5f;
+                risingMetal = Molecule.method_1121(pss.field_2744[0]);
+                if (!afterIrisOpens)
+                {
+                    // show quicksilver rising behind iris
+                    Editor.method_925(risingMetal, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
+                }
+            }
+            renderer.method_529(class_238.field_1989.field_90.field_246[irisFrame], shearingOutputHex, Vector2.Zero);
+            renderer.method_528(class_238.field_1989.field_90.field_228.field_271, shearingOutputHex, Vector2.Zero);
+            if (pss.field_2743 && afterIrisOpens)
+            {
+                // show quicksilver rising infront of iris
+                Editor.method_925(risingMetal, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
+            }
+        });
+        #endregion
+
+        #region Part Behavior
         QApi.RunAfterCycle((sim, first) =>
         {
             SolutionEditorBase seb = sim.field_3818;
             Dictionary<Part, PartSimState> pss = sim.field_3821;
             List<Part> parts = seb.method_502().field_3919;
 
-            List<HexIndexPair> bonders = new();
-            // should technically pre-compute at startup, but I don't exactly know where that is, also I really don't want to deal with ILCursor right now, maybe later!
-            foreach (Part potential_bonder in parts)
-            {
-                if (potential_bonder.method_1159().field_1528 == "bonder")
-                {
-                    bonders.Add(new HexIndexPair(potential_bonder.method_1184(new HexIndex(0, 0)), potential_bonder.method_1184(new HexIndex(1, 0))));
-                }
-                else if (potential_bonder.method_1159().field_1528 == "bonder-speed")
-                {
-                    HexIndex center = potential_bonder.method_1184(new HexIndex(0, 0));
-                    bonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(1, 0))));
-                    bonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(-1, 1))));
-                    bonders.Add(new HexIndexPair(center, potential_bonder.method_1184(new HexIndex(0, -1))));
-                }
-
-            }
-
             foreach (Part part in parts)
             {
                 PartType type = part.method_1159();
                 if (type == Halves)
                 {
-                    // Oh hey, it is
                     if (!first)
                     {
                         continue;
@@ -455,11 +679,11 @@ public static class HalvingMetallurgyParts
                         {
                             if (entry.Value.field_2275 == HalvingMetallurgyAtoms.Sednum)
                             {
-                                foreach (HexIndex offset in HexMoves)
+                                foreach (HexIndex offset in HexIndex.AdjacentOffsets)
                                 {
                                     HexIndex sednumPos = entry.Key;
                                     HexIndex sednumNeighbor = sednumPos + offset;
-                                    bool willBeRegularBonded = bonders.Contains(new HexIndexPair(sednumPos, sednumNeighbor)) || bonders.Contains(new HexIndexPair(sednumNeighbor, sednumPos));
+                                    bool willBeRegularBonded = simBonders.Contains(new HexIndexPair(sednumPos, sednumNeighbor)) || simBonders.Contains(new HexIndexPair(sednumNeighbor, sednumPos));
                                     enum_126 bondType = Brimstone.API.FindBondType(moleculeAboveBowl, sednumPos, sednumNeighbor);
 
                                     if (bondType != enum_126.None && bondType != (enum_126.Prisma0 | enum_126.Prisma1 | enum_126.Prisma2))
@@ -505,7 +729,7 @@ public static class HalvingMetallurgyParts
                     }
                     if (first)
                     {
-                        if (sim.FindAtomRelative(part, sumpInputHex).method_99(out AtomReference quicksilver) && !quicksilver.field_2281 && !quicksilver.field_2282)
+                        if (sim.FindAtomRelative(part, sumpInputHex).method_99(out AtomReference quicksilver) && quicksilver.field_2280 == Brimstone.API.VanillaAtoms["quicksilver"] && !quicksilver.field_2281 && !quicksilver.field_2282)
                         {
                             // Delete the quicksilver
                             Brimstone.API.RemoveAtom(quicksilver);
@@ -520,7 +744,7 @@ public static class HalvingMetallurgyParts
                                 state.drainFlash = true;
                             }
                         }
-                        if (state.quicksilverCount > 0 && !sim.FindAtomRelative(part, sumpOutputHex).method_99(out _))
+                        if (state.quicksilverCount > 0 && !sim.FindAtomRelative(part, sumpOutputHex).method_1085())
                         {
                             state.quicksilverEject = true;
                             state.quicksilverCount--;
@@ -538,6 +762,126 @@ public static class HalvingMetallurgyParts
                     }
                     dyn_pss.Set("state", state);
                 }
+                else if (type == Remission)
+                {
+                    if (first)
+                    {
+                        if (sim.FindAtomRelative(part, remissionOutputHex).method_1085())
+                        {
+                            // blocked!
+                            continue;
+                        }
+
+                        HexIndex input1 = part.method_1184(remissionInput1Hex);
+                        HexIndex input2 = part.method_1184(remissionInput2Hex);
+                        HexIndex bowl = part.method_1184(remissionBowlHex);
+
+                        bool metal1Exists = false;
+                        bool metal2Exists = false;
+                        bool metalBowlExists = false;
+
+                        if (sim.FindAtom(input1).method_99(out AtomReference metal1))
+                        {
+                            metal1Exists = !metal1.field_2281 && !metal1.field_2282;
+                        }
+                        if (sim.FindAtom(input2).method_99(out AtomReference metal2))
+                        {
+                            metal2Exists = !metal2.field_2281 && !metal2.field_2282;
+                        }
+                        if (sim.FindAtom(bowl).method_99(out AtomReference metalOnBowl) || (HalvingMetallurgy.ReductiveMetallurgyLoaded && ReductiveMetallurgy.Wheel.maybeFindRavariWheelAtom(sim, part, remissionBowlHex).method_99(out metalOnBowl)))
+                        {
+                            metalBowlExists = true;
+                        }
+
+                        if (!metal1Exists || !metal2Exists || !metalBowlExists)
+                        {
+                            continue;
+                        }
+                        if (metal1.field_2280 != metal2.field_2280)
+                        {
+                            continue;
+                        }
+                        if (!HalvingMetallurgyAPI.metalToDoubledMetallicity.TryGetValue(metal1.field_2280, out int inputMetallicity) || !HalvingMetallurgyAPI.metalToDoubledMetallicity.TryGetValue(metalOnBowl.field_2280, out int bowlMetallicity))
+                        {
+                            continue;
+                        }
+
+                        int outputMetallicity = inputMetallicity + 2;
+                        bowlMetallicity += inputMetallicity - 2;
+                        if (!HalvingMetallurgyAPI.doubledMetallicityToMetal.TryGetValue(outputMetallicity, out AtomType outputAtom) || !HalvingMetallurgyAPI.doubledMetallicityToMetal.TryGetValue(bowlMetallicity, out AtomType projectedMetal))
+                        {
+                            continue;
+                        }
+
+                        // Delete the metals
+                        Brimstone.API.RemoveAtom(metal1);
+                        Brimstone.API.RemoveAtom(metal2);
+                        // Play deletion animation
+                        seb.field_3937.Add(new(seb, metal1.field_2278, metal1.field_2280));
+                        seb.field_3937.Add(new(seb, metal2.field_2278, metal2.field_2280));
+                        // Promote the metal
+                        Brimstone.API.ChangeAtom(metalOnBowl, projectedMetal);
+                        // Play promotion animations
+                        seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(bowl), halvesBowlFlashAnimation, 30f, Vector2.Zero, 0f));
+                        metalOnBowl.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metalOnBowl.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                        // Update Glyph
+                        pss[part].field_2743 = true;
+                        pss[part].field_2744 = new AtomType[1] { outputAtom };
+                        Brimstone.API.AddSmallCollider(sim, part, remissionOutputHex);
+                        // Play sound
+                        Brimstone.API.PlaySound(sim, class_238.field_1991.field_1845);
+                    }
+                    else if (pss[part].field_2743)
+                    {
+
+                        Brimstone.API.AddAtom(sim, part, remissionOutputHex, pss[part].field_2744[0]);
+                    }
+                }
+                else if (type == Shearing)
+                {
+                    if (first)
+                    {
+                        if (sim.FindAtomRelative(part, shearingOutputHex).method_1085())
+                        {
+                            // blocked!
+                            continue;
+                        }
+                        if (!sim.FindAtomRelative(part, shearingBowlHex).method_99(out AtomReference bowlAtom))
+                        {
+                            continue;
+                        }
+                        if (!HalvingMetallurgyAPI.metalToDoubledMetallicity.TryGetValue(bowlAtom.field_2280, out int inputMetallicity))
+                        {
+                            continue;
+                        }
+                        int remainder = (inputMetallicity + 1) >> 1;
+                        int leftovers = inputMetallicity - remainder;
+
+                        if (leftovers == 0)
+                        {
+                            // don't create vaca
+                            continue;
+                        }
+
+                        if (!HalvingMetallurgyAPI.doubledMetallicityToMetal.TryGetValue(remainder, out AtomType newBowlAtom) || !HalvingMetallurgyAPI.doubledMetallicityToMetal.TryGetValue(leftovers, out AtomType outputAtom))
+                        {
+                            continue;
+                        }
+                        
+                        Brimstone.API.ChangeAtom(bowlAtom, newBowlAtom);
+                        bowlAtom.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, bowlAtom.field_2280, shearingSplitAnimation, 30f);
+                        seb.field_3936.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(part.method_1161()) + new Vector2(0f, 0f), shearingFlashAnimation, 30f, Vector2.Zero, 0f));
+                        // Update Glyph
+                        pss[part].field_2743 = true;
+                        pss[part].field_2744 = new AtomType[1] { outputAtom };
+                        Brimstone.API.PlaySound(sim, shearingSound);
+                        Brimstone.API.AddSmallCollider(sim, part, shearingOutputHex);
+                    }
+                    else if (pss[part].field_2743)
+                    {
+                        Brimstone.API.AddAtom(sim, part, shearingOutputHex, pss[part].field_2744[0]);
+                    }
+                }
                 else if (type == class_191.field_1775) /* Triplex bonder */
                 {
                     foreach (class_222 bonder in type.field_1538)
@@ -551,11 +895,11 @@ public static class HalvingMetallurgyParts
                             Brimstone.API.JoinMoleculesAtHexes(sim, part, bonder.field_1920, bonder.field_1921);
                             Brimstone.API.AddBond(sim, part, bonder.field_1920, bonder.field_1921, bonder.field_1922);
                         }
-
                     }
                 }
             nextGlyph:;
             }
         });
+        #endregion
     }
 }
