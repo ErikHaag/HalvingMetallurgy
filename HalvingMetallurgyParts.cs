@@ -164,6 +164,8 @@ public static class HalvingMetallurgyParts
         volumeDictionary.Add("halves", 0.5f);
         volumeDictionary.Add("quake", 0.3f);
         volumeDictionary.Add("shearing", 0.3f);
+        /* Yoinked and modified from https://en.wikipedia.org/wiki/File:Geiger_counter_sound_KCl.oga,
+         * because trying to recreate a geiger counter is hard. */
         volumeDictionary.Add("shearing_making_quickcopper", 0.2f);
 
         void Method_540(On.class_201.orig_method_540 orig, class_201 self)
