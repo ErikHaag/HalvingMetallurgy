@@ -150,18 +150,21 @@ public static class HalvingMetallurgyParts
     public static Sound halvesSound;
     public static Sound quakeSound;
     public static Sound shearingSound;
+    public static Sound quickcopperSound;
     public static void LoadSounds()
     {
         halvesSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/halves").method_1087();
         quakeSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/quake").method_1087();
         shearingSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/shearing").method_1087();
+        quickcopperSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/shearing_making_quickcopper").method_1087();
 
         FieldInfo field = typeof(class_11).GetField("field_52", BindingFlags.Static | BindingFlags.NonPublic);
         Dictionary<string, float> volumeDictionary = (Dictionary<string, float>)field.GetValue(null);
 
-        volumeDictionary.Add("halves", 0.7f);
-        volumeDictionary.Add("quake", 0.4f);
-        volumeDictionary.Add("shearing", 0.7f);
+        volumeDictionary.Add("halves", 0.5f);
+        volumeDictionary.Add("quake", 0.3f);
+        volumeDictionary.Add("shearing", 0.3f);
+        volumeDictionary.Add("shearing_making_quickcopper", 0.2f);
 
         void Method_540(On.class_201.orig_method_540 orig, class_201 self)
         {
@@ -169,6 +172,7 @@ public static class HalvingMetallurgyParts
             halvesSound.field_4062 = false;
             quakeSound.field_4062 = false;
             shearingSound.field_4062 = false;
+            quickcopperSound.field_4062 = false;
         }
 
         On.class_201.method_540 += Method_540;
@@ -665,7 +669,7 @@ public static class HalvingMetallurgyParts
                 Editor.method_925(risingMetal, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
             }
         });
-        #endregion
+
         QApi.AddPartType(Osmosis, static (part, pos, editor, renderer) =>
         {
             Vector2 offset = new(41f, 49f);
@@ -675,6 +679,7 @@ public static class HalvingMetallurgyParts
             renderer.method_528(class_238.field_1989.field_90.field_255.field_292, osmosisQuickcopperHex, Vector2.Zero);
             renderer.method_529(quickcopperPromoteSymbol, osmosisQuickcopperHex, Vector2.Zero);
         });
+        #endregion
 
         #region Part Behavior
         QApi.RunAfterCycle(static (sim, first) =>
@@ -976,12 +981,15 @@ public static class HalvingMetallurgyParts
                             continue;
                         }
 
+                        bool madeQuickcopper = false;
+
                         AtomType newBowlAtom = null;
                         AtomType outputAtom = null;
                         if (HalvingMetallurgyAPI.ShearingDictionary.TryGetValue(bowlAtom.field_2280, out Pair<AtomType, AtomType> result))
                         {
                             newBowlAtom = result.Left;
                             outputAtom = result.Right;
+                            madeQuickcopper = newBowlAtom == HalvingMetallurgyAtoms.Quickcopper || outputAtom == HalvingMetallurgyAtoms.Quickcopper;
                         }
                         else if (HalvingMetallurgyAPI.metalToDoubledMetallicity.TryGetValue(bowlAtom.field_2280, out int inputMetallicity))
                         {
@@ -998,7 +1006,8 @@ public static class HalvingMetallurgyParts
                             {
                                 // don't create beryl
                                 continue;
-                            } else if (leftovers == 0 && !ExtractionPresent(parts, part, DoubleNeighbors))
+                            }
+                            else if (leftovers == 0 && !ExtractionPresent(parts, part, DoubleNeighbors))
                             {
                                 // only create vaca if extraction is present
                                 continue;
@@ -1020,7 +1029,7 @@ public static class HalvingMetallurgyParts
                         // Update Glyph
                         pss[part].field_2743 = true;
                         pss[part].field_2744 = new AtomType[1] { outputAtom };
-                        Brimstone.API.PlaySound(sim, shearingSound);
+                        Brimstone.API.PlaySound(sim, madeQuickcopper ? quickcopperSound : shearingSound);
                         Brimstone.API.AddSmallCollider(sim, part, shearingOutputHex);
                     }
                     else if (pss[part].field_2743)
