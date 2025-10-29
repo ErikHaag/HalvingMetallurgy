@@ -100,7 +100,7 @@ public class HalvingMetallurgy : QuintessentialMod
         QApi.AddPuzzlePermission(SumpPermission, "Quicksilver Sump", "Halving Metallurgy");
         QApi.AddPuzzlePermission(RemissionPermission, "Glyph of Remission", "Halving Metallurgy");
         QApi.AddPuzzlePermission(ShearingPermission, "Glyph of Shearing", "Halving Metallurgy");
-        QApi.AddPuzzlePermission(OsmosisPermission, "Glyph of Osmosis (WIP)", "Halving Metallurgy");
+        QApi.AddPuzzlePermission(OsmosisPermission, "Glyph of Osmosis", "Halving Metallurgy");
 
         // Hooking
         HalvingMetallurgyParts.LoadHooking();
