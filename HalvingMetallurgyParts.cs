@@ -151,12 +151,17 @@ public static class HalvingMetallurgyParts
     public static Sound quakeSound;
     public static Sound shearingSound;
     public static Sound quickcopperSound;
+    public static Sound osmosisSound;
     public static void LoadSounds()
     {
         halvesSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/halves").method_1087();
         quakeSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/quake").method_1087();
         shearingSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/shearing").method_1087();
+        
+        /* Yoinked and modified from https://en.wikipedia.org/wiki/File:Geiger_counter_sound_KCl.oga,
+         * because trying to recreate a geiger counter is hard. */
         quickcopperSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/shearing_making_quickcopper").method_1087();
+        osmosisSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/osmosis").method_1087();
 
         FieldInfo field = typeof(class_11).GetField("field_52", BindingFlags.Static | BindingFlags.NonPublic);
         Dictionary<string, float> volumeDictionary = (Dictionary<string, float>)field.GetValue(null);
@@ -164,9 +169,8 @@ public static class HalvingMetallurgyParts
         volumeDictionary.Add("halves", 0.5f);
         volumeDictionary.Add("quake", 0.3f);
         volumeDictionary.Add("shearing", 0.3f);
-        /* Yoinked and modified from https://en.wikipedia.org/wiki/File:Geiger_counter_sound_KCl.oga,
-         * because trying to recreate a geiger counter is hard. */
         volumeDictionary.Add("shearing_making_quickcopper", 0.2f);
+        volumeDictionary.Add("osmosis", 0.5f);
 
         void Method_540(On.class_201.orig_method_540 orig, class_201 self)
         {
@@ -175,6 +179,7 @@ public static class HalvingMetallurgyParts
             quakeSound.field_4062 = false;
             shearingSound.field_4062 = false;
             quickcopperSound.field_4062 = false;
+            osmosisSound.field_4062 = false;
         }
 
         On.class_201.method_540 += Method_540;
@@ -675,7 +680,7 @@ public static class HalvingMetallurgyParts
         QApi.AddPartType(Osmosis, static (part, pos, editor, renderer) =>
         {
             Vector2 offset = new(41f, 49f);
-            renderer.method_523(class_238.field_1989.field_90.field_255.field_288, Vector2.Zero, offset, 0);
+            renderer.method_523(osmosisBase, Vector2.Zero, offset, 0);
             renderer.method_528(class_238.field_1989.field_90.field_255.field_292, osmosisMetalHex, Vector2.Zero);
             renderer.method_529(osmiumDemoteSymbol, osmosisMetalHex, Vector2.Zero);
             renderer.method_528(class_238.field_1989.field_90.field_255.field_292, osmosisQuickcopperHex, Vector2.Zero);
@@ -1070,6 +1075,7 @@ public static class HalvingMetallurgyParts
                     metal.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal.field_2280, class_238.field_1989.field_81.field_614, 30f);
                     seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(quickcopperHex), halvesBowlFlashAnimation, 30f, Vector2.Zero, 0f));
                     quickcopper.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quickcopper.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                    Brimstone.API.PlaySound(sim, osmosisSound);
                 }
                 else if (type == class_191.field_1778) /* Projection */
                 {
