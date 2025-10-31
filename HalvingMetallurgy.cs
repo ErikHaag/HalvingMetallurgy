@@ -54,6 +54,7 @@ public class HalvingMetallurgy : QuintessentialMod
             FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Sump, FTSIGCTU.MirrorTool.mirrorHorizontalPart(0));
             FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Remission, FTSIGCTU.MirrorTool.mirrorHorizontalPart(0));
             FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Shearing, FTSIGCTU.MirrorTool.mirrorHorizontalPart(0));
+            FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Osmosis, FTSIGCTU.MirrorTool.mirrorHorizontalPart(0));
         }
     }
 
@@ -113,6 +114,7 @@ public class HalvingMetallurgy : QuintessentialMod
             FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Sump, FTSIGCTU.Navigation.PartsMap.glyphRule);
             FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Remission, FTSIGCTU.Navigation.PartsMap.glyphRule);
             FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Shearing, FTSIGCTU.Navigation.PartsMap.glyphRule);
+            FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Osmosis, FTSIGCTU.Navigation.PartsMap.glyphRule);
         }
         if (ReductiveMetallurgyLoaded)
         {
