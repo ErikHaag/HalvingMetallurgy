@@ -10,6 +10,9 @@ public class HalvingMetallurgy : QuintessentialMod
     public static readonly bool ReductiveMetallurgyLoaded = Brimstone.API.IsModLoaded("ReductiveMetallurgy");
     public static readonly bool FTSIGCTULoaded = Brimstone.API.IsModLoaded("FTSIGCTU");
     public static readonly bool VacancyLoaded = Brimstone.API.IsModLoaded("Vacancy");
+    public static readonly bool ScaffoldingLoaded = Brimstone.API.IsModLoaded("ScaffoldingGlyphs");
+
+    public const string LogPrefix = "Halving Metallurgy: ";
 
     // permissions
     public const string HalvingPermission = "HalvingMetallurgy:halving";
@@ -33,15 +36,19 @@ public class HalvingMetallurgy : QuintessentialMod
     {
         if (FTSIGCTULoaded)
         {
-            Quintessential.Logger.Log("Halving Metallurgy: Found FTSIGCTU");
+            Quintessential.Logger.Log(LogPrefix + "Found FTSIGCTU");
         }
         if (ReductiveMetallurgyLoaded)
         {
-            Quintessential.Logger.Log("HalvingMetallurgy: Found Reductive Metallurgy");
+            Quintessential.Logger.Log(LogPrefix + "Found Reductive Metallurgy");
         }
         if (VacancyLoaded)
         {
-            Quintessential.Logger.Log("HalvingMetallurgy: Found Vaca");
+            Quintessential.Logger.Log(LogPrefix + "Found Vaca");
+        }
+        if (ScaffoldingLoaded)
+        {
+            Quintessential.Logger.Log(LogPrefix + "Found Scaffolding Glyphs");
         }
     }
 
@@ -61,12 +68,12 @@ public class HalvingMetallurgy : QuintessentialMod
     public override void Unload()
     {
         HalvingMetallurgyParts.UnloadHooks();
-        Quintessential.Logger.Log("Halving Metallurgy: Goodbye!");
+        Quintessential.Logger.Log(LogPrefix + "Goodbye!");
     }
 
     public override void LoadPuzzleContent()
     {
-        Quintessential.Logger.Log("HalvingMetallurgy: Loading!");
+        Quintessential.Logger.Log(LogPrefix + "Loading!");
         HalvingMetallurgyAtoms.AddAtomTypes();
         // Load sounds
         contentPath = Brimstone.API.GetContentPath("HalvingMetallurgy").method_1087();
@@ -144,6 +151,17 @@ public class HalvingMetallurgy : QuintessentialMod
             HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(Vaca.MainClass.VacaAtom, 0);
             HalvingMetallurgyParts.CalculateAdjacencies();
         }
-        Quintessential.Logger.Log("Loading complete, have fun!");
+        if (ScaffoldingLoaded)
+        {
+            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Quickcopper, 10);
+            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Beryl, 10);
+            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Wolfram, 20);
+            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Vulcan, 40);
+            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Nickel, 80);
+            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Zinc, 160);
+            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Sednum, 320);
+            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Osmium, 640);
+        } 
+        Quintessential.Logger.Log(LogPrefix + "Loading complete, have fun!");
     }
 }

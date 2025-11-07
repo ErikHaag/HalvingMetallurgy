@@ -244,7 +244,7 @@ public static class HalvingMetallurgyParts
 
     internal static void LoadHooking()
     {
-        Quintessential.Logger.Log("Hooking!");
+        Quintessential.Logger.Log(HalvingMetallurgy.LogPrefix + "Hooking!");
         IL.SolutionEditorScreen.method_2097 += InjectSimStartup;
         On.Editor.method_927 += HalvingMetallurgyAtoms.OnAtomRender;
         AtomSwapHook = new(typeof(Sim).GetMethod("method_1832", BindingFlags.Instance | BindingFlags.NonPublic), AtomSwap);
@@ -252,7 +252,7 @@ public static class HalvingMetallurgyParts
 
     internal static void UnloadHooks()
     {
-        Quintessential.Logger.Log("Removing Hooks!");
+        Quintessential.Logger.Log(HalvingMetallurgy.LogPrefix + "Removing Hooks!");
         IL.SolutionEditorScreen.method_2097 -= InjectSimStartup;
         On.Editor.method_927 -= HalvingMetallurgyAtoms.OnAtomRender;
         AtomSwapHook.Dispose();
@@ -1049,22 +1049,18 @@ public static class HalvingMetallurgyParts
                     HexIndex metalHex = part.method_1184(osmosisMetalHex);
                     HexIndex quickcopperHex = part.method_1184(osmosisQuickcopperHex);
 
-                    //Quintessential.Logger.Log("1036");
                     if (!sim.FindAtom(metalHex).method_99(out AtomReference metal) && !(HalvingMetallurgy.ReductiveMetallurgyLoaded && Wheel.maybeFindRavariWheelAtom(sim, part, osmosisMetalHex).method_99(out metal)))
                     {
                         continue;
                     }
-                    //Quintessential.Logger.Log("1041");
                     if (!sim.FindAtom(quickcopperHex).method_99(out AtomReference quickcopper))
                     {
                         continue;
                     }
-                    //Quintessential.Logger.Log("1046");
                     if (quickcopper.field_2280 != HalvingMetallurgyAtoms.Quickcopper)
                     {
                         continue;
                     }
-                    //Quintessential.Logger.Log("1051");
                     if (!HalvingMetallurgyAPI.OsmosisDictionary.TryGetValue(metal.field_2280, out AtomType output) && HalvingMetallurgyAPI.ChangeMetallicity(metal.field_2280, -1, out output, i => (i != 0 || ExtractionPresent(parts, part, DoubleNeighbors))) == Brimstone.API.SuccessInfo.failure)
                     {
                         continue;

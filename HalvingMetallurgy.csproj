@@ -41,6 +41,9 @@
       <HintPath>..\ReductiveMetallurgy_1.0.1\ReductiveMetallurgy.dll</HintPath>
       <CopyLocal>False</CopyLocal>
     </Reference>
+    <Reference Include="ScaffoldingGlyphs">
+      <HintPath>..\ScaffoldingGlyphs_0.0.3\ScaffoldingGlyphs.dll</HintPath>
+    </Reference>
     <Reference Include="Vaca">
       <HintPath>..\Vaca_1.0.1\Vaca.dll</HintPath>
     </Reference>
