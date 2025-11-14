@@ -5,12 +5,13 @@ using Texture = class_256;
 
 namespace HalvingMetallurgy;
 
-public static class HalvingMetallurgyAtoms
+public static class Atoms
 {
+    public static bool quickcopperRadioactive = true;
+
     public static Texture[] quickcopperAnimation = Brimstone.API.GetAnimation("textures/atoms/erikhaag/HalvingMetallurgy/cloud_trails.array", "trails", 64);
 
-
-    public static AtomType Quickcopper, ActiveQuickcopper, Beryl, PurificationBeryl, Wolfram, Vulcan, Nickel, Zinc, Sednum, Osmium;
+    public static AtomType Quicklime, Quickcopper, ActiveQuickcopper, Beryl, PurificationBeryl, Wolfram, Vulcan, Nickel, Zinc, Sednum, Osmium;
 
     public static void AddAtomTypes()
     {
@@ -21,6 +22,7 @@ public static class HalvingMetallurgyAtoms
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/osmium_symbol",
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/osmium_lightramp"
         );
+
         Sednum = Brimstone.API.CreateMetalAtom(
             ID: 129,
             modName: "HalvingMetallurgy",
@@ -29,6 +31,7 @@ public static class HalvingMetallurgyAtoms
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/sednum_lightramp",
             promotesTo: Osmium
         );
+
         Zinc = Brimstone.API.CreateMetalAtom(
             ID: 128,
             modName: "HalvingMetallurgy",
@@ -37,6 +40,7 @@ public static class HalvingMetallurgyAtoms
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/zinc_lightramp",
             promotesTo: Sednum
         );
+
         Nickel = Brimstone.API.CreateMetalAtom(
             ID: 127,
             modName: "HalvingMetallurgy",
@@ -53,6 +57,7 @@ public static class HalvingMetallurgyAtoms
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/vulcan_lightramp",
             promotesTo: Nickel
         );
+
         Wolfram = Brimstone.API.CreateMetalAtom(
             ID: 125,
             modName: "HalvingMetallurgy",
@@ -61,6 +66,7 @@ public static class HalvingMetallurgyAtoms
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/wolfram_lightramp",
             promotesTo: Vulcan
         );
+
         Beryl = Brimstone.API.CreateMetalAtom(
             ID: 124,
             modName: "HalvingMetallurgy",
@@ -69,17 +75,18 @@ public static class HalvingMetallurgyAtoms
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/beryl_lightramp",
             promotesTo: Wolfram
         );
+
         PurificationBeryl = Brimstone.API.CreateMetalAtom(
             ID: 124,
             modName: "HalvingMetallurgy",
-            name: "PB", // do not spread on bread, this isn't peanut butter nor strawberry jam.
+            name: "PB", // do not spread on bread, this isn't peanut butter.
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/beryl_symbol",
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/beryl_lightramp",
             promotesTo: Brimstone.API.VanillaAtoms["lead"]
         );
 
         Quickcopper = Brimstone.API.CreateNormalAtom(
-            ID: 132,
+            ID: 131,
             modName: "HalvingMetallurgy",
             name: "Quickcopper",
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/quickcopper_symbol",
@@ -87,13 +94,22 @@ public static class HalvingMetallurgyAtoms
         );
 
         ActiveQuickcopper = Brimstone.API.CreateNormalAtom(
-            ID: 132,
+            ID: 131,
             modName: "HalvingMetallurgy",
             name: "Aqc",
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/quickcopper_symbol",
             pathToDiffuse: "textures/atoms/erikhaag/HalvingMetallurgy/quickcopper_diffuse"
         );
 
+        Quicklime = Brimstone.API.CreateNormalAtom(
+            ID: 132,
+            modName: "HalvingMetallurgy",
+            name: "Quicklime",
+            pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/quicklime_symbol",
+            pathToDiffuse: "textures/atoms/erikhaag/HalvingMetallurgy/quicklime_diffuse"
+        );
+
+        QApi.AddAtomType(Quicklime);
         QApi.AddAtomType(Quickcopper);
         QApi.AddAtomType(Beryl);
         QApi.AddAtomType(Wolfram);
@@ -106,7 +122,7 @@ public static class HalvingMetallurgyAtoms
 
     internal static void OnAtomRender(On.Editor.orig_method_927 orig, AtomType type, Vector2 position, float param_4582, float param_4583, float param_4584, float param_4585, float param_4586, float param_4587, Texture overrideShadow, Texture maskM, bool param_4590)
     {
-        if (type.QuintAtomType == "HalvingMetallurgy:aqc")
+        if (quickcopperRadioactive && type.QuintAtomType == "HalvingMetallurgy:aqc")
         {
             int frame = (int)(new struct_27(Time.Now().Ticks).method_603() * 30f) & 0x3f;
             class_135.method_272(quickcopperAnimation[frame], position - new Vector2(60, 60));

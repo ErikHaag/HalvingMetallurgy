@@ -1,11 +1,15 @@
-﻿using MonoMod.RuntimeDetour;
-using MonoMod.Utils;
-using Quintessential;
+﻿using Quintessential;
+using Quintessential.Settings;
+using System;
 
 namespace HalvingMetallurgy;
 
 public class HalvingMetallurgy : QuintessentialMod
 {
+    public static QuintessentialMod self;
+    public override Type SettingsType => typeof(MySettings);
+    
+
     // optional dependencies
     public static readonly bool ReductiveMetallurgyLoaded = Brimstone.API.IsModLoaded("ReductiveMetallurgy");
     public static readonly bool FTSIGCTULoaded = Brimstone.API.IsModLoaded("FTSIGCTU");
@@ -22,9 +26,11 @@ public class HalvingMetallurgy : QuintessentialMod
     public const string ShearingPermission = "HalvingMetallurgy:shearing";
     public const string OsmosisPermission = "HalvingMetallurgy:osmosis";
 
+    public const string SoriaPermission = "HalvingMetallurgy:soria";
+
     public static string contentPath;
 
-    public static bool MirrorHalfProjectionPart(SolutionEditorScreen ses, Part part, bool mirrorVert, HexIndex pivot)
+    public static bool MirrorHalves(SolutionEditorScreen ses, Part part, bool mirrorVert, HexIndex pivot)
     {
         FTSIGCTU.MirrorTool.shiftRotation(part, HexRotation.Counterclockwise);
         FTSIGCTU.MirrorTool.mirrorSimplePart(ses, part, mirrorVert, pivot);
@@ -34,73 +40,91 @@ public class HalvingMetallurgy : QuintessentialMod
 
     public override void Load()
     {
+        self = this;
+        Settings = new MySettings();
+
         if (FTSIGCTULoaded)
         {
-            Quintessential.Logger.Log(LogPrefix + "Found FTSIGCTU");
+            Logger.Log(LogPrefix + "Found FTSIGCTU");
         }
         if (ReductiveMetallurgyLoaded)
         {
-            Quintessential.Logger.Log(LogPrefix + "Found Reductive Metallurgy");
+            Logger.Log(LogPrefix + "Found Reductive Metallurgy");
         }
         if (VacancyLoaded)
         {
-            Quintessential.Logger.Log(LogPrefix + "Found Vaca");
+            Logger.Log(LogPrefix + "Found Vaca");
         }
         if (ScaffoldingLoaded)
         {
-            Quintessential.Logger.Log(LogPrefix + "Found Scaffolding Glyphs");
+            Logger.Log(LogPrefix + "Found Scaffolding Glyphs");
         }
     }
+    public override void ApplySettings()
+    {
+        base.ApplySettings();
+        MySettings SET = (MySettings)Settings;
+        
+        Atoms.quickcopperRadioactive = SET.quickcopperRadioactive;
+        Glyphs.quickcopperRadioactive = SET.quickcopperRadioactive;
+        Wheel.quickcopperRadioactive = SET.quickcopperRadioactive;
+    }
+
 
     public override void PostLoad()
     {
         if (FTSIGCTULoaded)
         {
-            FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Halves, MirrorHalfProjectionPart);
-            FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Quake, FTSIGCTU.MirrorTool.mirrorSingleton);
-            FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Sump, FTSIGCTU.MirrorTool.mirrorHorizontalPart(0));
-            FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Remission, FTSIGCTU.MirrorTool.mirrorHorizontalPart(0));
-            FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Shearing, FTSIGCTU.MirrorTool.mirrorHorizontalPart(0));
-            FTSIGCTU.MirrorTool.addRule(HalvingMetallurgyParts.Osmosis, FTSIGCTU.MirrorTool.mirrorHorizontalPart(0));
+            FTSIGCTU.MirrorTool.addRule(Glyphs.Halves, MirrorHalves);
+            FTSIGCTU.MirrorTool.addRule(Glyphs.Quake, FTSIGCTU.MirrorTool.mirrorSingleton);
+            FTSIGCTU.MirrorTool.addRule(Glyphs.Sump, FTSIGCTU.MirrorTool.mirrorSimplePart);
+            FTSIGCTU.MirrorTool.addRule(Glyphs.Remission, FTSIGCTU.MirrorTool.mirrorSimplePart);
+            FTSIGCTU.MirrorTool.addRule(Glyphs.Shearing, FTSIGCTU.MirrorTool.mirrorSimplePart);
+            FTSIGCTU.MirrorTool.addRule(Glyphs.Osmosis, FTSIGCTU.MirrorTool.mirrorSimplePart);
+
+            FTSIGCTU.MirrorTool.addRule(Wheel.Soria, FTSIGCTU.MirrorTool.mirrorVanillaArm);
         }
     }
 
     public override void Unload()
     {
-        HalvingMetallurgyParts.UnloadHooks();
-        Quintessential.Logger.Log(LogPrefix + "Goodbye!");
+        Glyphs.UnloadHooks();
+        Logger.Log(LogPrefix + "Goodbye!");
     }
 
     public override void LoadPuzzleContent()
     {
-        Quintessential.Logger.Log(LogPrefix + "Loading!");
-        HalvingMetallurgyAtoms.AddAtomTypes();
+        Logger.Log(LogPrefix + "Loading!");
+        Atoms.AddAtomTypes();
         // Load sounds
         contentPath = Brimstone.API.GetContentPath("HalvingMetallurgy").method_1087();
-        HalvingMetallurgyParts.LoadSounds();
-        HalvingMetallurgyParts.AddPartTypes();
+        Glyphs.LoadSounds();
+        Glyphs.AddPartTypes();
+
+        Wheel.LoadWheel();
 
         // Edge-case Dictionaries
-        HalvingMetallurgyAPI.ShearingDictionary.Add(Brimstone.API.VanillaAtoms["quicksilver"], new(HalvingMetallurgyAtoms.Quickcopper, HalvingMetallurgyAtoms.Quickcopper));
+        API.ShearingDictionary.Add(Brimstone.API.VanillaAtoms["quicksilver"], new(Atoms.Quickcopper, Atoms.Quickcopper));
 
         // Add metallicity lookup
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(HalvingMetallurgyAtoms.Beryl, 1);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["lead"], 2);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(HalvingMetallurgyAtoms.Wolfram, 3);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["tin"], 4);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(HalvingMetallurgyAtoms.Vulcan, 5);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["iron"], 6);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(HalvingMetallurgyAtoms.Nickel, 7);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["copper"], 8);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(HalvingMetallurgyAtoms.Zinc, 9);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["silver"], 10);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(HalvingMetallurgyAtoms.Sednum, 11);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["gold"], 12);
-        HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(HalvingMetallurgyAtoms.Osmium, 13);
+        API.AddMetalToMetallicityDictionary(Atoms.Beryl, 1);
+        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["lead"], 2);
+        API.AddMetalToMetallicityDictionary(Atoms.Wolfram, 3);
+        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["tin"], 4);
+        API.AddMetalToMetallicityDictionary(Atoms.Vulcan, 5);
+        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["iron"], 6);
+        API.AddMetalToMetallicityDictionary(Atoms.Nickel, 7);
+        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["copper"], 8);
+        API.AddMetalToMetallicityDictionary(Atoms.Zinc, 9);
+        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["silver"], 10);
+        API.AddMetalToMetallicityDictionary(Atoms.Sednum, 11);
+        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms["gold"], 12);
+        API.AddMetalToMetallicityDictionary(Atoms.Osmium, 13);
 
-        // Atom Swapping
-        HalvingMetallurgyAPI.ConvertBeforeConsumption.Add(HalvingMetallurgyAtoms.ActiveQuickcopper, HalvingMetallurgyAtoms.Quickcopper);
-        HalvingMetallurgyAPI.ConvertAfterHalfstep.Add(HalvingMetallurgyAtoms.Quickcopper, HalvingMetallurgyAtoms.ActiveQuickcopper);
+        // Add quicksilver's metallicity lookup
+        API.AddQuicksilverToDictionary(Atoms.Quicklime, 0);
+        API.AddQuicksilverToDictionary(Atoms.Quickcopper, 1);
+        API.AddQuicksilverToDictionary(Brimstone.API.VanillaAtoms["quicksilver"], 2);
 
         // Add permissions
         QApi.AddPuzzlePermission(HalvingPermission, "Glyph of Halves", "Halving Metallurgy");
@@ -109,59 +133,62 @@ public class HalvingMetallurgy : QuintessentialMod
         QApi.AddPuzzlePermission(RemissionPermission, "Glyph of Remission", "Halving Metallurgy");
         QApi.AddPuzzlePermission(ShearingPermission, "Glyph of Shearing", "Halving Metallurgy");
         QApi.AddPuzzlePermission(OsmosisPermission, "Glyph of Osmosis", "Halving Metallurgy");
+        QApi.AddPuzzlePermission(SoriaPermission, "Soria's Wheel", "Halving Metallurgy");
 
         // Hooking
-        HalvingMetallurgyParts.LoadHooking();
+        Glyphs.LoadHooking();
 
         if (FTSIGCTULoaded)
         {
             // Add Glyphs to FTSIGCTU's map
-            FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Halves, FTSIGCTU.Navigation.PartsMap.glyphRule);
-            FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Quake, FTSIGCTU.Navigation.PartsMap.glyphRule);
-            FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Sump, FTSIGCTU.Navigation.PartsMap.glyphRule);
-            FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Remission, FTSIGCTU.Navigation.PartsMap.glyphRule);
-            FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Shearing, FTSIGCTU.Navigation.PartsMap.glyphRule);
-            FTSIGCTU.Navigation.PartsMap.addPartHexRule(HalvingMetallurgyParts.Osmosis, FTSIGCTU.Navigation.PartsMap.glyphRule);
+            FTSIGCTU.Navigation.PartsMap.addPartHexRule(Glyphs.Halves, FTSIGCTU.Navigation.PartsMap.glyphRule);
+            FTSIGCTU.Navigation.PartsMap.addPartHexRule(Glyphs.Quake, FTSIGCTU.Navigation.PartsMap.glyphRule);
+            FTSIGCTU.Navigation.PartsMap.addPartHexRule(Glyphs.Sump, FTSIGCTU.Navigation.PartsMap.glyphRule);
+            FTSIGCTU.Navigation.PartsMap.addPartHexRule(Glyphs.Remission, FTSIGCTU.Navigation.PartsMap.glyphRule);
+            FTSIGCTU.Navigation.PartsMap.addPartHexRule(Glyphs.Shearing, FTSIGCTU.Navigation.PartsMap.glyphRule);
+            FTSIGCTU.Navigation.PartsMap.addPartHexRule(Glyphs.Osmosis, FTSIGCTU.Navigation.PartsMap.glyphRule);
+            FTSIGCTU.Navigation.PartsMap.addPartHexRule(Wheel.Soria, FTSIGCTU.Navigation.PartsMap.armHexRule);
         }
         if (ReductiveMetallurgyLoaded)
         {
             //Add Rejection Rules for new atoms
-            ReductiveMetallurgy.API.addRejectionRule(HalvingMetallurgyAtoms.Osmium, HalvingMetallurgyAtoms.Sednum);
-            ReductiveMetallurgy.API.addRejectionRule(HalvingMetallurgyAtoms.Sednum, HalvingMetallurgyAtoms.Zinc);
-            ReductiveMetallurgy.API.addRejectionRule(HalvingMetallurgyAtoms.Zinc, HalvingMetallurgyAtoms.Nickel);
-            ReductiveMetallurgy.API.addRejectionRule(HalvingMetallurgyAtoms.Nickel, HalvingMetallurgyAtoms.Vulcan);
-            ReductiveMetallurgy.API.addRejectionRule(HalvingMetallurgyAtoms.Vulcan, HalvingMetallurgyAtoms.Wolfram);
+            ReductiveMetallurgy.API.addRejectionRule(Atoms.Osmium, Atoms.Sednum);
+            ReductiveMetallurgy.API.addRejectionRule(Atoms.Sednum, Atoms.Zinc);
+            ReductiveMetallurgy.API.addRejectionRule(Atoms.Zinc, Atoms.Nickel);
+            ReductiveMetallurgy.API.addRejectionRule(Atoms.Nickel, Atoms.Vulcan);
+            ReductiveMetallurgy.API.addRejectionRule(Atoms.Vulcan, Atoms.Wolfram);
             // Add Deposition Rules
-            ReductiveMetallurgy.API.addDepositionRule(HalvingMetallurgyAtoms.Osmium, HalvingMetallurgyAtoms.Nickel, Brimstone.API.VanillaAtoms["iron"]);
-            ReductiveMetallurgy.API.addDepositionRule(HalvingMetallurgyAtoms.Sednum, Brimstone.API.VanillaAtoms["iron"], HalvingMetallurgyAtoms.Vulcan);
-            ReductiveMetallurgy.API.addDepositionRule(HalvingMetallurgyAtoms.Zinc, HalvingMetallurgyAtoms.Vulcan, Brimstone.API.VanillaAtoms["tin"]);
-            ReductiveMetallurgy.API.addDepositionRule(HalvingMetallurgyAtoms.Nickel, Brimstone.API.VanillaAtoms["tin"], HalvingMetallurgyAtoms.Wolfram);
-            ReductiveMetallurgy.API.addDepositionRule(HalvingMetallurgyAtoms.Vulcan, HalvingMetallurgyAtoms.Wolfram, Brimstone.API.VanillaAtoms["lead"]);
+            ReductiveMetallurgy.API.addDepositionRule(Atoms.Osmium, Atoms.Nickel, Brimstone.API.VanillaAtoms["iron"]);
+            ReductiveMetallurgy.API.addDepositionRule(Atoms.Sednum, Brimstone.API.VanillaAtoms["iron"], Atoms.Vulcan);
+            ReductiveMetallurgy.API.addDepositionRule(Atoms.Zinc, Atoms.Vulcan, Brimstone.API.VanillaAtoms["tin"]);
+            ReductiveMetallurgy.API.addDepositionRule(Atoms.Nickel, Brimstone.API.VanillaAtoms["tin"], Atoms.Wolfram);
+            ReductiveMetallurgy.API.addDepositionRule(Atoms.Vulcan, Atoms.Wolfram, Brimstone.API.VanillaAtoms["lead"]);
             // Add Proliferation
-            ReductiveMetallurgy.API.addProliferationRule(HalvingMetallurgyAtoms.Osmium);
-            ReductiveMetallurgy.API.addProliferationRule(HalvingMetallurgyAtoms.Sednum);
-            ReductiveMetallurgy.API.addProliferationRule(HalvingMetallurgyAtoms.Zinc);
-            ReductiveMetallurgy.API.addProliferationRule(HalvingMetallurgyAtoms.Nickel);
-            ReductiveMetallurgy.API.addProliferationRule(HalvingMetallurgyAtoms.Vulcan);
-            ReductiveMetallurgy.API.addProliferationRule(HalvingMetallurgyAtoms.Wolfram);
-            ReductiveMetallurgy.API.addProliferationRule(HalvingMetallurgyAtoms.Beryl);
+            ReductiveMetallurgy.API.addProliferationRule(Atoms.Osmium);
+            ReductiveMetallurgy.API.addProliferationRule(Atoms.Sednum);
+            ReductiveMetallurgy.API.addProliferationRule(Atoms.Zinc);
+            ReductiveMetallurgy.API.addProliferationRule(Atoms.Nickel);
+            ReductiveMetallurgy.API.addProliferationRule(Atoms.Vulcan);
+            ReductiveMetallurgy.API.addProliferationRule(Atoms.Wolfram);
+            ReductiveMetallurgy.API.addProliferationRule(Atoms.Beryl);
         }
         if (VacancyLoaded)
         {
-            HalvingMetallurgyAPI.AddMetalToMetallicityDictionary(Vaca.MainClass.VacaAtom, 0);
-            HalvingMetallurgyParts.CalculateAdjacencies();
+            API.AddMetalToMetallicityDictionary(Vaca.MainClass.VacaAtom, 0);
+            Glyphs.CalculateAdjacencies();
         }
         if (ScaffoldingLoaded)
         {
-            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Quickcopper, 10);
-            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Beryl, 10);
-            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Wolfram, 20);
-            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Vulcan, 40);
-            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Nickel, 80);
-            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Zinc, 160);
-            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Sednum, 320);
-            ScaffoldingGlyphs.API.AddScaffold(HalvingMetallurgyAtoms.Osmium, 640);
-        } 
-        Quintessential.Logger.Log(LogPrefix + "Loading complete, have fun!");
+            ScaffoldingGlyphs.API.AddScaffold(Atoms.Quicklime, 0);
+            ScaffoldingGlyphs.API.AddScaffold(Atoms.Quickcopper, 10);
+            ScaffoldingGlyphs.API.AddScaffold(Atoms.Beryl, 10);
+            ScaffoldingGlyphs.API.AddScaffold(Atoms.Wolfram, 20);
+            ScaffoldingGlyphs.API.AddScaffold(Atoms.Vulcan, 40);
+            ScaffoldingGlyphs.API.AddScaffold(Atoms.Nickel, 80);
+            ScaffoldingGlyphs.API.AddScaffold(Atoms.Zinc, 160);
+            ScaffoldingGlyphs.API.AddScaffold(Atoms.Sednum, 320);
+            ScaffoldingGlyphs.API.AddScaffold(Atoms.Osmium, 640);
+        }
+        Logger.Log(LogPrefix + "Loading complete, have fun!");
     }
 }

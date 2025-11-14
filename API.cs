@@ -4,17 +4,17 @@ using System.Collections.Generic;
 
 namespace HalvingMetallurgy;
 
-public static class HalvingMetallurgyAPI
+public static class API
 {
     public static Dictionary<AtomType, AtomType> HalvesDictionary = new();
     public static Dictionary<AtomType, Pair<AtomType, AtomType>> ShearingDictionary = new();
     public static Dictionary<AtomType, AtomType> OsmosisDictionary = new();
 
-
-    // Make this a brimstone feature?
+    /*
+    // Make this a Brimstone feature?
     public static Dictionary<AtomType, AtomType> ConvertBeforeConsumption = new();
     public static Dictionary<AtomType, AtomType> ConvertAfterHalfstep = new();
-
+    */
 
     public static bool AddMetalToMetallicityDictionary(AtomType metal, int doubledMetallicity)
     {
@@ -92,6 +92,23 @@ public static class HalvingMetallurgyAPI
     }
 
 
-    public static Dictionary<AtomType, int> metalToDoubledMetallicity = new();
-    public static Dictionary<int, AtomType> doubledMetallicityToMetal = new();
+    public static readonly Dictionary<AtomType, int> metalToDoubledMetallicity = new();
+    public static readonly Dictionary<int, AtomType> doubledMetallicityToMetal = new();
+
+    internal static void AddQuicksilverToDictionary(AtomType qs, int doubledMetallicity)
+    {
+        quicksilverToDoubledMetallicity.Add(qs, doubledMetallicity);
+        doubledMetallicityToQuicksilver.Add(doubledMetallicity, qs);
+    }
+
+    private static readonly Dictionary<AtomType, int> quicksilverToDoubledMetallicity = new();
+    private static readonly Dictionary<int, AtomType> doubledMetallicityToQuicksilver = new();
+    public static Maybe<AtomType> QuicksilverProjectionBehavior(AtomType qs, int delta)
+    {
+        if (quicksilverToDoubledMetallicity.TryGetValue(qs, out int m) && doubledMetallicityToQuicksilver.TryGetValue(m + delta, out AtomType newQs))
+        {
+            return newQs;
+        }
+        return struct_18.field_1431;
+    }
 }
