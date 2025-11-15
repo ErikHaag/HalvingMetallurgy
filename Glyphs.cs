@@ -494,28 +494,19 @@ public static class Glyphs
         QApi.AddPartTypeToPanel(Osmosis, false);
 
         #region Glyph Renderers
+
         QApi.AddPartType(Halves, static (part, pos, editor, renderer) => {
             PartSimState pss = editor.method_507().method_481(part);
             float time = editor.method_504();
             int frame = 0;
-            Vector2 center = new(83f, 49f);
-            // pixel perfect alignment jank.
-            Vector2[] offsets = {
-                new(0f, 0f),
-                new(-1f, 1f),
-                new(-2f, -1f),
-                new(-1f, -1f),
-                new(0f, -2f),
-                new(1f, -1f)
-            };
-            Vector2 offset = offsets[class_162.method_408(part.method_1163().GetNumberOfTurns(), 6)];
+            Vector2 offset = new(82f, 48f);
             if (pss.field_2743)
             {
                 frame = (int)(11f * time);
                 frame = frame >= 6 ? 10 - frame : frame;
             }
-            renderer.method_523(halvesBase, offset, center, 0f);
-            renderer.method_523(halvesEngravingFlashAnimation[frame], offset, center, 0f);
+            renderer.method_523(halvesBase, new(-1f, -1f), offset, 0f);
+            renderer.method_523(halvesEngravingFlashAnimation[frame], new(-1f, -1f), offset, 0f);
             // quicksilver
             renderer.method_530(class_238.field_1989.field_90.field_255.field_293, halvesInputHex, 0);
             renderer.method_529(class_238.field_1989.field_90.field_255.field_294, halvesInputHex, Vector2.Zero);
@@ -567,8 +558,8 @@ public static class Glyphs
             // unknown class object
             class_236 uco = editor.method_1989(part, pos);
             float time = editor.method_504();
-            Vector2 offset = new(41f, 49f);
-            renderer.method_523(sumpBase, Vector2.Zero, offset, 0f);
+            Vector2 offset = new(41f, 48f);
+            renderer.method_523(sumpBase, new(-1f, -1f), offset, 0f);
             // quicksilver
             renderer.method_530(class_238.field_1989.field_90.field_255.field_293, sumpInputHex, 0);
             renderer.method_529(class_238.field_1989.field_90.field_255.field_294, sumpInputHex, Vector2.Zero);
@@ -658,9 +649,9 @@ public static class Glyphs
             // unknown class object
             class_236 uco = editor.method_1989(part, pos);
             float time = editor.method_504();
-            Vector2 offset = new(41f, 49f);
+            Vector2 offset = new(41f, 48f);
 
-            renderer.method_523(shearingBase, Vector2.Zero, offset, 0f);
+            renderer.method_523(shearingBase, new(-1f, -1f), offset, 0f);
             renderer.method_529(shearingBowl, shearingBowlHex, Vector2.Zero);
 
             int irisFrame = 15;
@@ -688,8 +679,8 @@ public static class Glyphs
         });
 
         QApi.AddPartType(Osmosis, static (part, pos, editor, renderer) => {
-            Vector2 offset = new(41f, 49f);
-            renderer.method_523(osmosisBase, Vector2.Zero, offset, 0);
+            Vector2 offset = new(41f, 48f);
+            renderer.method_523(osmosisBase, new(-1f, -1f), offset, 0);
             renderer.method_528(class_238.field_1989.field_90.field_255.field_292, osmosisMetalHex, Vector2.Zero);
             renderer.method_529(osmiumDemoteSymbol, osmosisMetalHex, Vector2.Zero);
             renderer.method_528(class_238.field_1989.field_90.field_255.field_292, osmosisQuickcopperHex, Vector2.Zero);
@@ -945,12 +936,11 @@ public static class Glyphs
                         {
                             goto trySumpDrain;
                         }
-                        /*
                         if (quicksilverIsSoria && state.quicksilverCount == 5)
                         {
+                            // Soria can't overfill a sump
                             goto trySumpDrain;
                         }
-                        */
                         if (quicksilverIsSoria)
                         {
                             Brimstone.API.ChangeAtom(quicksilver, Atoms.Quicklime);
