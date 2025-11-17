@@ -1285,9 +1285,9 @@ public static class Glyphs
                         continue;
                     }
 
-                    if (!(isMetalSoria && API.QuicksilverProjectionBehavior(metal.field_2280, projectAmount).method_99(out AtomType projection))
-                    && !API.HalvesDictionary.TryGetValue(metal.field_2280, out projection)
-                    && API.ChangeMetallicity(metal.field_2280, projectAmount, out projection, static i => i <= 13) == Brimstone.API.SuccessInfo.failure)
+                    if (isMetalSoria ? !API.QuicksilverProjectionBehavior(metal.field_2280, projectAmount).method_99(out AtomType projection) : 
+                    (!API.HalvesDictionary.TryGetValue(metal.field_2280, out projection)
+                    && API.ChangeMetallicity(metal.field_2280, projectAmount, out projection, static i => i <= 13) == Brimstone.API.SuccessInfo.failure))
                     {
                         continue;
                     }
