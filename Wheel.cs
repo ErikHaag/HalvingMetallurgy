@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using PartType = class_139;
+using Texture = class_256;
 
 namespace HalvingMetallurgy;
 
@@ -98,6 +99,18 @@ public static class Wheel
             }
         }
         Editor.method_925(molecule, class236.field_1984, new HexIndex(0, 0), class236.field_1985, 1f, 1f, 1f, false, seb_self);
+    }
+
+    public static Texture[] SoriaFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/soria_flash.array", "soria_flash", 10);
+
+    public static void DrawSoriaFlash(SolutionEditorBase seb, Part part, HexIndex hex)
+    {
+        DrawSoriaFlash(seb, part.method_1184(hex));
+    }
+
+    public static void DrawSoriaFlash(SolutionEditorBase seb, HexIndex hex)
+    {
+        seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(hex), SoriaFlashAnimation, 30f, Vector2.Zero, 0f));
     }
 
     private static Molecule GetSoriaWheelAtoms(PartSimState state) => GetSoriaWheelData(state, SoriaStateString, SoriaMolecule());

@@ -789,15 +789,15 @@ public static class Glyphs
 
 
                     // Are they valid atoms
-                    if (!(metal1IsSoria && API.QuicksilverProjectionBehavior(metal1.field_2280, 1).method_99(out AtomType hp1)) // Soria's Wheel
-                    && !API.HalvesDictionary.TryGetValue(metal1.field_2280, out hp1) // override
-                    && API.ChangeMetallicity(metal1.field_2280, 1, out hp1, static i => i <= 13) == Brimstone.API.SuccessInfo.failure) // metallicity
+                    if (metal1IsSoria ? !API.QuicksilverProjectionBehavior(metal1.field_2280, 1).method_99(out AtomType hp1) : // Soria's Wheel
+                    (!API.HalvesDictionary.TryGetValue(metal1.field_2280, out hp1) // override
+                    && API.ChangeMetallicity(metal1.field_2280, 1, out hp1, static i => i <= 13) == Brimstone.API.SuccessInfo.failure)) // metallicity
                     {
                         continue;
                     }
-                    if (!(metal2IsSoria && API.QuicksilverProjectionBehavior(metal2.field_2280, 1).method_99(out AtomType hp2)) // Soria's Wheel
-                    && !API.HalvesDictionary.TryGetValue(metal2.field_2280, out hp2) // override
-                    && API.ChangeMetallicity(metal2.field_2280, 1, out hp2, static i => i <= 13) == Brimstone.API.SuccessInfo.failure) // metallicity
+                    if (metal2IsSoria ? !API.QuicksilverProjectionBehavior(metal2.field_2280, 1).method_99(out AtomType hp2) : // Soria's Wheel
+                    (!API.HalvesDictionary.TryGetValue(metal2.field_2280, out hp2) // override
+                    && API.ChangeMetallicity(metal2.field_2280, 1, out hp2, static i => i <= 13) == Brimstone.API.SuccessInfo.failure)) // metallicity
                     {
                         continue;
                     }
@@ -805,6 +805,7 @@ public static class Glyphs
                     if (isQuicksilverSoria)
                     {
                         Brimstone.API.ChangeAtom(quicksilver, rejectionResult);
+                        Wheel.DrawSoriaFlash(seb, part, halvesInputHex);
                         quicksilver.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quicksilver.field_2280, class_238.field_1989.field_81.field_614, 30f);
                     }
                     else if (isQuicksilverRavari)
@@ -938,14 +939,15 @@ public static class Glyphs
                         {
                             goto trySumpDrain;
                         }
-                        if (quicksilverIsSoria && state.quicksilverCount == 5)
-                        {
-                            // Soria can't overfill a sump
-                            goto trySumpDrain;
-                        }
                         if (quicksilverIsSoria)
                         {
+                            if (state.quicksilverCount == 5)
+                            {
+                                // Soria can't overfill a sump
+                                goto trySumpDrain;
+                            }
                             Brimstone.API.ChangeAtom(quicksilver, Atoms.Quicklime);
+                            Wheel.DrawSoriaFlash(seb, part, sumpInputHex);
                             quicksilver.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quicksilver.field_2280, class_238.field_1989.field_81.field_614, 30f);
                         }
                         else
@@ -1293,6 +1295,7 @@ public static class Glyphs
                     if (isQuicksilverSoria)
                     {
                         Brimstone.API.ChangeAtom(quickcopper, Atoms.Quicklime);
+                        Wheel.DrawSoriaFlash(seb, part, new(0, 0));
                         quickcopper.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quickcopper.field_2280, class_238.field_1989.field_81.field_614, 30f);
                     }
                     else if (isQuicksilverRavari)
