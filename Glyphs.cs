@@ -393,7 +393,7 @@ public static class Glyphs
             field_1528 = "halving-metallurgy-quake",
             field_1529 = class_134.method_253("Glyph of Quake", string.Empty),
             field_1530 = class_134.method_253("The glyph of quake shakes a molecule vigorously, breaking all the weak sednum bonds.", string.Empty),
-            field_1531 = 20,
+            field_1531 = 15,
             field_1539 = true,
             field_1549 = class_238.field_1989.field_97.field_382,
             field_1550 = class_238.field_1989.field_97.field_383,
@@ -452,7 +452,7 @@ public static class Glyphs
             field_1528 = "halving-metallurgy-shearing", // ID
             field_1529 = class_134.method_253("Glyph of Shearing", string.Empty), // Name
             field_1530 = class_134.method_253("The glyph of shearing cuts a metal in half, ejecting the leftovers", string.Empty), // Description
-            field_1531 = 30, // Cost
+            field_1531 = 25, // Cost
             field_1539 = true, // Is a glyph
             field_1549 = class_238.field_1989.field_97.field_374, // Shadow/glow
             field_1550 = class_238.field_1989.field_97.field_375, // Stroke/outline
