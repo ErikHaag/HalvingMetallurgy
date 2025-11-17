@@ -203,10 +203,12 @@ public static class Glyphs
     public static readonly HexIndex osmosisQuickcopperHex = new(1, 0);
 
     public static HexIndex[] DoubleNeighbors;
+    public static HexIndex[] DiamondNeighbors;
 
     public static void CalculateAdjacencies()
     {
         DoubleNeighbors = API.GetGlyphNeighbors(Osmosis.field_1540);
+        DiamondNeighbors = API.GetGlyphNeighbors(Remission.field_1540);
     }
 
     public static bool ExtractionPresent(List<Part> parts, Part part, HexIndex[] neighborhood)
@@ -1027,6 +1029,18 @@ public static class Glyphs
 
                         int outputMetallicity = inputMetallicity + 2;
                         bowlMetallicity += inputMetallicity - 2;
+
+                        if (bowlMetallicity < 0 || outputMetallicity > 13)
+                        {
+                            continue;
+                        }
+
+                        if (bowlMetallicity == 0 && !ExtractionPresent(parts, part, DiamondNeighbors))
+                        {
+                            continue;
+                        }
+
+
                         if (!API.doubledMetallicityToMetal.TryGetValue(outputMetallicity, out AtomType outputAtom) || !API.doubledMetallicityToMetal.TryGetValue(bowlMetallicity, out AtomType projectedMetal))
                         {
                             continue;
