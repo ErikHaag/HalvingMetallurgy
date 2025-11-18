@@ -1160,29 +1160,39 @@ public static class Glyphs
                         quickcopperIsSoria = true;
                     }
 
-                    if (!quickcopperExists || quickcopper.field_2280 != Atoms.Quickcopper)
+                    if (!quickcopperExists)
                     {
                         continue;
                     }
 
                     if (!sim.FindAtom(metalHex).method_99(out AtomReference metal)
+                    && !Wheel.MaybeFindSoriaWheelAtom(sim, metalHex).method_99(out metal)
                     && !(HalvingMetallurgy.ReductiveMetallurgyLoaded && ReductiveMetallurgy.Wheel.maybeFindRavariWheelAtom(sim, part, osmosisMetalHex).method_99(out metal)))
                     {
                         continue;
                     }
 
+                    bool dilutionSpecial = false;
                     AtomType output = null;
                     if (quickcopperIsSoria && metal.field_2280 == Atoms.Quickcopper)
                     {
                         output = Atoms.Quicklime;
                     }
-                    else if (!API.OsmosisDictionary.TryGetValue(metal.field_2280, out output)
-                    && API.ChangeMetallicity(metal.field_2280, -1, out output, i => (i != 0 || ExtractionPresent(parts, part, DoubleNeighbors))) == Brimstone.API.SuccessInfo.failure)
+                    else if (quickcopper.field_2280 == Atoms.Quicklime)
+                    {
+                        if (metal.field_2280 == Brimstone.API.VanillaAtoms["quicksilver"])
+                        {
+                            dilutionSpecial = true;
+                            output = Atoms.Quickcopper;
+                        }
+                    }
+                    else if (quickcopper.field_2280 != Atoms.Quickcopper || (!API.OsmosisDictionary.TryGetValue(metal.field_2280, out output)
+                    && API.ChangeMetallicity(metal.field_2280, -1, out output, i => (i != 0 || ExtractionPresent(parts, part, DoubleNeighbors))) == Brimstone.API.SuccessInfo.failure))
                     {
                         continue;
                     }
                     Brimstone.API.ChangeAtom(metal, output);
-                    Brimstone.API.ChangeAtom(quickcopper, Brimstone.API.VanillaAtoms["quicksilver"]);
+                    Brimstone.API.ChangeAtom(quickcopper, dilutionSpecial ? Atoms.Quickcopper : Brimstone.API.VanillaAtoms["quicksilver"]);
                     seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(metalHex), halvesBowlFlashAnimation, 30f, Vector2.Zero, 0f));
                     metal.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal.field_2280, class_238.field_1989.field_81.field_614, 30f);
                     seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(quickcopperHex), halvesBowlFlashAnimation, 30f, Vector2.Zero, 0f));
