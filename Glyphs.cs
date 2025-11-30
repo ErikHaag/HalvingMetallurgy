@@ -1190,11 +1190,12 @@ public static class Glyphs
                     }
                     else if (quickcopper.field_2280 == Atoms.Quicklime)
                     {
-                        if (metal.field_2280 == Brimstone.API.VanillaAtoms.quicksilver)
+                        if (metal.field_2280 != Brimstone.API.VanillaAtoms.quicksilver)
                         {
-                            dilutionSpecial = true;
-                            output = Atoms.Quickcopper;
+                            continue;
                         }
+                        dilutionSpecial = true;
+                        output = Atoms.Quickcopper;
                     }
                     else if (quickcopper.field_2280 != Atoms.Quickcopper || (!API.OsmosisDictionary.TryGetValue(metal.field_2280, out output)
                     && API.ChangeMetallicity(metal.field_2280, -1, out output, i => (i != 0 || ExtractionPresent(parts, part, DoubleNeighbors))) == Brimstone.API.SuccessInfo.failure))
