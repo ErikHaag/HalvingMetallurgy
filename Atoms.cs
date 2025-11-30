@@ -82,7 +82,7 @@ public static class Atoms
             name: "PB", // do not spread on bread, this isn't peanut butter.
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/beryl_symbol",
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/beryl_lightramp",
-            promotesTo: Brimstone.API.VanillaAtoms["lead"]
+            promotesTo: Brimstone.API.VanillaAtoms.lead
         );
 
         Quickcopper = Brimstone.API.CreateNormalAtom(

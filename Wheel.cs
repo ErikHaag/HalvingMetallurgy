@@ -20,11 +20,11 @@ public static class Wheel
     static Molecule SoriaMolecule()
     {
         Molecule molecule = new();
-        molecule.method_1105(new(Brimstone.API.VanillaAtoms["quicksilver"]), new HexIndex(0, 1));
+        molecule.method_1105(new(Brimstone.API.VanillaAtoms.quicksilver), new HexIndex(0, 1));
         molecule.method_1105(new Atom(Atoms.Quickcopper), new HexIndex(1, 0));
-        molecule.method_1105(new Atom(Brimstone.API.VanillaAtoms["quicksilver"]), new HexIndex(1, -1));
+        molecule.method_1105(new Atom(Brimstone.API.VanillaAtoms.quicksilver), new HexIndex(1, -1));
         molecule.method_1105(new Atom(Atoms.Quickcopper), new HexIndex(0, -1));
-        molecule.method_1105(new Atom(Brimstone.API.VanillaAtoms["quicksilver"]), new HexIndex(-1, 0));
+        molecule.method_1105(new Atom(Brimstone.API.VanillaAtoms.quicksilver), new HexIndex(-1, 0));
         molecule.method_1105(new Atom(Atoms.Quickcopper), new HexIndex(-1, 1));
         return molecule;
     }
@@ -59,7 +59,7 @@ public static class Wheel
             CustomPermissionCheck = perms => perms.Contains(HalvingMetallurgy.SoriaPermission)
         };
         foreach (HexIndex hex in HexIndex.AdjacentOffsets)
-            Soria.field_1544.Add(hex, Brimstone.API.VanillaAtoms["quicksilver"]);
+            Soria.field_1544.Add(hex, Brimstone.API.VanillaAtoms.quicksilver);
 
 
         QApi.AddPartTypeToPanel(Soria, HalvingMetallurgy.ReductiveMetallurgyLoaded ? ReductiveMetallurgy.Wheel.Ravari : class_191.field_1771);
