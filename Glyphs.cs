@@ -829,7 +829,7 @@ public static class Glyphs
                         // Delete the quicksilver
                         Brimstone.API.RemoveAtom(quicksilver);
                         // Play deletion animation
-                        seb.field_3937.Add(new(seb, quicksilver.field_2278, Brimstone.API.VanillaAtoms.quicksilver));
+                        Brimstone.API.DrawFallingAtom(seb, quicksilver);
                     }
                     // Promote the metals
                     Brimstone.API.ChangeAtom(metal1, hp1);
@@ -1062,8 +1062,8 @@ public static class Glyphs
                         Brimstone.API.RemoveAtom(metal1);
                         Brimstone.API.RemoveAtom(metal2);
                         // Play deletion animation
-                        seb.field_3937.Add(new(seb, metal1.field_2278, metal1.field_2280));
-                        seb.field_3937.Add(new(seb, metal2.field_2278, metal2.field_2280));
+                        Brimstone.API.DrawFallingAtom(seb, metal1);
+                        Brimstone.API.DrawFallingAtom(seb, metal2);
                         // Promote the metal
                         Brimstone.API.ChangeAtom(metalOnBowl, projectedMetal);
                         // Play promotion animations
@@ -1329,7 +1329,7 @@ public static class Glyphs
                     {
                         // quickcopper falling
                         Brimstone.API.RemoveAtom(quickcopper);
-                        seb.field_3937.Add(new(seb, quickcopper.field_2278, quickcopper.field_2280));
+                        Brimstone.API.DrawFallingAtom(seb, quickcopper);
                     }
 
                     // metal promoting
