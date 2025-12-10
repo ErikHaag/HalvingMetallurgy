@@ -10,12 +10,6 @@ public static class API
     public static Dictionary<AtomType, Pair<AtomType, AtomType>> ShearingDictionary = new();
     public static Dictionary<AtomType, AtomType> OsmosisDictionary = new();
 
-    /*
-    // Make this a Brimstone feature?
-    public static Dictionary<AtomType, AtomType> ConvertBeforeConsumption = new();
-    public static Dictionary<AtomType, AtomType> ConvertAfterHalfstep = new();
-    */
-
     public static bool AddMetalToMetallicityDictionary(AtomType metal, int doubledMetallicity)
     {
         if (metalToDoubledMetallicity.ContainsKey(metal))

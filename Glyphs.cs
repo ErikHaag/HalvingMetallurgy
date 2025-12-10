@@ -1184,7 +1184,7 @@ public static class Glyphs
 
                     bool dilutionSpecial = false;
                     AtomType output = null;
-                    if (quickcopperIsSoria && metal.field_2280 == Atoms.Quickcopper)
+                    if (quickcopperIsSoria && quickcopper.field_2280 == Atoms.Quickcopper && metal.field_2280 == Atoms.Quickcopper)
                     {
                         output = Atoms.Quicklime;
                     }
