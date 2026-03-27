@@ -149,6 +149,10 @@ public static class Glyphs
     #region Sounds
     public static Sound halvesSound;
     public static Sound quakeSound;
+    public static Sound sumpConsumeSound;
+    public static Sound sumpEjectSound;
+    public static Sound sumpDiscardSound;
+    public static Sound remissionSound;
     public static Sound shearingSound;
     public static Sound quickcopperSound;
     public static Sound osmosisSound;
@@ -156,10 +160,11 @@ public static class Glyphs
     {
         halvesSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/halves").method_1087();
         quakeSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/quake").method_1087();
+        sumpConsumeSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/sump_consume").method_1087();
+        sumpEjectSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/sump_eject").method_1087();
+        sumpDiscardSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/sump_discard").method_1087();
+        remissionSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/remission").method_1087();
         shearingSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/shearing").method_1087();
-
-        /* Yoinked and modified from https://en.wikipedia.org/wiki/File:Geiger_counter_sound_KCl.oga,
-         * because trying to recreate a geiger counter is hard. */
         quickcopperSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/shearing_making_quickcopper").method_1087();
         osmosisSound = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/osmosis").method_1087();
 
@@ -168,15 +173,23 @@ public static class Glyphs
 
         volumeDictionary.Add("halves", 0.5f);
         volumeDictionary.Add("quake", 0.3f);
-        volumeDictionary.Add("shearing", 0.3f);
+        volumeDictionary.Add("sump_consume", 0.3f);
+        volumeDictionary.Add("sump_eject", 0.3f);
+        volumeDictionary.Add("sump_discard", 0.3f);
+        volumeDictionary.Add("remission", 0.3f);
+        volumeDictionary.Add("shearing", 0.3f); 
         volumeDictionary.Add("shearing_making_quickcopper", 0.2f);
-        volumeDictionary.Add("osmosis", 0.5f);
+        volumeDictionary.Add("osmosis", 0.3f);
 
         static void Method_540(On.class_201.orig_method_540 orig, class_201 self)
         {
             orig(self);
             halvesSound.field_4062 = false;
             quakeSound.field_4062 = false;
+            sumpConsumeSound.field_4062 = false;
+            sumpEjectSound.field_4062 = false;
+            sumpDiscardSound.field_4062 = false;
+            remissionSound.field_4062 = false;
             shearingSound.field_4062 = false;
             quickcopperSound.field_4062 = false;
             osmosisSound.field_4062 = false;
@@ -382,12 +395,11 @@ public static class Glyphs
     {
 
         #region Glyph Definitions
-        // Todo: Add a Brimstone function for this
 
         Halves = Brimstone.API.CreateSimpleGlyph(
             ID: "halving-metallurgy-halves",
             name: "Glyph of Halves",
-            description: "The glyph of halves consumes an atom of quicksilver and half-promotes two metal atoms.",
+            description: "The glyph of halves consumes an atom of quicksilver to half-promote two metal atoms.",
             cost: 30,
             glow: halvesGlow,
             stroke: halvesStroke,
@@ -405,7 +417,7 @@ public static class Glyphs
         Quake = Brimstone.API.CreateSimpleGlyph(
             ID: "halving-metallurgy-quake",
             name: "Glyph of Quake",
-            description: "The glyph of quake shakes a molecule vigorously, breaking all the weak sednum bonds.",
+            description: "The glyph of quake shakes a molecule vigorously, breaking most bonds that connect sednum.",
             cost: 15,
             glow: class_238.field_1989.field_97.field_382,
             stroke: class_238.field_1989.field_97.field_383,
@@ -439,7 +451,7 @@ public static class Glyphs
         Remission = Brimstone.API.CreateSimpleGlyph(
             ID: "halving-metallurgy-remission",
             name: "Glyph of Remission",
-            description: "The glyph of remission transmutes two metal atoms to their next higher form, assuming the metal in the bowl is able to handle the influx of quicksilver",
+            description: "The glyph of remission transmutes two metal atoms to their next higher form, using a metal in the bowl as a buffer to preserve metallicity.",
             cost: 30,
             glow: class_238.field_1989.field_97.field_368,
             stroke: class_238.field_1989.field_97.field_369,
@@ -458,7 +470,7 @@ public static class Glyphs
         Shearing = Brimstone.API.CreateSimpleGlyph(
             ID: "halving-metallurgy-shearing",
             name: "Glyph of Shearing",
-            description: "The glyph of shearing cuts a metal in half, ejecting the leftovers",
+            description: "The glyph of shearing cuts a metal in half, and ejects the remainder.",
             cost: 25,
             glow: class_238.field_1989.field_97.field_374,
             stroke: class_238.field_1989.field_97.field_375,
@@ -971,10 +983,12 @@ public static class Glyphs
                         if (state.quicksilverCount < 5)
                         {
                             state.quicksilverCount++;
+                            Brimstone.API.PlaySound(sim, sumpConsumeSound);
                         }
                         else
                         {
                             state.drainFlash = true;
+                            Brimstone.API.PlaySound(sim, sumpDiscardSound);
                         }
                     trySumpDrain:
                         if (state.quicksilverCount > 0 && !sim.FindAtomRelative(part, sumpOutputHex).method_1085())
@@ -982,6 +996,7 @@ public static class Glyphs
                             state.quicksilverEject = true;
                             state.quicksilverCount--;
                             Brimstone.API.AddSmallCollider(sim, part, sumpOutputHex);
+                            Brimstone.API.PlaySound(sim, sumpEjectSound);
                         }
                     }
                     else
@@ -1074,7 +1089,7 @@ public static class Glyphs
                         pss[part].field_2744 = new AtomType[1] { outputAtom };
                         Brimstone.API.AddSmallCollider(sim, part, remissionOutputHex);
                         // Play sound
-                        Brimstone.API.PlaySound(sim, class_238.field_1991.field_1845);
+                        Brimstone.API.PlaySound(sim, remissionSound);
                     }
                     else if (pss[part].field_2743)
                     {

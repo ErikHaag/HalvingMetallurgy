@@ -1,6 +1,4 @@
-﻿using Brimstone;
-using Mono.Cecil;
-using Quintessential;
+﻿using Quintessential;
 using Texture = class_256;
 
 namespace HalvingMetallurgy;
@@ -8,6 +6,10 @@ namespace HalvingMetallurgy;
 public static class Atoms
 {
     public static bool quickcopperRadioactive = true;
+
+    public static Texture partyHatTexture = Brimstone.API.GetTexture("textures/atoms/erikhaag/HalvingMetallurgy/party_hat");
+    public static bool wearPartyHat = System.DateTime.Now.Month == 4 && System.DateTime.Now.Day == 5;
+
 
     public static Texture[] quickcopperAnimation = Brimstone.API.GetAnimation("textures/atoms/erikhaag/HalvingMetallurgy/cloud_trails.array", "trails", 64);
 
@@ -80,8 +82,10 @@ public static class Atoms
             ID: 124,
             modName: "HalvingMetallurgy",
             name: "PB", // do not spread on bread, this isn't peanut butter.
-            pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/beryl_symbol",
-            pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/beryl_lightramp",
+            symbol: Beryl.field_2287,
+            lightramp: Beryl.field_2291.field_14,
+            shadow: Beryl.field_2288,
+            rimlight: Beryl.field_2291.field_15,
             promotesTo: Brimstone.API.VanillaAtoms.lead
         );
 
@@ -97,8 +101,10 @@ public static class Atoms
             ID: 131,
             modName: "HalvingMetallurgy",
             name: "Aqc",
-            pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/quickcopper_symbol",
-            pathToDiffuse: "textures/atoms/erikhaag/HalvingMetallurgy/quickcopper_diffuse"
+            symbol: Quickcopper.field_2287,
+            diffuse: Quickcopper.field_2290.field_994,
+            shadow: Quickcopper.field_2288,
+            shade: Quickcopper.field_2290.field_995
         );
 
         Quicklime = Brimstone.API.CreateNormalAtom(
@@ -128,5 +134,10 @@ public static class Atoms
             class_135.method_272(quickcopperAnimation[frame], position - new Vector2(60, 60));
         }
         orig(type, position, param_4582, param_4583, param_4584, param_4585, param_4586, param_4587, overrideShadow, maskM, param_4590);
+
+        if (wearPartyHat && (type.QuintAtomType ?? "").StartsWith("HalvingMetallurgy"))
+        {
+            class_135.method_272(partyHatTexture, position - new Vector2(45, 45));
+        }
     }
 }
