@@ -1,5 +1,6 @@
 ﻿using Quintessential;
 using System;
+using System.Reflection;
 
 namespace HalvingMetallurgy;
 
@@ -31,6 +32,7 @@ public class HalvingMetallurgy : QuintessentialMod
 
     public override void Load()
     {
+        Exports.Initialize();
         self = this;
         Settings = new MySettings();
 
@@ -73,6 +75,7 @@ public class HalvingMetallurgy : QuintessentialMod
     public override void Unload()
     {
         Glyphs.UnloadHooks();
+        Sounds.Unload();
         Logger.Log(LogPrefix + "Goodbye!");
     }
 
@@ -82,7 +85,7 @@ public class HalvingMetallurgy : QuintessentialMod
         Atoms.AddAtomTypes();
         // Load sounds
         contentPath = Brimstone.API.GetContentPath("HalvingMetallurgy").method_1087();
-        Glyphs.LoadSounds();
+        Sounds.LoadSounds();
         Glyphs.AddPartTypes();
 
         Wheel.LoadWheel();
@@ -233,7 +236,9 @@ public class HalvingMetallurgy : QuintessentialMod
         ScaffoldingGlyphs.API.AddScaffold(Atoms.Beryl, 10);
         ScaffoldingGlyphs.API.AddScaffold(Atoms.Wolfram, 20);
         ScaffoldingGlyphs.API.AddScaffold(Atoms.Vulcan, 40);
-        ScaffoldingGlyphs.API.AddScaffold(Atoms.Nickel, 80);
+        // worst than expected, but oh well.
+        MethodInfo m = typeof(ScaffoldingGlyphs.API).GetMethod("generateSymbolFromAtomtype", BindingFlags.NonPublic | BindingFlags.Static);
+        ScaffoldingGlyphs.API.AddScaffold(Atoms.Nickel, 80, (class_256)m.Invoke(null, new object[] { new AtomType { field_2287 = Brimstone.API.GetTexture("textures/atoms/erikhaag/HalvingMetallurgy/nickel_symbol") } }));
         ScaffoldingGlyphs.API.AddScaffold(Atoms.Zinc, 160);
         ScaffoldingGlyphs.API.AddScaffold(Atoms.Sednum, 320);
         ScaffoldingGlyphs.API.AddScaffold(Atoms.Osmium, 640);

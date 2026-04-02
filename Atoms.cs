@@ -6,19 +6,13 @@ namespace HalvingMetallurgy;
 public static class Atoms
 {
     public static bool quickcopperRadioactive = true;
-
-    public static Texture partyHatTexture = Brimstone.API.GetTexture("textures/atoms/erikhaag/HalvingMetallurgy/party_hat");
     public static bool wearPartyHat = System.DateTime.Now.Month == 4 && System.DateTime.Now.Day == 5;
-
-
-    public static Texture[] quickcopperAnimation = Brimstone.API.GetAnimation("textures/atoms/erikhaag/HalvingMetallurgy/cloud_trails.array", "trails", 64);
-
     public static AtomType Quicklime, Quickcopper, ActiveQuickcopper, Beryl, PurificationBeryl, Wolfram, Vulcan, Nickel, Zinc, Sednum, Osmium;
 
     public static void AddAtomTypes()
     {
         Osmium = Brimstone.API.CreateMetalAtom(
-            ID: 130, 
+            ID: 130,
             modName: "HalvingMetallurgy",
             name: "Osmium",
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/osmium_symbol",
@@ -42,21 +36,24 @@ public static class Atoms
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/zinc_lightramp",
             promotesTo: Sednum
         );
-
+        // potential to-do: give nickel green speckles (oxides)
         Nickel = Brimstone.API.CreateMetalAtom(
             ID: 127,
             modName: "HalvingMetallurgy",
             name: "Nickel",
-            pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/nickel_symbol",
+            pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/nickel_symbol_oxide",
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/nickel_lightramp",
+            //pathToRimlight: "textures/atoms/erikhaag/HalvingMetallurgy/nickel_rimlight",
             promotesTo: Zinc
         );
+
         Vulcan = Brimstone.API.CreateMetalAtom(
             ID: 126,
             modName: "HalvingMetallurgy",
             name: "Vulcan",
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/vulcan_symbol",
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/vulcan_lightramp",
+            pathToRimlight: "textures/atoms/erikhaag/HalvingMetallurgy/vulcan_rimlight",
             promotesTo: Nickel
         );
 
@@ -66,6 +63,7 @@ public static class Atoms
             name: "Wolfram",
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/wolfram_symbol",
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/wolfram_lightramp",
+            pathToRimlight: "textures/atoms/erikhaag/HalvingMetallurgy/wolfram_rimlight",
             promotesTo: Vulcan
         );
 
@@ -75,6 +73,7 @@ public static class Atoms
             name: "Beryl",
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/beryl_symbol",
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/beryl_lightramp",
+            pathToRimlight: "textures/atoms/erikhaag/HalvingMetallurgy/beryl_rimlight",
             promotesTo: Wolfram
         );
 
@@ -131,13 +130,13 @@ public static class Atoms
         if (quickcopperRadioactive && type.QuintAtomType == "HalvingMetallurgy:aqc")
         {
             int frame = (int)(new struct_27(Time.Now().Ticks).method_603() * 30f) & 0x3f;
-            class_135.method_272(quickcopperAnimation[frame], position - new Vector2(60, 60));
+            class_135.method_272(Textures.Atom.QuickcopperAnimation[frame], position - new Vector2(60, 60));
         }
         orig(type, position, param_4582, param_4583, param_4584, param_4585, param_4586, param_4587, overrideShadow, maskM, param_4590);
 
         if (wearPartyHat && (type.QuintAtomType ?? "").StartsWith("HalvingMetallurgy"))
         {
-            class_135.method_272(partyHatTexture, position - new Vector2(45, 45));
+            class_135.method_272(Textures.Atom.PartyHatTexture, position - new Vector2(45, 45));
         }
     }
 }
