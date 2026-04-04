@@ -16,7 +16,8 @@ public static class Atoms
             modName: "HalvingMetallurgy",
             name: "Osmium",
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/osmium_symbol",
-            pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/osmium_lightramp"
+            pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/osmium_lightramp",
+            pathToRimlight: "textures/atoms/erikhaag/HalvingMetallurgy/osmium_rimlight"
         );
 
         Sednum = Brimstone.API.CreateMetalAtom(
@@ -25,6 +26,7 @@ public static class Atoms
             name: "Sednum",
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/sednum_symbol",
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/sednum_lightramp",
+            pathToRimlight: "textures/atoms/erikhaag/HalvingMetallurgy/sednum_rimlight",
             promotesTo: Osmium
         );
 
@@ -34,16 +36,17 @@ public static class Atoms
             name: "Zinc",
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/zinc_symbol",
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/zinc_lightramp",
+            pathToRimlight: "textures/atoms/erikhaag/HalvingMetallurgy/zinc_rimlight",
             promotesTo: Sednum
         );
-        // potential to-do: give nickel green speckles (oxides)
+
         Nickel = Brimstone.API.CreateMetalAtom(
             ID: 127,
             modName: "HalvingMetallurgy",
             name: "Nickel",
             pathToSymbol: "textures/atoms/erikhaag/HalvingMetallurgy/nickel_symbol_oxide",
             pathToLightramp: "textures/atoms/erikhaag/HalvingMetallurgy/nickel_lightramp",
-            //pathToRimlight: "textures/atoms/erikhaag/HalvingMetallurgy/nickel_rimlight",
+            pathToRimlight: "textures/atoms/erikhaag/HalvingMetallurgy/nickel_rimlight",
             promotesTo: Zinc
         );
 

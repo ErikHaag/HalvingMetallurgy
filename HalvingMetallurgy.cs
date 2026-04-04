@@ -32,7 +32,7 @@ public class HalvingMetallurgy : QuintessentialMod
 
     public override void Load()
     {
-        Exports.Initialize();
+        Exports.ExportTextures();
         self = this;
         Settings = new MySettings();
 
@@ -87,8 +87,9 @@ public class HalvingMetallurgy : QuintessentialMod
         contentPath = Brimstone.API.GetContentPath("HalvingMetallurgy").method_1087();
         Sounds.LoadSounds();
         Glyphs.AddPartTypes();
-
         Wheel.LoadWheel();
+
+        Exports.ExportContent();
 
         // Edge-case Dictionaries
         API.ShearingDictionary.Add(Brimstone.API.VanillaAtoms.quicksilver, new(Atoms.Quickcopper, Atoms.Quickcopper));
