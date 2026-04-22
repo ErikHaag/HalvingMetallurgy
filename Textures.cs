@@ -1,4 +1,6 @@
-﻿using MonoMod.ModInterop;
+﻿using Quintessential;
+using System.Collections.Generic;
+using System.Linq;
 using Texture = class_256;
 
 namespace HalvingMetallurgy;
@@ -86,5 +88,10 @@ public static class Textures
     public static class Irises
     {
         public static Texture[] Quicksilver = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/iris_full_quicksilver.array", "iris_full_quicksilver", 16);
+    }
+    
+    public static void TexturesPostProcessing()
+    {
+        Halves.EngravingFlashAnimation = Halves.EngravingFlashAnimation.ToList().Concat(Halves.EngravingFlashAnimation.Skip(1).Reverse().Skip(1)).ToArray();
     }
 }

@@ -82,6 +82,7 @@ public class HalvingMetallurgy : QuintessentialMod
     public override void LoadPuzzleContent()
     {
         Logger.Log(LogPrefix + "Loading!");
+        Textures.TexturesPostProcessing();
         Atoms.AddAtomTypes();
         // Load sounds
         contentPath = Brimstone.API.GetContentPath("HalvingMetallurgy").method_1087();

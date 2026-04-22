@@ -185,16 +185,13 @@ public static class Glyphs
             orig(self, param_5369);
             return;
         }
-        if (param_5369)
+        foreach (Molecule m in self.field_3823)
         {
-            foreach (Molecule m in self.field_3823)
+            foreach (KeyValuePair<HexIndex, Atom> kvp in m.method_1100())
             {
-                foreach (KeyValuePair<HexIndex, Atom> kvp in m.method_1100())
+                if (kvp.Value.field_2275 == Atoms.ActiveQuickcopper)
                 {
-                    if (kvp.Value.field_2275 == Atoms.ActiveQuickcopper)
-                    {
-                        m.method_1106(Atoms.Quickcopper, kvp.Key);
-                    }
+                    m.method_1106(Atoms.Quickcopper, kvp.Key);
                 }
             }
         }
@@ -343,15 +340,9 @@ public static class Glyphs
         {
             PartSimState pss = editor.method_507().method_481(part);
             float time = editor.method_504();
-            int frame = 0;
             Vector2 offset = new(82f, 48f);
-            if (pss.field_2743)
-            {
-                frame = (int)(11f * time);
-                frame = frame >= 6 ? 10 - frame : frame;
-            }
             renderer.method_523(Textures.Halves.Base, new(-1f, -1f), offset, 0f);
-            renderer.method_523(Textures.Halves.EngravingFlashAnimation[frame], new(-1f, -1f), offset, 0f);
+            renderer.method_523(Textures.Halves.EngravingFlashAnimation[0], new(-1f, -1f), offset, 0f);
             // quicksilver
             renderer.method_530(class_238.field_1989.field_90.field_255.field_293, halvesInputHex, 0);
             renderer.method_529(class_238.field_1989.field_90.field_255.field_294, halvesInputHex, Vector2.Zero);
@@ -542,19 +533,16 @@ public static class Glyphs
         QApi.RunAfterCycle(static (sim, first) =>
         {
             SolutionEditorBase seb = sim.field_3818;
-            Dictionary<Part, PartSimState> pss = sim.field_3821;
+            Dictionary<Part, PartSimState> partSimStates = sim.field_3821;
             List<Part> parts = seb.method_502().field_3919;
+
 
             foreach (Part part in parts)
             {
+                PartSimState pss = partSimStates[part];
                 PartType type = part.method_1159();
                 if (type == Halves)
                 {
-                    if (!first)
-                    {
-                        continue;
-                    }
-
                     HexIndex bowl1 = part.method_1184(halvesMetal1Hex);
                     HexIndex bowl2 = part.method_1184(halvesMetal2Hex);
 
@@ -678,7 +666,11 @@ public static class Glyphs
                     metal1.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal1.field_2280, class_238.field_1989.field_81.field_614, 30f);
                     seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(bowl2), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
                     metal2.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal2.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                    pss[part].field_2743 = true;
+                    //play engraving flash
+                    float theta = part.method_1163().ToRadians();
+                    Vector2 offset = class_187.field_1742.method_492(part.method_1161()) + new Vector2(20f, 35f).Rotated(theta);
+                    seb.field_3935.Add(new class_228(seb, (enum_7)1, offset, Textures.Halves.EngravingFlashAnimation, 30f, Vector2.Zero, theta));
+
                     // Play custom sound
                     Brimstone.API.PlaySound(sim, Sounds.Halves);
                 }
@@ -746,7 +738,7 @@ public static class Glyphs
                         if (hasRemovableBond)
                         {
                             Brimstone.API.ForceRecomputeBonds(moleculeAboveBowl);
-                            pss[part].field_2743 = true;
+                            pss.field_2743 = true;
                             foreach (Pair<Vector2, float> pair in resistingBonds)
                             {
                                 seb.field_3936.Add(new class_228(seb, (enum_7)1, pair.Left, Textures.Quake.UnbondResistedAnimation, 75f, new Vector2(1.5f, -5f), pair.Right));
@@ -759,7 +751,7 @@ public static class Glyphs
                 }
                 else if (type == Sump)
                 {
-                    DynamicData dyn_pss = new(pss[part]);
+                    DynamicData dyn_pss = new(pss);
                     object stateOb = dyn_pss.Get("state");
                     SumpState state;
                     if (stateOb is not null)
@@ -912,16 +904,16 @@ public static class Glyphs
                         seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(bowl), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
                         metalOnBowl.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metalOnBowl.field_2280, class_238.field_1989.field_81.field_614, 30f);
                         // Update Glyph
-                        pss[part].field_2743 = true;
-                        pss[part].field_2744 = new AtomType[1] { outputAtom };
+                        pss.field_2743 = true;
+                        pss.field_2744 = new AtomType[1] { outputAtom };
                         Brimstone.API.AddSmallCollider(sim, part, remissionOutputHex);
                         // Play sound
                         Brimstone.API.PlaySound(sim, Sounds.Remission);
                     }
-                    else if (pss[part].field_2743)
+                    else if (pss.field_2743)
                     {
 
-                        Brimstone.API.AddAtom(sim, part, remissionOutputHex, pss[part].field_2744[0]);
+                        Brimstone.API.AddAtom(sim, part, remissionOutputHex, pss.field_2744[0]);
                     }
                 }
                 else if (type == Shearing)
@@ -985,14 +977,14 @@ public static class Glyphs
                         bowlAtom.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, bowlAtom.field_2280, Textures.Shearing.AtomicSplit, 30f);
                         seb.field_3936.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(part.method_1161()) + new Vector2(0f, 0f), Textures.Shearing.BowlFlash, 30f, Vector2.Zero, 0f));
                         // Update Glyph
-                        pss[part].field_2743 = true;
-                        pss[part].field_2744 = new AtomType[1] { outputAtom };
+                        pss.field_2743 = true;
+                        pss.field_2744 = new AtomType[1] { outputAtom };
                         Brimstone.API.PlaySound(sim, madeQuickcopper ? Sounds.ShearingMakingQuickcopper : Sounds.Shearing);
                         Brimstone.API.AddSmallCollider(sim, part, shearingOutputHex);
                     }
-                    else if (pss[part].field_2743)
+                    else if (pss.field_2743)
                     {
-                        Brimstone.API.AddAtom(sim, part, shearingOutputHex, pss[part].field_2744[0]);
+                        Brimstone.API.AddAtom(sim, part, shearingOutputHex, pss.field_2744[0]);
                     }
                 }
                 else if (type == Osmosis)
@@ -1184,10 +1176,10 @@ public static class Glyphs
                 }
                 else if (type == class_191.field_1779) /* Purification */
                 {
-                    if (first && pss[part].field_2743 && pss[part].field_2744[0] == Atoms.Beryl)
+                    if (first && pss.field_2743 && pss.field_2744[0] == Atoms.Beryl)
                     {
                         // Switch-a-roo
-                        pss[part].field_2744 = new AtomType[1] { Atoms.PurificationBeryl };
+                        pss.field_2744 = new AtomType[1] { Atoms.PurificationBeryl };
                     }
                 }
             nextGlyph:
