@@ -530,125 +530,259 @@ public static class Glyphs
         #endregion
 
         #region Part Behavior
-        QApi.RunAfterCycle(static (sim, first) =>
+        QApi.RunDuringCycle(static (sim, part, pss, first) =>
         {
             SolutionEditorBase seb = sim.field_3818;
-            Dictionary<Part, PartSimState> partSimStates = sim.field_3821;
             List<Part> parts = seb.method_502().field_3919;
-
-
-            foreach (Part part in parts)
+            PartType type = part.method_1159();
+            if (type == Halves)
             {
-                PartSimState pss = partSimStates[part];
-                PartType type = part.method_1159();
-                if (type == Halves)
+                HexIndex bowl1 = part.method_1184(halvesMetal1Hex);
+                HexIndex bowl2 = part.method_1184(halvesMetal2Hex);
+
+                bool quicksilverExists = false;
+
+                bool isQuicksilverSoria = false;
+                bool isQuicksilverRavari = false;
+
+                AtomType rejectionResult = null;
+
+                if (sim.FindAtomRelative(part, halvesInputHex).method_99(out AtomReference quicksilver))
                 {
-                    HexIndex bowl1 = part.method_1184(halvesMetal1Hex);
-                    HexIndex bowl2 = part.method_1184(halvesMetal2Hex);
+                    // Is the quicksilver singular and not held
+                    quicksilverExists = quicksilver.field_2280 == Brimstone.API.VanillaAtoms.quicksilver && !quicksilver.field_2281 && !quicksilver.field_2282;
+                }
+                else if (Wheel.MaybeFindSoriaWheelAtom(sim, part, halvesInputHex).method_99(out quicksilver))
+                {
+                    if (API.QuicksilverProjectionBehavior(quicksilver.field_2280, -2).method_99(out rejectionResult))
+                    {
+                        quicksilverExists = true;
+                        isQuicksilverSoria = true;
+                    }
+                }
+                else if (findRavariAtom(sim, part, halvesInputHex).method_99(out quicksilver))
+                {
+                    if (API.ChangeMetallicity(quicksilver.field_2280, -2, out rejectionResult, static i => i >= 2) != Brimstone.API.SuccessInfo.failure)
+                    {
+                        quicksilverExists = true;
+                        isQuicksilverRavari = true;
+                    }
+                }
 
+                if (!quicksilverExists)
+                {
+                    return;
+                }
+
+                bool metal1Exists = false;
+                bool metal1IsSoria = false;
+
+                if (sim.FindAtom(bowl1).method_99(out AtomReference metal1))
+                {
+                    metal1Exists = true;
+                }
+                else if (Wheel.MaybeFindSoriaWheelAtom(sim, bowl1).method_99(out metal1))
+                {
+                    metal1Exists = true;
+                    metal1IsSoria = true;
+                }
+                else if (findRavariAtom(sim, part, halvesMetal1Hex).method_99(out metal1))
+                {
+                    metal1Exists = true;
+                }
+
+                if (!metal1Exists)
+                {
+                    return;
+                }
+
+                bool metal2Exists = false;
+                bool metal2IsSoria = false;
+
+                if (sim.FindAtom(bowl2).method_99(out AtomReference metal2))
+                {
+                    metal2Exists = true;
+                }
+                else if (Wheel.MaybeFindSoriaWheelAtom(sim, bowl2).method_99(out metal2))
+                {
+                    metal2Exists = true;
+                    metal2IsSoria = true;
+                }
+                else if (findRavariAtom(sim, part, halvesMetal2Hex).method_99(out metal2))
+                {
+                    metal2Exists = true;
+                }
+
+                if (!metal2Exists)
+                {
+                    return;
+                }
+
+
+                // Are they valid atoms
+                if (metal1IsSoria ? !API.QuicksilverProjectionBehavior(metal1.field_2280, 1).method_99(out AtomType hp1) : // Soria's Wheel
+                (!API.HalvesDictionary.TryGetValue(metal1.field_2280, out hp1) // override
+                && API.ChangeMetallicity(metal1.field_2280, 1, out hp1, static i => i <= 13) == Brimstone.API.SuccessInfo.failure)) // metallicity
+                {
+                    return;
+                }
+                if (metal2IsSoria ? !API.QuicksilverProjectionBehavior(metal2.field_2280, 1).method_99(out AtomType hp2) : // Soria's Wheel
+                (!API.HalvesDictionary.TryGetValue(metal2.field_2280, out hp2) // override
+                && API.ChangeMetallicity(metal2.field_2280, 1, out hp2, static i => i <= 13) == Brimstone.API.SuccessInfo.failure)) // metallicity
+                {
+                    return;
+                }
+
+                if (isQuicksilverSoria)
+                {
+                    Brimstone.API.ChangeAtom(quicksilver, rejectionResult);
+                    Wheel.DrawSoriaFlash(seb, part, halvesInputHex);
+                    quicksilver.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quicksilver.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                }
+                else if (isQuicksilverRavari)
+                {
+                    Brimstone.API.ChangeAtom(quicksilver, rejectionResult);
+                    drawRavariFlash(seb, part, halvesInputHex);
+                    quicksilver.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quicksilver.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                }
+                else
+                {
+                    // Delete the quicksilver
+                    Brimstone.API.RemoveAtom(quicksilver);
+                    // Play deletion animation
+                    Brimstone.API.DrawFallingAtom(seb, quicksilver);
+                }
+                // Promote the metals
+                Brimstone.API.ChangeAtom(metal1, hp1);
+                Brimstone.API.ChangeAtom(metal2, hp2);
+                // Play promotion 
+                seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(bowl1), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
+                metal1.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal1.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(bowl2), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
+                metal2.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal2.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                //play engraving flash
+                float theta = part.method_1163().ToRadians();
+                Vector2 offset = class_187.field_1742.method_492(part.method_1161()) + new Vector2(20f, 35f).Rotated(theta);
+                seb.field_3935.Add(new class_228(seb, (enum_7)1, offset, Textures.Halves.EngravingFlashAnimation, 30f, Vector2.Zero, theta));
+
+                // Play custom sound
+                Brimstone.API.PlaySound(sim, Sounds.Halves);
+            }
+            else if (type == Quake)
+            {
+                if (!first)
+                {
+                    return;
+                }
+                HexIndex bowl = part.method_1184(quakeBowlHex);
+                Molecule moleculeAboveBowl = null;
+                foreach (Molecule molecule in sim.field_3823)
+                {
+                    if (molecule.method_1100().Keys.Contains(bowl))
+                    {
+                        moleculeAboveBowl = molecule;
+                        break;
+                    }
+                }
+                if (moleculeAboveBowl is not null)
+                {
+
+                    foreach (HexIndex hex in moleculeAboveBowl.method_1100().Keys)
+                    {
+                        sim.FindAtom(hex).method_99(out AtomReference atom);
+                        if (atom.field_2282)
+                        {
+                            // Molecule can't be gripped
+                            return;
+                        }
+                    }
+
+                    bool hasRemovableBond = false;
+                    List<Pair<Vector2, float>> resistingBonds = new();
+                    // for each atom in a molecule
+                    foreach (KeyValuePair<HexIndex, Atom> entry in moleculeAboveBowl.method_1100())
+                    {
+                        if (entry.Value.field_2275 == Atoms.Sednum)
+                        {
+                            foreach (HexIndex offset in HexIndex.AdjacentOffsets)
+                            {
+                                HexIndex sednumPos = entry.Key;
+                                HexIndex sednumNeighbor = sednumPos + offset;
+                                bool willBeRegularBonded = simBonders.Contains(new HexIndexPair(sednumPos, sednumNeighbor)) || simBonders.Contains(new HexIndexPair(sednumNeighbor, sednumPos));
+                                enum_126 bondType = Brimstone.API.FindBondType(moleculeAboveBowl, sednumPos, sednumNeighbor);
+
+                                if (bondType != enum_126.None && bondType != (enum_126.Prisma0 | enum_126.Prisma1 | enum_126.Prisma2))
+                                {
+                                    Vector2 midpoint = class_162.method_413(class_187.field_1742.method_492(sednumPos), class_187.field_1742.method_492(sednumNeighbor), 0.5f);
+                                    if ((bondType & enum_126.Standard) == enum_126.Standard && willBeRegularBonded)
+                                    {
+                                        resistingBonds.Add(new Pair<Vector2, float>(midpoint, class_187.field_1742.method_492(offset).Angle()));
+                                    }
+                                    else
+                                    {
+                                        hasRemovableBond = true;
+                                        Brimstone.API.RemoveBonds(sim, moleculeAboveBowl, sednumPos, sednumNeighbor, true, false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // only active if not idempotent
+                    if (hasRemovableBond)
+                    {
+                        Brimstone.API.ForceRecomputeBonds(moleculeAboveBowl);
+                        pss.field_2743 = true;
+                        foreach (Pair<Vector2, float> pair in resistingBonds)
+                        {
+                            seb.field_3936.Add(new class_228(seb, (enum_7)1, pair.Left, Textures.Quake.UnbondResistedAnimation, 75f, new Vector2(1.5f, -5f), pair.Right));
+                        }
+
+                        // play a buzzing sound
+                        Brimstone.API.PlaySound(sim, Sounds.Quake);
+                    }
+                }
+            }
+            else if (type == Sump)
+            {
+                DynamicData dyn_pss = new(pss);
+                object stateOb = dyn_pss.Get("state");
+                SumpState state;
+                if (stateOb is not null)
+                {
+                    state = (SumpState)stateOb;
+                }
+                else
+                {
+                    state = new();
+                }
+                if (first)
+                {
                     bool quicksilverExists = false;
-
-                    bool isQuicksilverSoria = false;
-                    bool isQuicksilverRavari = false;
-
-                    AtomType rejectionResult = null;
-
-                    if (sim.FindAtomRelative(part, halvesInputHex).method_99(out AtomReference quicksilver))
+                    bool quicksilverIsSoria = false;
+                    if (sim.FindAtomRelative(part, sumpInputHex).method_99(out AtomReference quicksilver))
                     {
-                        // Is the quicksilver singular and not held
-                        quicksilverExists = quicksilver.field_2280 == Brimstone.API.VanillaAtoms.quicksilver && !quicksilver.field_2281 && !quicksilver.field_2282;
+                        quicksilverExists = !quicksilver.field_2281 && !quicksilver.field_2282;
                     }
-                    else if (Wheel.MaybeFindSoriaWheelAtom(sim, part, halvesInputHex).method_99(out quicksilver))
+                    else if (Wheel.MaybeFindSoriaWheelAtom(sim, part, sumpInputHex).method_99(out quicksilver))
                     {
-                        if (API.QuicksilverProjectionBehavior(quicksilver.field_2280, -2).method_99(out rejectionResult))
+                        quicksilverExists = true;
+                        quicksilverIsSoria = true;
+                    }
+
+                    if (!quicksilverExists || quicksilver.field_2280 != Brimstone.API.VanillaAtoms.quicksilver)
+                    {
+                        goto trySumpDrain;
+                    }
+                    if (quicksilverIsSoria)
+                    {
+                        if (state.QuicksilverCount == 5)
                         {
-                            quicksilverExists = true;
-                            isQuicksilverSoria = true;
+                            // Soria can't overfill a sump
+                            goto trySumpDrain;
                         }
-                    }
-                    else if (findRavariAtom(sim, part, halvesInputHex).method_99(out quicksilver))
-                    {
-                        if (API.ChangeMetallicity(quicksilver.field_2280, -2, out rejectionResult, static i => i >= 2) != Brimstone.API.SuccessInfo.failure)
-                        {
-                            quicksilverExists = true;
-                            isQuicksilverRavari = true;
-                        }
-                    }
-
-                    if (!quicksilverExists)
-                    {
-                        continue;
-                    }
-
-                    bool metal1Exists = false;
-                    bool metal1IsSoria = false;
-
-                    if (sim.FindAtom(bowl1).method_99(out AtomReference metal1))
-                    {
-                        metal1Exists = true;
-                    }
-                    else if (Wheel.MaybeFindSoriaWheelAtom(sim, bowl1).method_99(out metal1))
-                    {
-                        metal1Exists = true;
-                        metal1IsSoria = true;
-                    }
-                    else if (findRavariAtom(sim, part, halvesMetal1Hex).method_99(out metal1))
-                    {
-                        metal1Exists = true;
-                    }
-
-                    if (!metal1Exists)
-                    {
-                        continue;
-                    }
-
-                    bool metal2Exists = false;
-                    bool metal2IsSoria = false;
-
-                    if (sim.FindAtom(bowl2).method_99(out AtomReference metal2))
-                    {
-                        metal2Exists = true;
-                    }
-                    else if (Wheel.MaybeFindSoriaWheelAtom(sim, bowl2).method_99(out metal2))
-                    {
-                        metal2Exists = true;
-                        metal2IsSoria = true;
-                    }
-                    else if (findRavariAtom(sim, part, halvesMetal2Hex).method_99(out metal2))
-                    {
-                        metal2Exists = true;
-                    }
-
-                    if (!metal2Exists)
-                    {
-                        continue;
-                    }
-
-
-                    // Are they valid atoms
-                    if (metal1IsSoria ? !API.QuicksilverProjectionBehavior(metal1.field_2280, 1).method_99(out AtomType hp1) : // Soria's Wheel
-                    (!API.HalvesDictionary.TryGetValue(metal1.field_2280, out hp1) // override
-                    && API.ChangeMetallicity(metal1.field_2280, 1, out hp1, static i => i <= 13) == Brimstone.API.SuccessInfo.failure)) // metallicity
-                    {
-                        continue;
-                    }
-                    if (metal2IsSoria ? !API.QuicksilverProjectionBehavior(metal2.field_2280, 1).method_99(out AtomType hp2) : // Soria's Wheel
-                    (!API.HalvesDictionary.TryGetValue(metal2.field_2280, out hp2) // override
-                    && API.ChangeMetallicity(metal2.field_2280, 1, out hp2, static i => i <= 13) == Brimstone.API.SuccessInfo.failure)) // metallicity
-                    {
-                        continue;
-                    }
-
-                    if (isQuicksilverSoria)
-                    {
-                        Brimstone.API.ChangeAtom(quicksilver, rejectionResult);
-                        Wheel.DrawSoriaFlash(seb, part, halvesInputHex);
-                        quicksilver.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quicksilver.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                    }
-                    else if (isQuicksilverRavari)
-                    {
-                        Brimstone.API.ChangeAtom(quicksilver, rejectionResult);
-                        drawRavariFlash(seb, part, halvesInputHex);
+                        Brimstone.API.ChangeAtom(quicksilver, Atoms.Quicklime);
+                        Wheel.DrawSoriaFlash(seb, part, sumpInputHex);
                         quicksilver.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quicksilver.field_2280, class_238.field_1989.field_81.field_614, 30f);
                     }
                     else
@@ -656,534 +790,398 @@ public static class Glyphs
                         // Delete the quicksilver
                         Brimstone.API.RemoveAtom(quicksilver);
                         // Play deletion animation
-                        Brimstone.API.DrawFallingAtom(seb, quicksilver);
+                        seb.field_3937.Add(new(seb, quicksilver.field_2278, Brimstone.API.VanillaAtoms.quicksilver));
                     }
-                    // Promote the metals
-                    Brimstone.API.ChangeAtom(metal1, hp1);
-                    Brimstone.API.ChangeAtom(metal2, hp2);
-                    // Play promotion 
-                    seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(bowl1), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
-                    metal1.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal1.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                    seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(bowl2), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
-                    metal2.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal2.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                    //play engraving flash
-                    float theta = part.method_1163().ToRadians();
-                    Vector2 offset = class_187.field_1742.method_492(part.method_1161()) + new Vector2(20f, 35f).Rotated(theta);
-                    seb.field_3935.Add(new class_228(seb, (enum_7)1, offset, Textures.Halves.EngravingFlashAnimation, 30f, Vector2.Zero, theta));
 
-                    // Play custom sound
-                    Brimstone.API.PlaySound(sim, Sounds.Halves);
-                }
-                else if (type == Quake)
-                {
-                    if (!first)
+                    if (state.QuicksilverCount < 5)
                     {
-                        continue;
-                    }
-                    HexIndex bowl = part.method_1184(quakeBowlHex);
-                    Molecule moleculeAboveBowl = null;
-                    foreach (Molecule molecule in sim.field_3823)
-                    {
-                        if (molecule.method_1100().Keys.Contains(bowl))
-                        {
-                            moleculeAboveBowl = molecule;
-                            break;
-                        }
-                    }
-                    if (moleculeAboveBowl is not null)
-                    {
-
-                        foreach (HexIndex hex in moleculeAboveBowl.method_1100().Keys)
-                        {
-                            sim.FindAtom(hex).method_99(out AtomReference atom);
-                            if (atom.field_2282)
-                            {
-                                // Molecule can't be gripped
-                                goto nextGlyph;
-                            }
-                        }
-
-                        bool hasRemovableBond = false;
-                        List<Pair<Vector2, float>> resistingBonds = new();
-                        // for each atom in a molecule
-                        foreach (KeyValuePair<HexIndex, Atom> entry in moleculeAboveBowl.method_1100())
-                        {
-                            if (entry.Value.field_2275 == Atoms.Sednum)
-                            {
-                                foreach (HexIndex offset in HexIndex.AdjacentOffsets)
-                                {
-                                    HexIndex sednumPos = entry.Key;
-                                    HexIndex sednumNeighbor = sednumPos + offset;
-                                    bool willBeRegularBonded = simBonders.Contains(new HexIndexPair(sednumPos, sednumNeighbor)) || simBonders.Contains(new HexIndexPair(sednumNeighbor, sednumPos));
-                                    enum_126 bondType = Brimstone.API.FindBondType(moleculeAboveBowl, sednumPos, sednumNeighbor);
-
-                                    if (bondType != enum_126.None && bondType != (enum_126.Prisma0 | enum_126.Prisma1 | enum_126.Prisma2))
-                                    {
-                                        Vector2 midpoint = class_162.method_413(class_187.field_1742.method_492(sednumPos), class_187.field_1742.method_492(sednumNeighbor), 0.5f);
-                                        if ((bondType & enum_126.Standard) == enum_126.Standard && willBeRegularBonded)
-                                        {
-                                            resistingBonds.Add(new Pair<Vector2, float>(midpoint, class_187.field_1742.method_492(offset).Angle()));
-                                        }
-                                        else
-                                        {
-                                            hasRemovableBond = true;
-                                            Brimstone.API.RemoveBonds(sim, moleculeAboveBowl, sednumPos, sednumNeighbor, true, false);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // only active if not idempotent
-                        if (hasRemovableBond)
-                        {
-                            Brimstone.API.ForceRecomputeBonds(moleculeAboveBowl);
-                            pss.field_2743 = true;
-                            foreach (Pair<Vector2, float> pair in resistingBonds)
-                            {
-                                seb.field_3936.Add(new class_228(seb, (enum_7)1, pair.Left, Textures.Quake.UnbondResistedAnimation, 75f, new Vector2(1.5f, -5f), pair.Right));
-                            }
-
-                            // play a buzzing sound
-                            Brimstone.API.PlaySound(sim, Sounds.Quake);
-                        }
-                    }
-                }
-                else if (type == Sump)
-                {
-                    DynamicData dyn_pss = new(pss);
-                    object stateOb = dyn_pss.Get("state");
-                    SumpState state;
-                    if (stateOb is not null)
-                    {
-                        state = (SumpState)stateOb;
+                        state.QuicksilverCount++;
+                        Brimstone.API.PlaySound(sim, Sounds.SumpConsume);
                     }
                     else
                     {
-                        state = new();
+                        state.DrainFlash = true;
+                        Brimstone.API.PlaySound(sim, Sounds.SumpDiscard);
                     }
-                    if (first)
+                trySumpDrain:
+                    if (state.QuicksilverCount > 0 && !sim.FindAtomRelative(part, sumpOutputHex).method_1085())
                     {
-                        bool quicksilverExists = false;
-                        bool quicksilverIsSoria = false;
-                        if (sim.FindAtomRelative(part, sumpInputHex).method_99(out AtomReference quicksilver))
+                        state.QuicksilverEject = true;
+                        state.QuicksilverCount--;
+                        Brimstone.API.AddSmallCollider(sim, part, sumpOutputHex);
+                        Brimstone.API.PlaySound(sim, Sounds.SumpEject);
+                    }
+                }
+                else
+                {
+                    state.DrainFlash = false;
+                    if (state.QuicksilverEject)
+                    {
+                        state.QuicksilverEject = false;
+                        Brimstone.API.AddAtom(sim, part, sumpOutputHex, Brimstone.API.VanillaAtoms.quicksilver);
+                    }
+                }
+                dyn_pss.Set("state", state);
+            }
+            else if (type == Remission)
+            {
+                if (first)
+                {
+                    if (sim.FindAtomRelative(part, remissionOutputHex).method_1085())
+                    {
+                        // blocked!
+                        return;
+                    }
+
+                    HexIndex input1 = part.method_1184(remissionInput1Hex);
+                    HexIndex input2 = part.method_1184(remissionInput2Hex);
+                    HexIndex bowl = part.method_1184(remissionBowlHex);
+
+                    bool metal1Exists = false;
+                    bool metal2Exists = false;
+                    bool metalBowlExists = false;
+
+                    if (sim.FindAtom(input1).method_99(out AtomReference metal1))
+                    {
+                        metal1Exists = !metal1.field_2281 && !metal1.field_2282;
+                    }
+                    if (sim.FindAtom(input2).method_99(out AtomReference metal2))
+                    {
+                        metal2Exists = !metal2.field_2281 && !metal2.field_2282;
+                    }
+                    if (sim.FindAtom(bowl).method_99(out AtomReference metalOnBowl) || findRavariAtom(sim, part, remissionBowlHex).method_99(out metalOnBowl))
+                    {
+                        metalBowlExists = true;
+                    }
+
+                    if (!metal1Exists || !metal2Exists || !metalBowlExists)
+                    {
+                        return;
+                    }
+                    if (metal1.field_2280 != metal2.field_2280)
+                    {
+                        return;
+                    }
+                    if (!API.metalToDoubledMetallicity.TryGetValue(metal1.field_2280, out int inputMetallicity) || !API.metalToDoubledMetallicity.TryGetValue(metalOnBowl.field_2280, out int bowlMetallicity))
+                    {
+                        return;
+                    }
+
+                    int outputMetallicity = inputMetallicity + 2;
+                    int bowlDelta = inputMetallicity - 2;
+                    bowlMetallicity += bowlDelta;
+
+                    if (bowlMetallicity < 0 || outputMetallicity > 13)
+                    {
+                        return;
+                    }
+
+                    if (bowlDelta < 0 && bowlMetallicity == 0 && !ExtractionPresent(parts, part, DiamondNeighbors))
+                    {
+                        // if demoting, prevent creation of vaca unless extraction is present
+                        return;
+                    }
+
+
+                    if (!API.doubledMetallicityToMetal.TryGetValue(outputMetallicity, out AtomType outputAtom) || !API.doubledMetallicityToMetal.TryGetValue(bowlMetallicity, out AtomType projectedMetal))
+                    {
+                        return;
+                    }
+
+                    // Delete the metals
+                    Brimstone.API.RemoveAtom(metal1);
+                    Brimstone.API.RemoveAtom(metal2);
+                    // Play deletion animation
+                    Brimstone.API.DrawFallingAtom(seb, metal1);
+                    Brimstone.API.DrawFallingAtom(seb, metal2);
+                    // Promote the metal
+                    Brimstone.API.ChangeAtom(metalOnBowl, projectedMetal);
+                    // Play promotion animations
+                    seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(bowl), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
+                    metalOnBowl.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metalOnBowl.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                    // Update Glyph
+                    pss.field_2743 = true;
+                    pss.field_2744 = new AtomType[1] { outputAtom };
+                    Brimstone.API.AddSmallCollider(sim, part, remissionOutputHex);
+                    // Play sound
+                    Brimstone.API.PlaySound(sim, Sounds.Remission);
+                }
+                else if (pss.field_2743)
+                {
+
+                    Brimstone.API.AddAtom(sim, part, remissionOutputHex, pss.field_2744[0]);
+                }
+            }
+            else if (type == Shearing)
+            {
+                if (first)
+                {
+                    if (sim.FindAtomRelative(part, shearingOutputHex).method_1085())
+                    {
+                        // blocked!
+                        return;
+                    }
+                    if (!sim.FindAtomRelative(part, shearingBowlHex).method_99(out AtomReference bowlAtom)
+                    && !Wheel.MaybeFindSoriaWheelAtom(sim, part, shearingBowlHex).method_99(out bowlAtom))
+                    {
+                        return;
+                    }
+
+                    bool madeQuickcopper = false;
+
+                    AtomType newBowlAtom = null;
+                    AtomType outputAtom = null;
+                    if (API.ShearingDictionary.TryGetValue(bowlAtom.field_2280, out Pair<AtomType, AtomType> result))
+                    {
+                        newBowlAtom = result.Left;
+                        outputAtom = result.Right;
+                        madeQuickcopper = quickcopperRadioactive && (newBowlAtom == Atoms.Quickcopper || outputAtom == Atoms.Quickcopper);
+                    }
+                    else if (API.metalToDoubledMetallicity.TryGetValue(bowlAtom.field_2280, out int inputMetallicity))
+                    {
+                        int remainder = (inputMetallicity + 1) >> 1;
+                        int leftovers = inputMetallicity - remainder;
+
+                        if (leftovers < 0 || leftovers == 1)
                         {
-                            quicksilverExists = !quicksilver.field_2281 && !quicksilver.field_2282;
+                            // don't create subvacants nor beryl
+                            return;
                         }
-                        else if (Wheel.MaybeFindSoriaWheelAtom(sim, part, sumpInputHex).method_99(out quicksilver))
+                        else if (leftovers == 0 && !ExtractionPresent(parts, part, DoubleNeighbors))
                         {
-                            quicksilverExists = true;
-                            quicksilverIsSoria = true;
+                            // only create vaca if extraction is present
+                            return;
                         }
 
-                        if (!quicksilverExists || quicksilver.field_2280 != Brimstone.API.VanillaAtoms.quicksilver)
+                        if (!API.doubledMetallicityToMetal.TryGetValue(remainder, out newBowlAtom) || !API.doubledMetallicityToMetal.TryGetValue(leftovers, out outputAtom))
                         {
-                            goto trySumpDrain;
-                        }
-                        if (quicksilverIsSoria)
-                        {
-                            if (state.QuicksilverCount == 5)
-                            {
-                                // Soria can't overfill a sump
-                                goto trySumpDrain;
-                            }
-                            Brimstone.API.ChangeAtom(quicksilver, Atoms.Quicklime);
-                            Wheel.DrawSoriaFlash(seb, part, sumpInputHex);
-                            quicksilver.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quicksilver.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                        }
-                        else
-                        {
-                            // Delete the quicksilver
-                            Brimstone.API.RemoveAtom(quicksilver);
-                            // Play deletion animation
-                            seb.field_3937.Add(new(seb, quicksilver.field_2278, Brimstone.API.VanillaAtoms.quicksilver));
-                        }
-
-                        if (state.QuicksilverCount < 5)
-                        {
-                            state.QuicksilverCount++;
-                            Brimstone.API.PlaySound(sim, Sounds.SumpConsume);
-                        }
-                        else
-                        {
-                            state.DrainFlash = true;
-                            Brimstone.API.PlaySound(sim, Sounds.SumpDiscard);
-                        }
-                    trySumpDrain:
-                        if (state.QuicksilverCount > 0 && !sim.FindAtomRelative(part, sumpOutputHex).method_1085())
-                        {
-                            state.QuicksilverEject = true;
-                            state.QuicksilverCount--;
-                            Brimstone.API.AddSmallCollider(sim, part, sumpOutputHex);
-                            Brimstone.API.PlaySound(sim, Sounds.SumpEject);
+                            return;
                         }
                     }
                     else
                     {
-                        state.DrainFlash = false;
-                        if (state.QuicksilverEject)
-                        {
-                            state.QuicksilverEject = false;
-                            Brimstone.API.AddAtom(sim, part, sumpOutputHex, Brimstone.API.VanillaAtoms.quicksilver);
-                        }
+                        return;
                     }
-                    dyn_pss.Set("state", state);
+
+                    Brimstone.API.ChangeAtom(bowlAtom, newBowlAtom);
+                    bowlAtom.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, bowlAtom.field_2280, Textures.Shearing.AtomicSplit, 30f);
+                    seb.field_3936.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(part.method_1161()) + new Vector2(0f, 0f), Textures.Shearing.BowlFlash, 30f, Vector2.Zero, 0f));
+                    // Update Glyph
+                    pss.field_2743 = true;
+                    pss.field_2744 = new AtomType[1] { outputAtom };
+                    Brimstone.API.PlaySound(sim, madeQuickcopper ? Sounds.ShearingMakingQuickcopper : Sounds.Shearing);
+                    Brimstone.API.AddSmallCollider(sim, part, shearingOutputHex);
                 }
-                else if (type == Remission)
+                else if (pss.field_2743)
                 {
-                    if (first)
-                    {
-                        if (sim.FindAtomRelative(part, remissionOutputHex).method_1085())
-                        {
-                            // blocked!
-                            continue;
-                        }
-
-                        HexIndex input1 = part.method_1184(remissionInput1Hex);
-                        HexIndex input2 = part.method_1184(remissionInput2Hex);
-                        HexIndex bowl = part.method_1184(remissionBowlHex);
-
-                        bool metal1Exists = false;
-                        bool metal2Exists = false;
-                        bool metalBowlExists = false;
-
-                        if (sim.FindAtom(input1).method_99(out AtomReference metal1))
-                        {
-                            metal1Exists = !metal1.field_2281 && !metal1.field_2282;
-                        }
-                        if (sim.FindAtom(input2).method_99(out AtomReference metal2))
-                        {
-                            metal2Exists = !metal2.field_2281 && !metal2.field_2282;
-                        }
-                        if (sim.FindAtom(bowl).method_99(out AtomReference metalOnBowl) || findRavariAtom(sim, part, remissionBowlHex).method_99(out metalOnBowl))
-                        {
-                            metalBowlExists = true;
-                        }
-
-                        if (!metal1Exists || !metal2Exists || !metalBowlExists)
-                        {
-                            continue;
-                        }
-                        if (metal1.field_2280 != metal2.field_2280)
-                        {
-                            continue;
-                        }
-                        if (!API.metalToDoubledMetallicity.TryGetValue(metal1.field_2280, out int inputMetallicity) || !API.metalToDoubledMetallicity.TryGetValue(metalOnBowl.field_2280, out int bowlMetallicity))
-                        {
-                            continue;
-                        }
-
-                        int outputMetallicity = inputMetallicity + 2;
-                        bowlMetallicity += inputMetallicity - 2;
-
-                        if (bowlMetallicity < 0 || outputMetallicity > 13)
-                        {
-                            continue;
-                        }
-
-                        if (bowlMetallicity == 0 && !ExtractionPresent(parts, part, DiamondNeighbors))
-                        {
-                            continue;
-                        }
-
-
-                        if (!API.doubledMetallicityToMetal.TryGetValue(outputMetallicity, out AtomType outputAtom) || !API.doubledMetallicityToMetal.TryGetValue(bowlMetallicity, out AtomType projectedMetal))
-                        {
-                            continue;
-                        }
-
-                        // Delete the metals
-                        Brimstone.API.RemoveAtom(metal1);
-                        Brimstone.API.RemoveAtom(metal2);
-                        // Play deletion animation
-                        Brimstone.API.DrawFallingAtom(seb, metal1);
-                        Brimstone.API.DrawFallingAtom(seb, metal2);
-                        // Promote the metal
-                        Brimstone.API.ChangeAtom(metalOnBowl, projectedMetal);
-                        // Play promotion animations
-                        seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(bowl), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
-                        metalOnBowl.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metalOnBowl.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                        // Update Glyph
-                        pss.field_2743 = true;
-                        pss.field_2744 = new AtomType[1] { outputAtom };
-                        Brimstone.API.AddSmallCollider(sim, part, remissionOutputHex);
-                        // Play sound
-                        Brimstone.API.PlaySound(sim, Sounds.Remission);
-                    }
-                    else if (pss.field_2743)
-                    {
-
-                        Brimstone.API.AddAtom(sim, part, remissionOutputHex, pss.field_2744[0]);
-                    }
+                    Brimstone.API.AddAtom(sim, part, shearingOutputHex, pss.field_2744[0]);
                 }
-                else if (type == Shearing)
+            }
+            else if (type == Osmosis)
+            {
+                HexIndex metalHex = part.method_1184(osmosisMetalHex);
+                HexIndex quickcopperHex = part.method_1184(osmosisQuickcopperHex);
+
+                bool quickcopperIsSoria = false;
+                bool quickcopperExists = false;
+                if (sim.FindAtom(quickcopperHex).method_99(out AtomReference quickcopper))
                 {
-                    if (first)
+                    quickcopperExists = true;
+                }
+                else if (Wheel.MaybeFindSoriaWheelAtom(sim, quickcopperHex).method_99(out quickcopper))
+                {
+                    quickcopperExists = true;
+                    quickcopperIsSoria = true;
+                }
+
+                if (!quickcopperExists)
+                {
+                    return;
+                }
+
+                bool metalIsSoria = false;
+
+                if (Wheel.MaybeFindSoriaWheelAtom(sim, metalHex).method_99(out AtomReference metal))
+                {
+                    metalIsSoria = true;
+                }
+                else if (!sim.FindAtom(metalHex).method_99(out metal)
+                && !findRavariAtom(sim, part, osmosisMetalHex).method_99(out metal))
+                {
+                    return;
+                }
+
+                if (quickcopperIsSoria && metalIsSoria && first)
+                {
+                    // "Soria special" only allow one transfer per cycle.
+                    return;
+                }
+
+                bool dilutionSpecial = false;
+                AtomType output = null;
+                if (quickcopperIsSoria && quickcopper.field_2280 == Atoms.Quickcopper && metal.field_2280 == Atoms.Quickcopper)
+                {
+                    output = Atoms.Quicklime;
+                }
+                else if (quickcopper.field_2280 == Atoms.Quicklime)
+                {
+                    if (metal.field_2280 != Brimstone.API.VanillaAtoms.quicksilver)
                     {
-                        if (sim.FindAtomRelative(part, shearingOutputHex).method_1085())
-                        {
-                            // blocked!
-                            continue;
-                        }
-                        if (!sim.FindAtomRelative(part, shearingBowlHex).method_99(out AtomReference bowlAtom)
-                        && !Wheel.MaybeFindSoriaWheelAtom(sim, part, shearingBowlHex).method_99(out bowlAtom))
-                        {
-                            continue;
-                        }
-
-                        bool madeQuickcopper = false;
-
-                        AtomType newBowlAtom = null;
-                        AtomType outputAtom = null;
-                        if (API.ShearingDictionary.TryGetValue(bowlAtom.field_2280, out Pair<AtomType, AtomType> result))
-                        {
-                            newBowlAtom = result.Left;
-                            outputAtom = result.Right;
-                            madeQuickcopper = quickcopperRadioactive && (newBowlAtom == Atoms.Quickcopper || outputAtom == Atoms.Quickcopper);
-                        }
-                        else if (API.metalToDoubledMetallicity.TryGetValue(bowlAtom.field_2280, out int inputMetallicity))
-                        {
-                            int remainder = (inputMetallicity + 1) >> 1;
-                            int leftovers = inputMetallicity - remainder;
-
-                            if (leftovers < 0)
-                            {
-                                // no subvacants
-                                continue;
-                            }
-
-                            if (leftovers == 1)
-                            {
-                                // don't create beryl
-                                continue;
-                            }
-                            else if (leftovers == 0 && !ExtractionPresent(parts, part, DoubleNeighbors))
-                            {
-                                // only create vaca if extraction is present
-                                continue;
-                            }
-
-                            if (!API.doubledMetallicityToMetal.TryGetValue(remainder, out newBowlAtom) || !API.doubledMetallicityToMetal.TryGetValue(leftovers, out outputAtom))
-                            {
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            continue;
-                        }
-
-                        Brimstone.API.ChangeAtom(bowlAtom, newBowlAtom);
-                        bowlAtom.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, bowlAtom.field_2280, Textures.Shearing.AtomicSplit, 30f);
-                        seb.field_3936.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(part.method_1161()) + new Vector2(0f, 0f), Textures.Shearing.BowlFlash, 30f, Vector2.Zero, 0f));
-                        // Update Glyph
-                        pss.field_2743 = true;
-                        pss.field_2744 = new AtomType[1] { outputAtom };
-                        Brimstone.API.PlaySound(sim, madeQuickcopper ? Sounds.ShearingMakingQuickcopper : Sounds.Shearing);
-                        Brimstone.API.AddSmallCollider(sim, part, shearingOutputHex);
+                        return;
                     }
-                    else if (pss.field_2743)
+                    dilutionSpecial = true;
+                    output = Atoms.Quickcopper;
+                }
+                else if (quickcopper.field_2280 != Atoms.Quickcopper || (!API.OsmosisDictionary.TryGetValue(metal.field_2280, out output)
+                && API.ChangeMetallicity(metal.field_2280, -1, out output, i => (i != 0 || ExtractionPresent(parts, part, DoubleNeighbors))) == Brimstone.API.SuccessInfo.failure))
+                {
+                    return;
+                }
+                Brimstone.API.ChangeAtom(metal, output);
+                Brimstone.API.ChangeAtom(quickcopper, dilutionSpecial ? Atoms.Quickcopper : Brimstone.API.VanillaAtoms.quicksilver);
+                seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(metalHex), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
+                metal.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(quickcopperHex), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
+                quickcopper.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quickcopper.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                Brimstone.API.PlaySound(sim, Sounds.Osmosis);
+            }
+            else if (type == class_191.field_1775) /* Triplex bonder */
+            {
+                foreach (class_222 bonder in type.field_1538)
+                {
+                    if (!sim.FindAtomRelative(part, bonder.field_1920).method_99(out AtomReference leftAtom) || !sim.FindAtomRelative(part, bonder.field_1921).method_99(out AtomReference rightAtom))
                     {
-                        Brimstone.API.AddAtom(sim, part, shearingOutputHex, pss.field_2744[0]);
+                        return;
+                    }
+                    if ((leftAtom.field_2280 == Atoms.Vulcan && rightAtom.field_2280 == Brimstone.API.VanillaAtoms.fire) || (leftAtom.field_2280 == Brimstone.API.VanillaAtoms.fire && rightAtom.field_2280 == Atoms.Vulcan) || (leftAtom.field_2280 == Atoms.Vulcan && rightAtom.field_2280 == Atoms.Vulcan))
+                    {
+                        Brimstone.API.JoinMolecules(sim, leftAtom.field_2277, rightAtom.field_2277, out Molecule joined);
+                        Brimstone.API.AddBond(sim, joined, part.method_1184(bonder.field_1920), part.method_1184(bonder.field_1921), bonder.field_1922);
                     }
                 }
-                else if (type == Osmosis)
+            }
+            else if (type == class_191.field_1778) /* Projection */
+            {
+                int projectAmount = 0;
+                bool isQuicksilverSoria = false;
+                bool isQuicksilverRavari = false;
+
+                AtomType rejectionResult = null;
+
+                if (sim.FindAtomRelative(part, new(0, 0)).method_99(out AtomReference quickcopper))
                 {
-                    HexIndex metalHex = part.method_1184(osmosisMetalHex);
-                    HexIndex quickcopperHex = part.method_1184(osmosisQuickcopperHex);
-
-                    bool quickcopperIsSoria = false;
-                    bool quickcopperExists = false;
-                    if (sim.FindAtom(quickcopperHex).method_99(out AtomReference quickcopper))
-                    {
-                        quickcopperExists = true;
-                    }
-                    else if (Wheel.MaybeFindSoriaWheelAtom(sim, quickcopperHex).method_99(out quickcopper))
-                    {
-                        quickcopperExists = true;
-                        quickcopperIsSoria = true;
-                    }
-
-                    if (!quickcopperExists)
-                    {
-                        continue;
-                    }
-
-                    if (!sim.FindAtom(metalHex).method_99(out AtomReference metal)
-                    && !Wheel.MaybeFindSoriaWheelAtom(sim, metalHex).method_99(out metal)
-                    && !findRavariAtom(sim, part, osmosisMetalHex).method_99(out metal))
-                    {
-                        continue;
-                    }
-
-                    bool dilutionSpecial = false;
-                    AtomType output = null;
-                    if (quickcopperIsSoria && quickcopper.field_2280 == Atoms.Quickcopper && metal.field_2280 == Atoms.Quickcopper)
-                    {
-                        output = Atoms.Quicklime;
-                    }
-                    else if (quickcopper.field_2280 == Atoms.Quicklime)
-                    {
-                        if (metal.field_2280 != Brimstone.API.VanillaAtoms.quicksilver)
-                        {
-                            continue;
-                        }
-                        dilutionSpecial = true;
-                        output = Atoms.Quickcopper;
-                    }
-                    else if (quickcopper.field_2280 != Atoms.Quickcopper || (!API.OsmosisDictionary.TryGetValue(metal.field_2280, out output)
-                    && API.ChangeMetallicity(metal.field_2280, -1, out output, i => (i != 0 || ExtractionPresent(parts, part, DoubleNeighbors))) == Brimstone.API.SuccessInfo.failure))
-                    {
-                        continue;
-                    }
-                    Brimstone.API.ChangeAtom(metal, output);
-                    Brimstone.API.ChangeAtom(quickcopper, dilutionSpecial ? Atoms.Quickcopper : Brimstone.API.VanillaAtoms.quicksilver);
-                    seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(metalHex), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
-                    metal.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                    seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(quickcopperHex), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
-                    quickcopper.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quickcopper.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                    Brimstone.API.PlaySound(sim, Sounds.Osmosis);
-                }
-                else if (type == class_191.field_1775) /* Triplex bonder */
-                {
-                    foreach (class_222 bonder in type.field_1538)
-                    {
-                        if (!sim.FindAtomRelative(part, bonder.field_1920).method_99(out AtomReference leftAtom) || !sim.FindAtomRelative(part, bonder.field_1921).method_99(out AtomReference rightAtom))
-                        {
-                            continue;
-                        }
-                        if ((leftAtom.field_2280 == Atoms.Vulcan && rightAtom.field_2280 == Brimstone.API.VanillaAtoms.fire) || (leftAtom.field_2280 == Brimstone.API.VanillaAtoms.fire && rightAtom.field_2280 == Atoms.Vulcan) || (leftAtom.field_2280 == Atoms.Vulcan && rightAtom.field_2280 == Atoms.Vulcan))
-                        {
-                            Brimstone.API.JoinMoleculesAtHexes(sim, part, bonder.field_1920, bonder.field_1921);
-                            Brimstone.API.AddBond(sim, part, bonder.field_1920, bonder.field_1921, bonder.field_1922);
-                        }
-                    }
-                }
-                else if (type == class_191.field_1778) /* Projection */
-                {
-                    int projectAmount = 0;
-                    bool isQuicksilverSoria = false;
-                    bool isQuicksilverRavari = false;
-
-                    AtomType rejectionResult = null;
-
-                    if (sim.FindAtomRelative(part, new(0, 0)).method_99(out AtomReference quickcopper))
-                    {
-                        if (!quickcopper.field_2281 && !quickcopper.field_2282)
-                        {
-                            if (quickcopper.field_2280 == Atoms.Quickcopper)
-                            {
-                                projectAmount = 1;
-                            }
-                            else if (quickcopper.field_2280 == Brimstone.API.VanillaAtoms.quicksilver)
-                            {
-                                projectAmount = 2;
-                            }
-                        }
-                    }
-                    else if (Wheel.MaybeFindSoriaWheelAtom(sim, part, new(0, 0)).method_99(out quickcopper))
+                    if (!quickcopper.field_2281 && !quickcopper.field_2282)
                     {
                         if (quickcopper.field_2280 == Atoms.Quickcopper)
                         {
                             projectAmount = 1;
-                            isQuicksilverSoria = true;
                         }
                         else if (quickcopper.field_2280 == Brimstone.API.VanillaAtoms.quicksilver)
                         {
                             projectAmount = 2;
-                            isQuicksilverSoria = true;
                         }
                     }
-                    else if (findRavariAtom(sim, part, new(0, 0)).method_99(out quickcopper))
-                    {
-                        if (API.ChangeMetallicity(quickcopper.field_2280, -2, out rejectionResult, static i => i >= 2) != Brimstone.API.SuccessInfo.failure)
-                        {
-                            projectAmount = 2;
-                            isQuicksilverRavari = true;
-                        }
-                    }
-
-                    if (projectAmount == 0)
-                    {
-                        continue;
-                    }
-
-                    bool metalExists = false;
-                    bool isMetalSoria = false;
-
-                    if (sim.FindAtomRelative(part, new(1, 0)).method_99(out AtomReference metal))
-                    {
-                        if (projectAmount == 2 && !isQuicksilverSoria)
-                        {
-                            // already handled by vanilla or RM
-                            continue;
-                        }
-                        metalExists = true;
-                    }
-                    else if (Wheel.MaybeFindSoriaWheelAtom(sim, part, new(1, 0)).method_99(out metal))
-                    {
-                        metalExists = true;
-                        isMetalSoria = true;
-                    }
-                    else if (findRavariAtom(sim, part, new(1, 0)).method_99(out metal))
-                    {
-                        if (projectAmount == 2 && !isQuicksilverSoria)
-                        {
-                            // already handled by RM
-                            continue;
-                        }
-                        metalExists = true;
-                    }
-
-                    if (!metalExists)
-                    {
-                        continue;
-                    }
-
-                    if (isMetalSoria ? !API.QuicksilverProjectionBehavior(metal.field_2280, projectAmount).method_99(out AtomType projection) :
-                    (!API.HalvesDictionary.TryGetValue(metal.field_2280, out projection)
-                    && API.ChangeMetallicity(metal.field_2280, projectAmount, out projection, static i => i <= 13) == Brimstone.API.SuccessInfo.failure))
-                    {
-                        continue;
-                    }
-
-                    if (isQuicksilverSoria)
-                    {
-                        Brimstone.API.ChangeAtom(quickcopper, Atoms.Quicklime);
-                        Wheel.DrawSoriaFlash(seb, part, new(0, 0));
-                        quickcopper.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quickcopper.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                    }
-                    else if (isQuicksilverRavari)
-                    {
-                        Brimstone.API.ChangeAtom(quickcopper, rejectionResult);
-                        quickcopper.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quickcopper.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                        drawRavariFlash(seb, part, new(0, 0));
-                    }
-                    else
-                    {
-                        // quickcopper falling
-                        Brimstone.API.RemoveAtom(quickcopper);
-                        Brimstone.API.DrawFallingAtom(seb, quickcopper);
-                    }
-
-                    // metal promoting
-                    Brimstone.API.ChangeAtom(metal, projection);
-                    metal.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal.field_2280, class_238.field_1989.field_81.field_614, 30f);
-                    // glyph animation
-                    Vector2 param_5378 = class_187.field_1742.method_492(part.method_1161() + new HexIndex(1, 0).Rotated(part.method_1163()));
-                    seb.field_3935.Add(new class_228(seb, (enum_7)1, param_5378, class_238.field_1989.field_90.field_256, 30f, Vector2.Zero, part.method_1163().ToRadians()));
-                    Brimstone.API.PlaySound(sim, class_238.field_1991.field_1844);
                 }
-                else if (type == class_191.field_1779) /* Purification */
+                else if (Wheel.MaybeFindSoriaWheelAtom(sim, part, new(0, 0)).method_99(out quickcopper))
                 {
-                    if (first && pss.field_2743 && pss.field_2744[0] == Atoms.Beryl)
+                    if (quickcopper.field_2280 == Atoms.Quickcopper)
                     {
-                        // Switch-a-roo
-                        pss.field_2744 = new AtomType[1] { Atoms.PurificationBeryl };
+                        projectAmount = 1;
+                        isQuicksilverSoria = true;
+                    }
+                    else if (quickcopper.field_2280 == Brimstone.API.VanillaAtoms.quicksilver)
+                    {
+                        projectAmount = 2;
+                        isQuicksilverSoria = true;
                     }
                 }
-            nextGlyph:
-                ;
+                else if (findRavariAtom(sim, part, new(0, 0)).method_99(out quickcopper))
+                {
+                    if (API.ChangeMetallicity(quickcopper.field_2280, -2, out rejectionResult, static i => i >= 2) != Brimstone.API.SuccessInfo.failure)
+                    {
+                        projectAmount = 2;
+                        isQuicksilverRavari = true;
+                    }
+                }
+
+                if (projectAmount == 0)
+                {
+                    return;
+                }
+
+                bool metalExists = false;
+                bool isMetalSoria = false;
+
+                if (sim.FindAtomRelative(part, new(1, 0)).method_99(out AtomReference metal))
+                {
+                    if (projectAmount == 2 && !isQuicksilverSoria)
+                    {
+                        // already handled by vanilla or RM
+                        return;
+                    }
+                    metalExists = true;
+                }
+                else if (Wheel.MaybeFindSoriaWheelAtom(sim, part, new(1, 0)).method_99(out metal))
+                {
+                    metalExists = true;
+                    isMetalSoria = true;
+                }
+                else if (findRavariAtom(sim, part, new(1, 0)).method_99(out metal))
+                {
+                    if (projectAmount == 2 && !isQuicksilverSoria)
+                    {
+                        // already handled by RM
+                        return;
+                    }
+                    metalExists = true;
+                }
+
+                if (!metalExists)
+                {
+                    return;
+                }
+
+                if (isMetalSoria ? !API.QuicksilverProjectionBehavior(metal.field_2280, projectAmount).method_99(out AtomType projection) :
+                (!API.HalvesDictionary.TryGetValue(metal.field_2280, out projection)
+                && API.ChangeMetallicity(metal.field_2280, projectAmount, out projection, static i => i <= 13) == Brimstone.API.SuccessInfo.failure))
+                {
+                    return;
+                }
+
+                if (isQuicksilverSoria)
+                {
+                    Brimstone.API.ChangeAtom(quickcopper, Atoms.Quicklime);
+                    Wheel.DrawSoriaFlash(seb, part, new(0, 0));
+                    quickcopper.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quickcopper.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                }
+                else if (isQuicksilverRavari)
+                {
+                    Brimstone.API.ChangeAtom(quickcopper, rejectionResult);
+                    quickcopper.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quickcopper.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                    drawRavariFlash(seb, part, new(0, 0));
+                }
+                else
+                {
+                    // quickcopper falling
+                    Brimstone.API.RemoveAtom(quickcopper);
+                    Brimstone.API.DrawFallingAtom(seb, quickcopper);
+                }
+
+                // metal promoting
+                Brimstone.API.ChangeAtom(metal, projection);
+                metal.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal.field_2280, class_238.field_1989.field_81.field_614, 30f);
+                // glyph animation
+                Vector2 param_5378 = class_187.field_1742.method_492(part.method_1161() + new HexIndex(1, 0).Rotated(part.method_1163()));
+                seb.field_3935.Add(new class_228(seb, (enum_7)1, param_5378, class_238.field_1989.field_90.field_256, 30f, Vector2.Zero, part.method_1163().ToRadians()));
+                Brimstone.API.PlaySound(sim, class_238.field_1991.field_1844);
+            }
+            else if (type == class_191.field_1779) /* Purification */
+            {
+                if (first && pss.field_2743 && pss.field_2744[0] == Atoms.Beryl)
+                {
+                    // Switch-a-roo
+                    pss.field_2744 = new AtomType[1] { Atoms.PurificationBeryl };
+                }
             }
         });
         #endregion
