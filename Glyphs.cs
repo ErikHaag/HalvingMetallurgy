@@ -1051,7 +1051,7 @@ public static class Glyphs
                 {
                     if (!sim.FindAtomRelative(part, bonder.field_1920).method_99(out AtomReference leftAtom) || !sim.FindAtomRelative(part, bonder.field_1921).method_99(out AtomReference rightAtom))
                     {
-                        return;
+                        continue;
                     }
                     if ((leftAtom.field_2280 == Atoms.Vulcan && rightAtom.field_2280 == Brimstone.API.VanillaAtoms.fire) || (leftAtom.field_2280 == Brimstone.API.VanillaAtoms.fire && rightAtom.field_2280 == Atoms.Vulcan) || (leftAtom.field_2280 == Atoms.Vulcan && rightAtom.field_2280 == Atoms.Vulcan))
                     {
