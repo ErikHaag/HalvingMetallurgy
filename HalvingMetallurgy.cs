@@ -1,6 +1,8 @@
-﻿using Quintessential;
+﻿using HalvingMetallurgy.Utilities;
+using Quintessential;
 using System;
 using System.Reflection;
+using VanillaAtoms = Brimstone.API.VanillaAtoms;
 
 namespace HalvingMetallurgy;
 
@@ -92,28 +94,25 @@ public class HalvingMetallurgy : QuintessentialMod
 
         Exports.ExportContent();
 
-        // Edge-case Dictionaries
-        API.ShearingDictionary.Add(Brimstone.API.VanillaAtoms.quicksilver, new(Atoms.Quickcopper, Atoms.Quickcopper));
-
         // Add metallicity lookup
-        API.AddMetalToMetallicityDictionary(Atoms.Beryl, 1);
-        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms.lead, 2);
-        API.AddMetalToMetallicityDictionary(Atoms.Wolfram, 3);
-        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms.tin, 4);
-        API.AddMetalToMetallicityDictionary(Atoms.Vulcan, 5);
-        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms.iron, 6);
-        API.AddMetalToMetallicityDictionary(Atoms.Nickel, 7);
-        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms.copper, 8);
-        API.AddMetalToMetallicityDictionary(Atoms.Zinc, 9);
-        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms.silver, 10);
-        API.AddMetalToMetallicityDictionary(Atoms.Sednum, 11);
-        API.AddMetalToMetallicityDictionary(Brimstone.API.VanillaAtoms.gold, 12);
-        API.AddMetalToMetallicityDictionary(Atoms.Osmium, 13);
+        AtomType[] metals = new AtomType[] { Atoms.Beryl, VanillaAtoms.lead, Atoms.Wolfram, VanillaAtoms.tin, Atoms.Vulcan, VanillaAtoms.iron, Atoms.Nickel, VanillaAtoms.copper, Atoms.Zinc, VanillaAtoms.silver, Atoms.Sednum, VanillaAtoms.gold, Atoms.Osmium };
+        for (int i = 0; i < metals.Length; i++)
+        {
+            API.AddMetalToMetallicityDictionary(metals[i], i + 1);
+        }
+
+        for (int i = 0; i < metals.Length - 1; i++)
+        {
+            API.HalvesDictionary.Add(metals[i], metals[i + 1]);
+            API.OsmosisDictionary.Add(metals[i + 1], new(metals[i]));
+            API.ShearingDictionary.Add(metals[i + 1], new(metals[(i + 1) >> 1], metals[i >> 1]));
+        }
+        API.ShearingDictionary.Add(VanillaAtoms.quicksilver, new(Atoms.Quickcopper, Atoms.Quickcopper));
 
         // Add quicksilver's metallicity lookup
         API.AddQuicksilverToDictionary(Atoms.Quicklime, 0);
         API.AddQuicksilverToDictionary(Atoms.Quickcopper, 1);
-        API.AddQuicksilverToDictionary(Brimstone.API.VanillaAtoms.quicksilver, 2);
+        API.AddQuicksilverToDictionary(VanillaAtoms.quicksilver, 2);
 
         // Add permissions
         QApi.AddPuzzlePermission(HalvingPermission, "Glyph of Halves", "Halving Metallurgy");
@@ -134,13 +133,13 @@ public class HalvingMetallurgy : QuintessentialMod
         }
         if (ReductiveMetallurgyLoaded)
         {
-            LoadReductiveMetallurgyRules();
-            LoadReductiveMetallurgyMethods();
+            ReductiveMetallurgyImports.Load();
+            ReductiveMetallurgyImports.LoadRules();
         }
         if (VacancyLoaded)
         {
-            LoadVacancyGlyph();
-            LoadVacancyRules();
+            VacancyImports.Load();
+            VacancyImports.LoadRules();
         }
         if (ScaffoldingLoaded)
         {
@@ -183,51 +182,7 @@ public class HalvingMetallurgy : QuintessentialMod
 
         FTSIGCTU.Navigation.PartsMap.addPartHexRule(Wheel.Soria, FTSIGCTU.Navigation.PartsMap.armHexRule);
     }
-    #endregion
 
-    #region Reductive Metallurgy
-    private static void LoadReductiveMetallurgyRules()
-    {
-        //Add Rejection Rules for new atoms
-        ReductiveMetallurgy.API.addRejectionRule(Atoms.Osmium, Atoms.Sednum);
-        ReductiveMetallurgy.API.addRejectionRule(Atoms.Sednum, Atoms.Zinc);
-        ReductiveMetallurgy.API.addRejectionRule(Atoms.Zinc, Atoms.Nickel);
-        ReductiveMetallurgy.API.addRejectionRule(Atoms.Nickel, Atoms.Vulcan);
-        ReductiveMetallurgy.API.addRejectionRule(Atoms.Vulcan, Atoms.Wolfram);
-        // Add Deposition Rules
-        ReductiveMetallurgy.API.addDepositionRule(Atoms.Osmium, Atoms.Nickel, Brimstone.API.VanillaAtoms.iron);
-        ReductiveMetallurgy.API.addDepositionRule(Atoms.Sednum, Brimstone.API.VanillaAtoms.iron, Atoms.Vulcan);
-        ReductiveMetallurgy.API.addDepositionRule(Atoms.Zinc, Atoms.Vulcan, Brimstone.API.VanillaAtoms.tin);
-        ReductiveMetallurgy.API.addDepositionRule(Atoms.Nickel, Brimstone.API.VanillaAtoms.tin, Atoms.Wolfram);
-        ReductiveMetallurgy.API.addDepositionRule(Atoms.Vulcan, Atoms.Wolfram, Brimstone.API.VanillaAtoms.lead);
-        // Add Proliferation
-        ReductiveMetallurgy.API.addProliferationRule(Atoms.Osmium);
-        ReductiveMetallurgy.API.addProliferationRule(Atoms.Sednum);
-        ReductiveMetallurgy.API.addProliferationRule(Atoms.Zinc);
-        ReductiveMetallurgy.API.addProliferationRule(Atoms.Nickel);
-        ReductiveMetallurgy.API.addProliferationRule(Atoms.Vulcan);
-        ReductiveMetallurgy.API.addProliferationRule(Atoms.Wolfram);
-        ReductiveMetallurgy.API.addProliferationRule(Atoms.Beryl);
-    }
-
-    private static void LoadReductiveMetallurgyMethods()
-    {
-        Glyphs.findRavariAtom = ReductiveMetallurgy.Wheel.maybeFindRavariWheelAtom;
-        Glyphs.drawRavariFlash = ReductiveMetallurgy.Wheel.DrawRavariFlash;
-    }
-    #endregion
-    #region Vacancy
-
-    private static void LoadVacancyGlyph()
-    {
-        Glyphs.ExtractionGlyph = Vaca.CustomGlyphs.Extraction;
-    }
-
-    private static void LoadVacancyRules()
-    {
-        API.AddMetalToMetallicityDictionary(Vaca.MainClass.VacaAtom, 0);
-        Glyphs.CalculateAdjacencies();
-    }
     #endregion
 
     #region Scaffolding Glyphs

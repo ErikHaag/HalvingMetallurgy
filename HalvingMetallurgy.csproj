@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net452</TargetFramework>
+		<LangVersion>10</LangVersion>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -9,7 +10,6 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<LangVersion>10</LangVersion>
 		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
 	</PropertyGroup>
 

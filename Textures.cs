@@ -1,5 +1,4 @@
-﻿using Quintessential;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using Texture = class_256;
 
@@ -92,6 +91,13 @@ public static class Textures
     
     public static void TexturesPostProcessing()
     {
-        Halves.EngravingFlashAnimation = Halves.EngravingFlashAnimation.ToList().Concat(Halves.EngravingFlashAnimation.Skip(1).Reverse().Skip(1)).ToArray();
+        int oldLen = Halves.EngravingFlashAnimation.Length;
+        int completeLength = 2 * oldLen - 2;
+        Array.Resize(ref Halves.EngravingFlashAnimation, completeLength);
+
+        for (int i = 0; i < oldLen - 2; i++)
+        {
+            Halves.EngravingFlashAnimation[completeLength - 1 - i] = Halves.EngravingFlashAnimation[i + 1];
+        }
     }
 }
