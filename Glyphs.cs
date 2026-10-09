@@ -60,6 +60,8 @@ public static class Glyphs
 
     #region Code Modification
 
+    public static ValueTweaker tweaker;
+
     internal static List<HexIndexPair> simBonders = new();
 
     private static Hook AtomSwapHook;
@@ -71,6 +73,16 @@ public static class Glyphs
         IL.SolutionEditorScreen.method_2097 += InjectSimStartup;
         On.Editor.method_927 += Atoms.OnAtomRender;
         AtomSwapHook = new(typeof(Sim).GetMethod("method_1832", BindingFlags.Instance | BindingFlags.NonPublic), AtomSwap);
+        tweaker = new ValueTweaker(false)
+        {
+            OnUpdateCallback = OnTweak
+        };
+    }
+
+    internal static void OnTweak(ValueTweaker t)
+    {
+        //Vector2 pivot = new(t.V1, t.V2);
+        //Vector2 offset = new(t.V3, t.V4);
     }
 
     internal static void UnloadHooks()
@@ -80,6 +92,7 @@ public static class Glyphs
         IL.SolutionEditorScreen.method_2097 -= InjectSimStartup;
         On.Editor.method_927 -= Atoms.OnAtomRender;
         AtomSwapHook.Dispose();
+        tweaker.Unload();
     }
 
 
@@ -349,7 +362,7 @@ public static class Glyphs
 
         QApi.AddPartType(Sump, static (part, pos, editor, renderer) =>
         {
-            PartSimState pss = editor.method_507().method_481(part);
+            Brimstone.API.GetRenderingHelpers(part, pos, editor, out PartSimState pss, out class_236 partDataWrapper, out float time);
 
             // A dictionary that acts like the original object, and also allow extra data to be added,
             // It also magically remembers data put in it, even across multiple instantiations.
@@ -367,12 +380,10 @@ public static class Glyphs
                 dyn_pss.Set("state", state);
             }
             // unknown class object
-            class_236 uco = editor.method_1989(part, pos);
-            float time = editor.method_504();
             Vector2 offset = new(41f, 48f);
-            renderer.method_523(Textures.Sump.Base, new(-1f, -1f), offset, 0f);
+            renderer.method_523(Textures.GlyphCommon.DoubleBase, new(-1f, -1f), offset, 0f);
             // quicksilver
-            renderer.method_530(class_238.field_1989.field_90.field_255.field_293, sumpInputHex, 0);
+            renderer.method_528(class_238.field_1989.field_90.field_255.field_293, sumpInputHex, Vector2.Zero);
             renderer.method_529(class_238.field_1989.field_90.field_255.field_294, sumpInputHex, Vector2.Zero);
 
             // input ring
@@ -382,32 +393,8 @@ public static class Glyphs
                 flashFrame = flashFrame > 7 ? 7 : flashFrame;
                 renderer.method_529(Textures.Sump.DrainFlashAnimation[flashFrame], sumpInputHex, Vector2.Zero);
             }
-            // output iris
-            int irisFrame = 15;
-            bool afterIrisOpens = false;
 
-            Molecule risingQuicksilver = Molecule.method_1121(Brimstone.API.VanillaAtoms.quicksilver);
-            // from SolutionEditorBase.method_1999 which was a private static method,
-            // and I kept getting a null reference exception when trying the access modifier ignoring method.
-            Vector2 risingOffset = uco.field_1984 + class_187.field_1742.method_492(sumpOutputHex).Rotated(uco.field_1985);
-
-            if (state.QuicksilverEject)
-            {
-                irisFrame = class_162.method_404((int)(class_162.method_411(1f, -1f, time) * 16f), 0, 15);
-                afterIrisOpens = time > 0.5f;
-                if (!afterIrisOpens)
-                {
-                    // show quicksilver rising behind iris
-                    Editor.method_925(risingQuicksilver, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
-                }
-            }
-            renderer.method_529(Textures.Irises.Quicksilver[irisFrame], sumpOutputHex, Vector2.Zero);
-            renderer.method_528(class_238.field_1989.field_90.field_228.field_271, sumpOutputHex, Vector2.Zero);
-            if (state.QuicksilverEject && afterIrisOpens)
-            {
-                // show quicksilver rising infront of iris
-                Editor.method_925(risingQuicksilver, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
-            }
+            Brimstone.API.DrawIris(renderer, partDataWrapper, sumpOutputHex, time, Textures.Irises.Quicksilver, Brimstone.API.ConvertToMaybe(pss.field_2743 ? Brimstone.API.VanillaAtoms.quicksilver : null));
         });
 
         QApi.AddPartType(Remission, static (part, pos, editor, renderer) =>
@@ -450,7 +437,7 @@ public static class Glyphs
             // input
             foreach (HexIndex inputHex in new HexIndex[] { remissionInput1Hex, remissionInput2Hex })
             {
-                renderer.method_530(class_238.field_1989.field_90.field_255.field_293, inputHex, 0f);
+                renderer.method_528(class_238.field_1989.field_90.field_255.field_293, inputHex, Vector2.Zero);
                 class_135.method_272(leadSymbol, (class_187.field_1742.method_491(inputHex, Vector2.Zero).Rotated(partDataWrapper.field_1985) + partDataWrapper.field_1984 - (leadSymbol.field_2056.ToVector2() / 2)).Rounded());
 
                 Vector2 molOffset = partDataWrapper.field_1984 + Brimstone.API.HexIndexToVector2(inputHex).Rotated(partDataWrapper.field_1985);
@@ -477,44 +464,20 @@ public static class Glyphs
 
         QApi.AddPartType(Shearing, static (part, pos, editor, renderer) =>
         {
-            PartSimState pss = editor.method_507().method_481(part);
-            // unknown class object
-            class_236 uco = editor.method_1989(part, pos);
-            float time = editor.method_504();
+            Brimstone.API.GetRenderingHelpers(part, pos, editor, out PartSimState pss, out class_236 partDataWrapper, out float time);
             Vector2 offset = new(41f, 48f);
 
-            renderer.method_523(Textures.Shearing.Base, new(-1f, -1f), offset, 0f);
-            renderer.method_529(Textures.Shearing.Bowl, shearingBowlHex, Vector2.Zero);
+            renderer.method_523(Textures.GlyphCommon.DoubleBase, new(-1f, -1f), offset, 0f);
+            renderer.method_528(class_238.field_1989.field_90.field_255.field_292, shearingBowlHex, Vector2.Zero);
+            renderer.method_529(Textures.Shearing.SednumLine, osmosisMetalHex, Vector2.Zero);
 
-            renderer.method_528(class_238.field_1989.field_90.field_228.field_272, shearingOutputHex, Vector2.Zero);
-            int irisFrame = 15;
-            bool afterIrisOpens = false;
-            Molecule risingMetal = null;
-            Vector2 risingOffset = uco.field_1984 + class_187.field_1742.method_492(shearingOutputHex).Rotated(uco.field_1985);
-            if (pss.field_2743)
-            {
-                irisFrame = class_162.method_404((int)(class_162.method_411(1f, -1f, time) * 16f), 0, 15);
-                afterIrisOpens = time > 0.5f;
-                risingMetal = Molecule.method_1121(pss.field_2744[0]);
-                if (!afterIrisOpens)
-                {
-                    // show quicksilver rising behind iris
-                    Editor.method_925(risingMetal, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
-                }
-            }
-            renderer.method_529(class_238.field_1989.field_90.field_246[irisFrame], shearingOutputHex, Vector2.Zero);
-            renderer.method_528(class_238.field_1989.field_90.field_228.field_271, shearingOutputHex, Vector2.Zero);
-            if (pss.field_2743 && afterIrisOpens)
-            {
-                // show quicksilver rising infront of iris
-                Editor.method_925(risingMetal, risingOffset, new HexIndex(0, 0), 0f, 1f, time, 1f, false, null);
-            }
+            renderer.method_528(class_238.field_1989.field_90.field_255.field_292, shearingOutputHex, Vector2.Zero);
         });
 
         QApi.AddPartType(Osmosis, static (part, pos, editor, renderer) =>
         {
             Vector2 offset = new(41f, 48f);
-            renderer.method_523(Textures.Osmosis.Base, new(-1f, -1f), offset, 0);
+            renderer.method_523(Textures.GlyphCommon.DoubleBase, new(-1f, -1f), offset, 0);
             renderer.method_528(class_238.field_1989.field_90.field_255.field_292, osmosisMetalHex, Vector2.Zero);
             renderer.method_529(Textures.GlyphSymbols.OsmiumDemote, osmosisMetalHex, Vector2.Zero);
             renderer.method_528(class_238.field_1989.field_90.field_255.field_292, osmosisQuickcopperHex, Vector2.Zero);
@@ -991,41 +954,40 @@ public static class Glyphs
             }
             else if (type == Shearing)
             {
-                if (first)
+
+                if (sim.FindAtomRelative(part, shearingOutputHex).method_1085())
                 {
-                    if (sim.FindAtomRelative(part, shearingOutputHex).method_1085())
-                    {
-                        // blocked!
-                        return;
-                    }
-                    if (!sim.FindAtomRelative(part, shearingBowlHex).method_99(out AtomReference bowlAtom)
-                    && !Wheel.MaybeFindSoriaWheelAtom(sim, part, shearingBowlHex).method_99(out bowlAtom))
-                    {
-                        return;
-                    }
-
-                    if (!API.ShearingDictionary.TryGetValue(bowlAtom.field_2280, out ShearingOutput result) || !result.Predicate(sim, part))
-                    {
-                        return;
-                    }
-
-                    AtomType newBowlAtom = result.Split;
-                    AtomType outputAtom = result.Eject;
-                    bool madeQuickcopper = quickcopperRadioactive && (newBowlAtom == Atoms.Quickcopper || outputAtom == Atoms.Quickcopper);
-
-                    Brimstone.API.ChangeAtom(bowlAtom, newBowlAtom);
-                    bowlAtom.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, bowlAtom.field_2280, Textures.Shearing.AtomicSplit, 30f);
-                    seb.field_3936.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(part.method_1161()) + new Vector2(0f, 0f), Textures.Shearing.BowlFlash, 30f, Vector2.Zero, 0f));
-                    // Update Glyph
-                    pss.field_2743 = true;
-                    pss.field_2744 = new AtomType[1] { outputAtom };
-                    Brimstone.API.PlaySound(sim, madeQuickcopper ? Sounds.ShearingMakingQuickcopper : Sounds.Shearing);
-                    Brimstone.API.AddSmallCollider(sim, part, shearingOutputHex);
+                    // blocked!
+                    return;
                 }
-                else if (pss.field_2743)
+                if (!sim.FindAtomRelative(part, shearingBowlHex).method_99(out AtomReference bowlAtom)
+                && !Wheel.MaybeFindSoriaWheelAtom(sim, part, shearingBowlHex).method_99(out bowlAtom))
                 {
-                    Brimstone.API.AddAtom(sim, part, shearingOutputHex, pss.field_2744[0]);
+                    return;
                 }
+
+                if (!API.ShearingDictionary.TryGetValue(bowlAtom.field_2280, out ShearingOutput result) || !result.Predicate(sim, part))
+                {
+                    return;
+                }
+
+                AtomType newBowlAtom = result.Split;
+                AtomType outputAtom = result.Eject;
+                bool madeQuickcopper = quickcopperRadioactive && (newBowlAtom == Atoms.Quickcopper || outputAtom == Atoms.Quickcopper);
+
+                Brimstone.API.ChangeAtom(bowlAtom, newBowlAtom);
+                bowlAtom.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, bowlAtom.field_2280, Textures.Shearing.Split, 30f);
+                seb.field_3936.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(part.method_1161()) + new Vector2(0f, 0f), Textures.Shearing.BowlFlash, 30f, Vector2.Zero, 0f));
+                Atom spawnedAtom = new(outputAtom)
+                {
+                    field_2276 = new class_168(seb, 0, (enum_132)1, outputAtom, Textures.Shearing.Spawn, 30f)
+                };
+
+
+                Molecule molecule = new();
+                molecule.method_1105(spawnedAtom, part.method_1184(shearingOutputHex));
+                sim.field_3823.Add(molecule);
+                Brimstone.API.PlaySound(sim, madeQuickcopper ? Sounds.ShearingMakingQuickcopper : Sounds.Shearing);
             }
             else if (type == Osmosis)
             {

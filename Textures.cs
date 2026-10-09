@@ -1,15 +1,19 @@
 ﻿using System;
-using System.Linq;
+using Quintessential;
 using Texture = class_256;
 
 namespace HalvingMetallurgy;
 
 public static class Textures
 {
+    private const string atomPath = "textures/atoms/erikhaag/HalvingMetallurgy/";
+    private const string partPath = "textures/parts/erikhaag/HalvingMetallurgy/";
+    private const string selectPath = "textures/select/erikhaag/HalvingMetallurgy/";
+
     public static class Atom
     {
-        public static Texture PartyHatTexture = Brimstone.API.GetTexture("textures/atoms/erikhaag/HalvingMetallurgy/party_hat");
-        public static Texture[] QuickcopperAnimation = Brimstone.API.GetAnimation("textures/atoms/erikhaag/HalvingMetallurgy/cloud_trails.array", "trails", 64);
+        public static Texture PartyHatTexture = Brimstone.API.GetTexture(atomPath + "party_hat");
+        public static Texture[] QuickcopperAnimation = Brimstone.API.GetAnimation(atomPath + "cloud_trails.array", "trails", 64);
     }
 
     public static class Icons
@@ -30,63 +34,69 @@ public static class Textures
         public static Texture SoriaHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/soria_icon_hover");
     }
 
+    public static class GlyphCommon
+    {
+        public static Texture DoubleBase = Brimstone.API.GetTexture(partPath + "double_base");
+    }
+
+
     public static class Halves
     {
-        public static Texture Base = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/halves_base");
-        public static Texture Glow = Brimstone.API.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_glow");
-        public static Texture Stroke = Brimstone.API.GetTexture("textures/select/erikhaag/HalvingMetallurgy/halves_stroke");
-        public static Texture[] EngravingFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/halves_engraving_flash.array", "halves_engraving", 6);
-        public static Texture[] BowlFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/halves_bowl_flash.array", "halves_bowl", 10);
+        public static Texture Base = Brimstone.API.GetTexture(partPath + "halves/base");
+        public static Texture Glow = UI.AssignOffset(UI.AssignCentre(Brimstone.API.GetTexture(selectPath + "halves_glow"), new Vector2(96, 58)), new Vector2(-1, -1));
+        public static Texture Stroke = UI.AssignOffset(UI.AssignCentre(Brimstone.API.GetTexture(selectPath + "halves_stroke"), new Vector2(83, 51)), new Vector2(-1, -1));
+        public static Texture[] EngravingFlashAnimation = Brimstone.API.GetAnimation(partPath + "halves_engraving_flash.array", "halves_engraving", 6);
+        public static Texture[] BowlFlashAnimation = Brimstone.API.GetAnimation(partPath + "halves_bowl_flash.array", "halves_bowl", 10);
     }
 
     public static class Quake
     {
-        public static Texture Base = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/quake_base");
-        public static Texture Bowl = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/quake_bowl");
-        public static Texture BowlShaking = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/quake_bowl_shaking");
+        public static Texture Base = Brimstone.API.GetTexture(partPath + "quake/base");
+        public static Texture Bowl = Brimstone.API.GetTexture(partPath + "quake/bowl");
+        public static Texture BowlShaking = Brimstone.API.GetTexture(partPath + "quake/bowl_shaking");
         public static Texture[] UnbondResistedAnimation = Brimstone.API.GetAnimation("textures/bonds/erikhaag/HalvingMetallurgy/unbond_resist.array", "unbond_resist", 22);
     }
 
     public static class Sump
     {
-        public static Texture Base = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/sump_base");
-        public static Texture[] DrainFlashAnimation = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/sump_drain_flash.array", "sump_flash", 8);
+        public static Texture[] DrainFlashAnimation = Brimstone.API.GetAnimation(partPath + "sump_drain_flash.array", "sump_flash", 8);
     }
 
     public static class Remission
     {
-        public static Texture Arrow = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/remission_arrow");
-        public static Texture Connectors = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/remission_connectors");
+        public static Texture Arrow = Brimstone.API.GetTexture(partPath + "remission/arrow");
+        public static Texture Connectors = Brimstone.API.GetTexture(partPath + "remission/connectors");
     }
 
     public static class Shearing
     {
-        public static Texture Base = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/shearing_base");
-        public static Texture Bowl = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/shearing_bowl");
-        public static Texture[] BowlFlash = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/shearing_flash.array", "shearing_flash", 8);
+
+        public static Texture SednumLine = Brimstone.API.GetTexture(partPath + "shearing/sednum_line");
+        public static Texture[] BowlFlash = Brimstone.API.GetAnimation(partPath + "shearing_flash.array", "shearing_flash", 8);
         // not to be confused with a banana split.
-        public static Texture[] AtomicSplit = Brimstone.API.GetAnimation("textures/atoms/erikhaag/HalvingMetallurgy/split_effect.array", "split", 12);
+        public static Texture[] Split = Brimstone.API.GetAnimation(atomPath + "shearing_split.array", "split", 16);
+        public static Texture[] Spawn = Brimstone.API.GetAnimation(atomPath + "shearing_spawn.array", "spawn", 16);
     }
 
     public static class Osmosis
     {
-        public static Texture Base = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/osmosis_base");
+        
     }
 
     public static class Soria
     {
-        public static Texture[] Flash = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/soria_flash.array", "soria_flash", 10);
+        public static Texture[] Flash = Brimstone.API.GetAnimation(partPath + "soria_flash.array", "soria_flash", 10);
     }
 
     public static class GlyphSymbols
     {
-        public static Texture OsmiumDemote = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/osmium_symbol");
-        public static Texture QuickcopperPromote = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/quickcopper_symbol");
+        public static Texture OsmiumDemote = Brimstone.API.GetTexture(partPath + "osmium_symbol");
+        public static Texture QuickcopperPromote = Brimstone.API.GetTexture(partPath + "quickcopper_symbol");
     }
 
     public static class Irises
     {
-        public static Texture[] Quicksilver = Brimstone.API.GetAnimation("textures/parts/erikhaag/HalvingMetallurgy/iris_full_quicksilver.array", "iris_full_quicksilver", 16);
+        public static Texture[] Quicksilver = Brimstone.API.GetAnimation(partPath + "iris_full_quicksilver.array", "iris_full_quicksilver", 16);
     }
     
     public static void TexturesPostProcessing()
