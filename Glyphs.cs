@@ -280,7 +280,7 @@ public static class Glyphs
         Shearing = Brimstone.API.CreateSimpleGlyph(
             ID: "halving-metallurgy-shearing",
             name: "Glyph of Shearing",
-            description: "The glyph of shearing cuts a metal in half, and ejects the remainder.",
+            description: "The glyph of shearing cuts a metal in half, collecting the swarf into the adjacent bowl.",
             cost: 25,
             glow: class_238.field_1989.field_97.field_374,
             stroke: class_238.field_1989.field_97.field_375,
@@ -445,8 +445,7 @@ public static class Glyphs
                 {
                     Editor.method_925(mol, molOffset, new(0, 0), 0f, 1f, 1f - time, 1f, false, null);
                 }
-                // todo: create custom iris with red x on it.
-                renderer.method_529(class_238.field_1989.field_90.field_246[frame], inputHex, Vector2.Zero);
+                renderer.method_529(Textures.Irises.Crossout[frame], inputHex, Vector2.Zero);
                 if (pss.field_2743 && beforeIrisCloses)
                 {
                     Editor.method_925(mol, molOffset, new(0, 0), 0f, 1f, 1f - time, 1f, false, null);

@@ -96,6 +96,7 @@ public static class Textures
 
     public static class Irises
     {
+        public static Texture[] Crossout = Brimstone.API.GetAnimation(partPath + "iris_full_crossout.array", "iris", 16);
         public static Texture[] Quicksilver = Brimstone.API.GetAnimation(partPath + "iris_full_quicksilver.array", "iris_full_quicksilver", 16);
     }
     

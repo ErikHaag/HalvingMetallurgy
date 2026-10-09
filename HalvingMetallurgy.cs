@@ -108,6 +108,8 @@ public class HalvingMetallurgy : QuintessentialMod
             API.ShearingDictionary.Add(metals[i + 1], new(metals[(i + 1) >> 1], metals[i >> 1]));
         }
         API.ShearingDictionary.Add(VanillaAtoms.quicksilver, new(Atoms.Quickcopper, Atoms.Quickcopper));
+        API.ShearingDictionary.Add(Atoms.Quickcopper, new(Atoms.Quickcopper, Atoms.Quicklime));
+        API.ShearingDictionary.Add( Atoms.Quicklime, new(Atoms.Quicklime, Atoms.Quicklime));
 
         // Add quicksilver's metallicity lookup
         API.AddQuicksilverToDictionary(Atoms.Quicklime, 0);
