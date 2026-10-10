@@ -11,7 +11,6 @@ public class HalvingMetallurgy : QuintessentialMod
     public static QuintessentialMod self;
     public override Type SettingsType => typeof(MySettings);
 
-
     // optional dependencies
     public static readonly bool ReductiveMetallurgyLoaded = Brimstone.API.IsModLoaded("ReductiveMetallurgy");
     public static readonly bool FTSIGCTULoaded = Brimstone.API.IsModLoaded("FTSIGCTU");
@@ -61,10 +60,7 @@ public class HalvingMetallurgy : QuintessentialMod
         MySettings SET = (MySettings)Settings;
 
         Atoms.quickcopperRadioactive = SET.quickcopperRadioactive;
-        Glyphs.quickcopperRadioactive = SET.quickcopperRadioactive;
-        Wheel.quickcopperRadioactive = SET.quickcopperRadioactive;
     }
-
 
     public override void PostLoad()
     {
@@ -77,6 +73,7 @@ public class HalvingMetallurgy : QuintessentialMod
     public override void Unload()
     {
         Glyphs.UnloadHooks();
+        Wheel.UnloadHooks();
         Sounds.Unload();
         Logger.Log(LogPrefix + "Goodbye!");
     }
@@ -89,7 +86,9 @@ public class HalvingMetallurgy : QuintessentialMod
         // Load sounds
         contentPath = Brimstone.API.GetContentPath("HalvingMetallurgy").method_1087();
         Sounds.LoadSounds();
-        Glyphs.AddPartTypes();
+        Glyphs.DefineParts();
+        Glyphs.DefinePartRendering();
+        Glyphs.DefinePartBehaviors();
         Wheel.LoadWheel();
 
         Exports.ExportContent();
@@ -127,6 +126,7 @@ public class HalvingMetallurgy : QuintessentialMod
         QApi.AddPuzzlePermission(SoriaPermission, "Soria's Wheel", "Halving Metallurgy");
 
         // Hooking
+        Logger.Log(LogPrefix + "Hooking!");
         Glyphs.LoadHooking();
 
         if (FTSIGCTULoaded)
@@ -205,6 +205,4 @@ public class HalvingMetallurgy : QuintessentialMod
     #endregion
 
     #endregion
-
-
 }

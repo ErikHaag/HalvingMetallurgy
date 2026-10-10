@@ -19,7 +19,7 @@ internal static class ReductiveMetallurgyImports
         object targetObj = typeof(ReductiveMetallurgy.API).GetField("rejectDict", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).GetValue(null);
         if (targetObj is Dictionary<AtomType, AtomType> target)
         {
-            Logger.Log("Got rejection dictionary!");
+            Logger.Log(HalvingMetallurgy.LogPrefix + "Got rejection dictionary!");
             Rejections = new(target);
         }
         else
@@ -66,8 +66,6 @@ internal static class ReductiveMetallurgyImports
         ReductiveMetallurgy.API.addProliferationRule(Atoms.Wolfram);
         ReductiveMetallurgy.API.addProliferationRule(Atoms.Beryl);
     }
-
-
 }
 
 internal static class VacancyImports

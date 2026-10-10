@@ -1,4 +1,7 @@
-﻿using MonoMod.Utils;
+﻿using HalvingMetallurgy.Utilities;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using MonoMod.Utils;
 using Quintessential;
 using System;
 using System.Collections.Generic;
@@ -11,8 +14,6 @@ namespace HalvingMetallurgy;
 // Borrowed from Reductive Metallurgy
 public static class Wheel
 {
-    public static bool quickcopperRadioactive = true;
-
     const string SoriaStateString = "HalvingMetallurgy_SoriaWheelAtoms";
     const float sixtyDegrees = (float)Math.PI / 3f;
 
@@ -32,7 +33,8 @@ public static class Wheel
 
     public static void LoadWheel()
     {
-        Soria = new() {
+        Soria = new()
+        {
             /*ID*/
             field_1528 = "halving-metallurgy-soria",
             /*Name*/
@@ -58,11 +60,83 @@ public static class Wheel
             CustomPermissionCheck = perms => perms.Contains(HalvingMetallurgy.SoriaPermission)
         };
         foreach (HexIndex hex in HexIndex.AdjacentOffsets)
+        {
             Soria.field_1544.Add(hex, Brimstone.API.VanillaAtoms.quicksilver);
+        }
 
-
-        QApi.AddPartTypeToPanel(Soria, HalvingMetallurgy.ReductiveMetallurgyLoaded ? ReductiveMetallurgy.Wheel.Ravari : class_191.field_1771);
+        QApi.AddPartTypeToPanel(Soria, class_191.field_1771);
         QApi.AddPartType(Soria, DrawSoriaWheel);
+    }
+
+    public static void LoadHooks()
+    {
+        IL.SolutionEditorBase.method_1984 += InjectDrawSoriaAtom;
+        On.SolutionEditorBase.method_1997 += DrawPartSelectionGlows;
+    }
+
+    public static void UnloadHooks()
+    {
+        IL.SolutionEditorBase.method_1984 -= InjectDrawSoriaAtom;
+        On.SolutionEditorBase.method_1997 -= DrawPartSelectionGlows;
+    }
+
+    internal static void InjectDrawSoriaAtom(ILContext context)
+    {
+        ILCursor cursor = new(context);
+        if (!cursor.TryGotoNext(MoveType.After,
+            instr => instr.MatchCallvirt("SolutionEditorBase", "method_2015")))
+        {
+            Logger.Log(HalvingMetallurgy.LogPrefix + "Failed to inject draw call (no method_2015 call)");
+            return;
+        }
+
+        if (!cursor.TryGotoNext(MoveType.After,
+            instr => instr.MatchEndfinally()))
+        {
+            Logger.Log(HalvingMetallurgy.LogPrefix + "Fail to inject draw call (no loop end)");
+            return;
+        }
+
+        cursor.Index++;
+        cursor.Emit(OpCodes.Ldarg_0);
+        cursor.Emit(OpCodes.Ldloc_0);
+        cursor.EmitDelegate<Action<SolutionEditorBase, SolutionEditorBase.class_423>>(static (self, uco) =>
+        {
+            if (self.method_503() != enum_128.Stopped)
+            {
+                var partList = self.method_502().field_3919;
+                foreach (Part soria in partList.Where(x => x.method_1159() == Soria))
+                {
+                    DrawSoriaAtoms(self, soria, uco.field_3959, true);
+                }
+            }
+        });
+    }
+
+    internal static void DrawPartSelectionGlows(On.SolutionEditorBase.orig_method_1997 orig, SolutionEditorBase self, Part param_5565, Vector2 param_5566, float param_5567)
+    {
+        if (param_5565.method_1159() == Soria)
+        {
+            DrawSelectionGlow(self, param_5565, param_5566, param_5567);
+        }
+        orig(self, param_5565, param_5566, param_5567);
+    }
+
+    public static void DrawSelectionGlow(SolutionEditorBase seb_self, Part part, Vector2 pos, float alpha)
+    {
+        var cageSelectGlowTexture = class_238.field_1989.field_97.field_367;
+        int armLength = 1; // part.method_1165()
+        class_236 class236 = seb_self.method_1989(part, pos);
+        Color color = Color.White.WithAlpha(alpha);
+
+        typeof(SolutionEditorBase).GetMethod("method_2006", BindingFlags.NonPublic | BindingFlags.Static).Invoke(seb_self, new object[] { armLength, class_191.field_1767.field_1534, class236, color });
+        MethodInfo cageDrawer = typeof(SolutionEditorBase).GetMethod("method_2016", BindingFlags.NonPublic | BindingFlags.Static);
+        float angle = 0;
+        for (int i = 0; i < 6; i++)
+        {
+            cageDrawer.Invoke(seb_self, new object[] { cageSelectGlowTexture, color, class236.field_1984, class236.field_1985 + angle });
+            angle += sixtyDegrees;
+        }
     }
 
     private static void SetSoriaWheelData<T>(PartSimState state, string field, T data) => new DynamicData(state).Set(field, data);
@@ -88,7 +162,7 @@ public static class Wheel
 
         class_236 class236 = seb_self.method_1989(part, pos);
         Molecule molecule = GetSoriaWheelAtoms(partSimState);
-        if (active && quickcopperRadioactive)
+        if (active && Atoms.quickcopperRadioactive)
         {
             int frame = (int)(new struct_27(Time.Now().Ticks).method_603() * 30f) & 0x3f;
             foreach (KeyValuePair<HexIndex, Atom> atoms in molecule.method_1100().Where((p) => p.Value.field_2275 == Atoms.Quickcopper))
@@ -125,7 +199,6 @@ public static class Wheel
         typeof(SolutionEditorBase).GetMethod("method_2005", BindingFlags.NonPublic | BindingFlags.Static).Invoke(editor, new object[] { part.method_1165(), class_191.field_1767.field_1534, class236 });
 
         // draw cages
-        PartSimState partSimState = editor.method_507().method_481(part);
         for (int i = 0; i < 6; i++)
         {
             float radians = renderer.field_1798 + (i * sixtyDegrees);

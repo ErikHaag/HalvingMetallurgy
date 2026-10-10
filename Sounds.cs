@@ -5,8 +5,6 @@ namespace HalvingMetallurgy
 {
     internal static class Sounds
     {
-
-
         public static Sound Halves;
         public static Sound Quake;
         public static Sound SumpConsume;
@@ -42,12 +40,12 @@ namespace HalvingMetallurgy
             volumeDictionary.Add("shearing_making_quickcopper", 0.2f);
             volumeDictionary.Add("osmosis", 0.3f);
 
-            On.class_201.method_540 += Sounds.Method_540;
+            On.class_201.method_540 += Method_540;
         }
 
         public static void Unload()
         {
-            On.class_201.method_540 -= Sounds.Method_540;
+            On.class_201.method_540 -= Method_540;
         }
 
         public static void Method_540(On.class_201.orig_method_540 orig, class_201 self)
