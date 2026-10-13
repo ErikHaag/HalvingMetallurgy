@@ -128,6 +128,7 @@ public class HalvingMetallurgy : QuintessentialMod
         // Hooking
         Logger.Log(LogPrefix + "Hooking!");
         Glyphs.LoadHooking();
+        Wheel.LoadHooks();
 
         if (FTSIGCTULoaded)
         {

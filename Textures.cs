@@ -18,20 +18,20 @@ public static class Textures
 
     public static class Icons
     {
-        public static Texture Halves = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/halves_icon");
-        public static Texture HalvesHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/halves_icon_hover");
-        public static Texture Quake = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/quake_icon");
-        public static Texture QuakeHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/quake_icon_hover");
-        public static Texture Sump = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/sump_icon");
-        public static Texture SumpHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/sump_icon_hover");
-        public static Texture Remission = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/remission_icon");
-        public static Texture RemissionHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/remission_icon_hover");
-        public static Texture Shearing = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/shearing_icon");
-        public static Texture ShearingHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/shearing_icon_hover");
-        public static Texture Osmosis = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/osmosis_icon");
-        public static Texture OsmosisHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/osmosis_icon_hover");
-        public static Texture Soria = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/soria_icon");
-        public static Texture SoriaHover = Brimstone.API.GetTexture("textures/parts/erikhaag/HalvingMetallurgy/icons/soria_icon_hover");
+        public static Texture Halves = Brimstone.API.GetTexture(partPath + "icons/halves_icon");
+        public static Texture HalvesHover = Brimstone.API.GetTexture(partPath + "icons/halves_icon_hover");
+        public static Texture Quake = Brimstone.API.GetTexture(partPath + "icons/quake_icon");
+        public static Texture QuakeHover = Brimstone.API.GetTexture(partPath + "icons/quake_icon_hover");
+        public static Texture Sump = Brimstone.API.GetTexture(partPath + "icons/sump_icon");
+        public static Texture SumpHover = Brimstone.API.GetTexture(partPath + "icons/sump_icon_hover");
+        public static Texture Remission = Brimstone.API.GetTexture(partPath + "icons/remission_icon");
+        public static Texture RemissionHover = Brimstone.API.GetTexture(partPath + "icons/remission_icon_hover");
+        public static Texture Shearing = Brimstone.API.GetTexture(partPath + "icons/shearing_icon");
+        public static Texture ShearingHover = Brimstone.API.GetTexture(partPath + "icons/shearing_icon_hover");
+        public static Texture Osmosis = Brimstone.API.GetTexture(partPath + "icons/osmosis_icon");
+        public static Texture OsmosisHover = Brimstone.API.GetTexture(partPath + "icons/osmosis_icon_hover");
+        public static Texture Soria = Brimstone.API.GetTexture(partPath + "icons/soria_icon");
+        public static Texture SoriaHover = Brimstone.API.GetTexture(partPath + "icons/soria_icon_hover");
     }
 
     public static class GlyphCommon
@@ -39,12 +39,13 @@ public static class Textures
         public static Texture DoubleBase = Brimstone.API.GetTexture(partPath + "double_base");
     }
 
-
     public static class Halves
     {
         public static Texture Base = Brimstone.API.GetTexture(partPath + "halves/base");
         public static Texture Glow = UI.AssignOffset(UI.AssignCentre(Brimstone.API.GetTexture(selectPath + "halves_glow"), new Vector2(96, 58)), new Vector2(-1, -1));
         public static Texture Stroke = UI.AssignOffset(UI.AssignCentre(Brimstone.API.GetTexture(selectPath + "halves_stroke"), new Vector2(83, 51)), new Vector2(-1, -1));
+        public static Texture Connectors = Brimstone.API.GetTexture(partPath + "halves/connectors");
+
         public static Texture[] EngravingFlashAnimation = Brimstone.API.GetAnimation(partPath + "halves_engraving_flash.array", "halves_engraving", 6);
         public static Texture[] BowlFlashAnimation = Brimstone.API.GetAnimation(partPath + "halves_bowl_flash.array", "halves_bowl", 10);
     }
@@ -66,6 +67,7 @@ public static class Textures
     {
         public static Texture Arrow = Brimstone.API.GetTexture(partPath + "remission/arrow");
         public static Texture Connectors = Brimstone.API.GetTexture(partPath + "remission/connectors");
+        public static Texture[] BowlGlow = Brimstone.API.GetAnimation(partPath + (DateTime.Now.Month == 6 ? "remission_bowl_glow_rainbow.array" : "remission_bowl_glow.array"), "glow", 64);
     }
 
     public static class Shearing
@@ -80,7 +82,7 @@ public static class Textures
 
     public static class Osmosis
     {
-        
+        public static Texture Connector = Brimstone.API.GetTexture(partPath + "osmosis/connector");
     }
 
     public static class Soria

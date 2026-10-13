@@ -11,6 +11,9 @@ namespace HalvingMetallurgy
         public static Sound SumpEject;
         public static Sound SumpDiscard;
         public static Sound Remission;
+        public static Sound RemissionHalfDemote;
+        public static Sound RemissionHalfPromote;
+        public static Sound RemissionPromote;
         public static Sound Shearing;
         public static Sound ShearingMakingQuickcopper;
         public static Sound Osmosis;
@@ -23,6 +26,9 @@ namespace HalvingMetallurgy
             SumpEject = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/sump_eject").method_1087();
             SumpDiscard = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/sump_discard").method_1087();
             Remission = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/remission").method_1087();
+            RemissionHalfDemote = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/remission_half_demote").method_1087();
+            RemissionHalfPromote = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/remission_half_promote").method_1087();
+            RemissionPromote = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/remission_promote").method_1087();
             Shearing = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/shearing").method_1087();
             ShearingMakingQuickcopper = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/shearing_making_quickcopper").method_1087();
             Osmosis = Brimstone.API.GetSound(HalvingMetallurgy.contentPath, "sounds/osmosis").method_1087();
@@ -36,6 +42,9 @@ namespace HalvingMetallurgy
             volumeDictionary.Add("sump_eject", 0.3f);
             volumeDictionary.Add("sump_discard", 0.3f);
             volumeDictionary.Add("remission", 0.3f);
+            volumeDictionary.Add("remission_half_demote", 0.3f);
+            volumeDictionary.Add("remission_half_promote", 0.3f);
+            volumeDictionary.Add("remission_promote", 0.3f);
             volumeDictionary.Add("shearing", 0.3f);
             volumeDictionary.Add("shearing_making_quickcopper", 0.2f);
             volumeDictionary.Add("osmosis", 0.3f);
@@ -57,6 +66,9 @@ namespace HalvingMetallurgy
             SumpEject.field_4062 = false;
             SumpDiscard.field_4062 = false;
             Remission.field_4062 = false;
+            RemissionHalfDemote.field_4062 = false;
+            RemissionHalfPromote.field_4062 = false;
+            RemissionPromote.field_4062 = false;
             Shearing.field_4062 = false;
             ShearingMakingQuickcopper.field_4062 = false;
             Osmosis.field_4062 = false;

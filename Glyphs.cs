@@ -4,6 +4,7 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using Quintessential;
+using SDL2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,9 @@ namespace HalvingMetallurgy;
 
 public static class Glyphs
 {
+
+    static readonly ulong timerFactor = SDL.SDL_GetPerformanceFrequency() / 30;
+
     #region Glyphs
     public static PartType Halves;
     public static PartType Quake;
@@ -69,16 +73,7 @@ public static class Glyphs
         On.Editor.method_927 += Atoms.OnAtomRender;
         IL.SolutionEditorScreen.method_2097 += InjectSimStartup;
         AtomSwapHook = new(typeof(Sim).GetMethod("method_1832", BindingFlags.Instance | BindingFlags.NonPublic), AtomSwap);
-        tweaker = new ValueTweaker(false)
-        {
-            OnUpdateCallback = OnTweak
-        };
-    }
-
-    internal static void OnTweak(ValueTweaker t)
-    {
-        //Vector2 pivot = new(t.V1, t.V2);
-        //Vector2 offset = new(t.V3, t.V4);
+        tweaker = new ValueTweaker(false);
     }
 
     internal static void UnloadHooks()
@@ -340,7 +335,7 @@ public static class Glyphs
                 ProjectionBehavior(sim, part, pss, first, seb);
                 return;
             }
-            
+
             if (type == class_191.field_1779) /* Purification */
             {
                 PurificationBehavior(sim, part, pss, first, seb);
@@ -356,7 +351,6 @@ public static class Glyphs
         Vector2 offset = new(-1f, -1f);
 
         renderer.method_523(Textures.Halves.Base, offset, pivot, 0f);
-        renderer.method_523(Textures.Halves.EngravingFlashAnimation[0], offset, pivot, 0f);
         // quicksilver
         renderer.method_530(class_238.field_1989.field_90.field_255.field_293, halvesInputHex, 0);
         renderer.method_529(class_238.field_1989.field_90.field_255.field_294, halvesInputHex, Vector2.Zero);
@@ -365,6 +359,9 @@ public static class Glyphs
         renderer.method_529(class_238.field_1989.field_90.field_255.field_291, halvesMetal1Hex, Vector2.Zero);
         renderer.method_528(class_238.field_1989.field_90.field_255.field_292, halvesMetal2Hex, Vector2.Zero);
         renderer.method_529(class_238.field_1989.field_90.field_255.field_291, halvesMetal2Hex, Vector2.Zero);
+
+        renderer.method_522(Textures.Halves.Connectors, new Vector2(-32f, 10f), 0);
+        renderer.method_522(Textures.Halves.Connectors, new Vector2(-33f, 10f), (float)(2d * Math.PI / 3d));
     }
     public static void HalvesBehavior(Sim sim, Part part, PartSimState pss, bool first, SolutionEditorBase seb)
     {
@@ -647,7 +644,7 @@ public static class Glyphs
         }
         return;
     }
-    
+
     public static void SumpRenderer(Part part, Vector2 pos, SolutionEditorBase editor, class_195 renderer)
     {
         Brimstone.API.GetRenderingHelpers(part, pos, editor, out PartSimState pss, out class_236 partDataWrapper, out float time);
@@ -757,7 +754,6 @@ public static class Glyphs
         Vector2 pivot = new(41f, 120f);
         Vector2 offset = new(-1f, -1f);
         renderer.method_523(class_238.field_1989.field_90.field_228.field_265, offset, pivot, 0f);
-        renderer.method_523(Textures.Remission.Arrow, offset, pivot, 0f);
         Texture leadSymbol = class_238.field_1989.field_90.field_257.field_363;
         int frame = 0;
         bool beforeIrisCloses = false;
@@ -788,7 +784,10 @@ public static class Glyphs
         foreach (HexIndex inputHex in new HexIndex[] { remissionInput1Hex, remissionInput2Hex })
         {
             renderer.method_528(class_238.field_1989.field_90.field_255.field_293, inputHex, Vector2.Zero);
-            class_135.method_272(leadSymbol, (class_187.field_1742.method_491(inputHex, Vector2.Zero).Rotated(partDataWrapper.field_1985) + partDataWrapper.field_1984 - (leadSymbol.field_2056.ToVector2() / 2)).Rounded());
+            if (state.irisState != 2)
+            {
+                class_135.method_272(leadSymbol, (class_187.field_1742.method_491(inputHex, Vector2.Zero).Rotated(partDataWrapper.field_1985) + partDataWrapper.field_1984 - (leadSymbol.field_2056.ToVector2() / 2)).Rounded());
+            }
 
             Vector2 molOffset = partDataWrapper.field_1984 + Brimstone.API.HexIndexToVector2(inputHex).Rotated(partDataWrapper.field_1985);
             if (pss.field_2743 && !beforeIrisCloses)
@@ -804,10 +803,14 @@ public static class Glyphs
         // bowl
         renderer.method_528(class_238.field_1989.field_90.field_255.field_292, remissionBowlHex, Vector2.Zero);
         renderer.method_529(class_238.field_1989.field_90.field_255.field_291, remissionBowlHex, Vector2.Zero);
+        if (!state.IsEmpty)
+        {
+            int glowFrame = (int)(Time.Now().Ticks / timerFactor) & 0x3f;
+            renderer.method_528(Textures.Remission.BowlGlow[glowFrame], remissionBowlHex, Vector2.Zero);
+        }
         // iris
-        renderer.method_528(class_238.field_1989.field_90.field_228.field_272, remissionOutputHex, Vector2.Zero);
-
         Brimstone.API.DrawIris(renderer, partDataWrapper, remissionOutputHex, time, Brimstone.API.ConvertToMaybe(pss.field_2743 ? pss.field_2744[1] : null));
+
         renderer.method_521(Textures.Remission.Connectors, pivot);
     }
     public static void RemissionBehavior(Sim sim, Part part, PartSimState pss, bool first, SolutionEditorBase seb)
@@ -889,21 +892,24 @@ public static class Glyphs
             if (state.CanFullPromote && bowlType.field_2297.method_99(out AtomType projectedMetal))
             {
                 state.halfProjections -= 2;
+                Brimstone.API.PlaySound(sim, Sounds.RemissionPromote);
             }
             else if (state.CanHalfPromote && API.HalvesDictionary.TryGetValue(bowlType, out projectedMetal))
             {
                 state.halfProjections -= 1;
+                Brimstone.API.PlaySound(sim, Sounds.RemissionHalfPromote);
             }
             else if (state.CanHalfDemote && API.OsmosisDictionary.TryGetValue(bowlType, out OsmosisOutput output) && output.Predicate(sim, part))
             {
                 projectedMetal = output.HalfDemotion;
                 state.halfProjections += 1;
+                Brimstone.API.PlaySound(sim, Sounds.RemissionHalfDemote);
             }
             else
             {
                 goto remissionEnd;
-
             }
+
             if (state.IsEmpty)
             {
                 state.irisState = state.irisState == 2 ? 1 : 0;
@@ -989,11 +995,13 @@ public static class Glyphs
         Vector2 pivot = new(41f, 48f);
         Vector2 offset = new(-1f, -1f);
 
-        renderer.method_523(Textures.GlyphCommon.DoubleBase, offset, pivot, 0);
+        renderer.method_523(Textures.GlyphCommon.DoubleBase, offset, pivot, 0f);
         renderer.method_528(class_238.field_1989.field_90.field_255.field_292, osmosisMetalHex, Vector2.Zero);
         renderer.method_529(Textures.GlyphSymbols.OsmiumDemote, osmosisMetalHex, Vector2.Zero);
         renderer.method_528(class_238.field_1989.field_90.field_255.field_292, osmosisQuickcopperHex, Vector2.Zero);
         renderer.method_529(Textures.GlyphSymbols.QuickcopperPromote, osmosisQuickcopperHex, Vector2.Zero);
+
+        renderer.method_522(Textures.Osmosis.Connector, new Vector2(-28f, 23f), 0f);
     }
     public static void OsmosisBehavior(Sim sim, Part part, PartSimState pss, bool first, SolutionEditorBase seb)
     {
