@@ -45,8 +45,9 @@ public static class Textures
         public static Texture Glow = UI.AssignOffset(UI.AssignCentre(Brimstone.API.GetTexture(selectPath + "halves_glow"), new Vector2(96, 58)), new Vector2(-1, -1));
         public static Texture Stroke = UI.AssignOffset(UI.AssignCentre(Brimstone.API.GetTexture(selectPath + "halves_stroke"), new Vector2(83, 51)), new Vector2(-1, -1));
         public static Texture Connectors = Brimstone.API.GetTexture(partPath + "halves/connectors");
+        public static Texture GlossMask = Brimstone.API.GetTexture(partPath + "halves/gloss_mask");
 
-        public static Texture[] EngravingFlashAnimation = Brimstone.API.GetAnimation(partPath + "halves_engraving_flash.array", "halves_engraving", 6);
+        public static Texture[] ConnectorFlash = Brimstone.API.GetAnimation(partPath + "halves_connector_glow.array", "glow", 6);
         public static Texture[] BowlFlashAnimation = Brimstone.API.GetAnimation(partPath + "halves_bowl_flash.array", "halves_bowl", 10);
     }
 
@@ -104,13 +105,5 @@ public static class Textures
     
     public static void TexturesPostProcessing()
     {
-        int oldLen = Halves.EngravingFlashAnimation.Length;
-        int completeLength = 2 * oldLen - 2;
-        Array.Resize(ref Halves.EngravingFlashAnimation, completeLength);
-
-        for (int i = 0; i < oldLen - 2; i++)
-        {
-            Halves.EngravingFlashAnimation[completeLength - 1 - i] = Halves.EngravingFlashAnimation[i + 1];
-        }
     }
 }

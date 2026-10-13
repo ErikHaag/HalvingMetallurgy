@@ -362,6 +362,7 @@ public static class Glyphs
 
         renderer.method_522(Textures.Halves.Connectors, new Vector2(-32f, 10f), 0);
         renderer.method_522(Textures.Halves.Connectors, new Vector2(-33f, 10f), (float)(2d * Math.PI / 3d));
+        Brimstone.API.DrawGloss(renderer, class_238.field_1989.field_90.field_238.field_268, Textures.Halves.GlossMask, pivot, new(0, 0), 0f);
     }
     public static void HalvesBehavior(Sim sim, Part part, PartSimState pss, bool first, SolutionEditorBase seb)
     {
@@ -411,24 +412,13 @@ public static class Glyphs
             return;
         }
 
-        bool metal1Exists = false;
         bool metal1IsSoria = false;
 
-        if (sim.FindAtom(bowl1).method_99(out AtomReference metal1))
+        if (Wheel.MaybeFindSoriaWheelAtom(sim, bowl1).method_99(out AtomReference metal1))
         {
-            metal1Exists = true;
-        }
-        else if (Wheel.MaybeFindSoriaWheelAtom(sim, bowl1).method_99(out metal1))
-        {
-            metal1Exists = true;
             metal1IsSoria = true;
         }
-        else if (ReductiveMetallurgyImports.findRavariAtom(sim, part, halvesMetal1Hex).method_99(out metal1))
-        {
-            metal1Exists = true;
-        }
-
-        if (!metal1Exists)
+        else if (!sim.FindAtom(bowl1).method_99(out metal1) && !ReductiveMetallurgyImports.findRavariAtom(sim, part, halvesMetal1Hex).method_99(out metal1))
         {
             return;
         }
@@ -496,8 +486,11 @@ public static class Glyphs
         metal2.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal2.field_2280, class_238.field_1989.field_81.field_614, 30f);
         //play engraving flash
         float theta = part.method_1163().ToRadians();
-        Vector2 offset = class_187.field_1742.method_492(part.method_1161()) + new Vector2(20f, 35f).Rotated(theta);
-        seb.field_3935.Add(new class_228(seb, (enum_7)1, offset, Textures.Halves.EngravingFlashAnimation, 30f, Vector2.Zero, theta));
+        Vector2 pivot = class_187.field_1742.method_492(part.method_1161());
+
+        seb.field_3935.Add(new class_228(seb, (enum_7)1, pivot + new Vector2(41f, 1f).Rotated(theta), Textures.Halves.ConnectorFlash, 30f, Vector2.Zero, theta).WithColor(Atoms.QuickcopperColor));
+        theta += (float)(2 * Math.PI / 3);
+        seb.field_3935.Add(new class_228(seb, (enum_7)1, pivot + new Vector2(42f, 1f).Rotated(theta), Textures.Halves.ConnectorFlash, 30f, Vector2.Zero, theta).WithColor(Atoms.QuickcopperColor));
 
         // Play custom sound
         Brimstone.API.PlaySound(sim, Sounds.Halves);

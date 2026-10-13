@@ -9,6 +9,8 @@ public static class Atoms
     public static bool wearPartyHat = System.DateTime.Now.Month == 4 && System.DateTime.Now.Day == 5;
     public static AtomType Quicklime, Quickcopper, ActiveQuickcopper, Beryl, PurificationBeryl, Wolfram, Vulcan, Nickel, Zinc, Sednum, Osmium;
 
+    public static readonly Color QuickcopperColor = Color.FromHex(0xee9966);
+
     public static void AddAtomTypes()
     {
         Osmium = Brimstone.API.CreateMetalAtom(
