@@ -1,7 +1,7 @@
 Name: HalvingMetallurgy
-Version: 5.0.0
+Version: 5.0.1
 Icon: hm_icon
-Desc: Introduces the concept of half promotion, and adds the associated atoms and glyphs.
+Desc: Introduces the concept of half promotion, and adds the associated atoms and glyphs.`
 DLL: "HalvingMetallurgy.dll"
 Dependencies:
 - Name: Quintessential

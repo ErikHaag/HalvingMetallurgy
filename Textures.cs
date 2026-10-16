@@ -47,7 +47,7 @@ public static class Textures
         public static Texture Connectors = Brimstone.API.GetTexture(partPath + "halves/connectors");
         public static Texture GlossMask = Brimstone.API.GetTexture(partPath + "halves/gloss_mask");
 
-        public static Texture[] ConnectorFlash = Brimstone.API.GetAnimation(partPath + "halves_connector_glow.array", "glow", 6);
+        public static Texture[] ConnectorFlash = Brimstone.API.GetAnimation(partPath + "halves_connector_glow.array", "glow", 15);
         public static Texture[] BowlFlashAnimation = Brimstone.API.GetAnimation(partPath + "halves_bowl_flash.array", "halves_bowl", 10);
     }
 
