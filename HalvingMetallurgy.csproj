@@ -81,7 +81,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Content\textures\parts\erikhaag\HalvingMetallurgy\osmosis\" />
 	  <Folder Include="Symbol svgs\" />
 	</ItemGroup>
 

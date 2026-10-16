@@ -56,6 +56,7 @@ public static class Textures
         public static Texture Base = Brimstone.API.GetTexture(partPath + "quake/base");
         public static Texture Bowl = Brimstone.API.GetTexture(partPath + "quake/bowl");
         public static Texture BowlShaking = Brimstone.API.GetTexture(partPath + "quake/bowl_shaking");
+        public static Texture SednumSymbol = Brimstone.API.GetTexture(partPath + "quake/sednum_symbol");
         public static Texture[] UnbondResistedAnimation = Brimstone.API.GetAnimation("textures/bonds/erikhaag/HalvingMetallurgy/unbond_resist.array", "unbond_resist", 22);
     }
 
@@ -84,6 +85,13 @@ public static class Textures
     public static class Osmosis
     {
         public static Texture Connector = Brimstone.API.GetTexture(partPath + "osmosis/connector");
+        public static Texture OsmiumDemote = Brimstone.API.GetTexture(partPath + "osmosis/osmium_symbol");
+        public static Texture QuickcopperPromote = Brimstone.API.GetTexture(partPath + "osmosis/quickcopper_symbol");
+    }
+
+    public static class Harmony
+    {
+        public static readonly class_126 TrefoilIndent = Brimstone.API.GetLighting(partPath + "trefoil_marker.lighting");
     }
 
     public static class Soria
@@ -91,19 +99,9 @@ public static class Textures
         public static Texture[] Flash = Brimstone.API.GetAnimation(partPath + "soria_flash.array", "soria_flash", 10);
     }
 
-    public static class GlyphSymbols
-    {
-        public static Texture OsmiumDemote = Brimstone.API.GetTexture(partPath + "osmium_symbol");
-        public static Texture QuickcopperPromote = Brimstone.API.GetTexture(partPath + "quickcopper_symbol");
-    }
-
     public static class Irises
     {
         public static Texture[] Crossout = Brimstone.API.GetAnimation(partPath + "iris_full_crossout.array", "iris", 16);
         public static Texture[] Quicksilver = Brimstone.API.GetAnimation(partPath + "iris_full_quicksilver.array", "iris_full_quicksilver", 16);
-    }
-    
-    public static void TexturesPostProcessing()
-    {
     }
 }

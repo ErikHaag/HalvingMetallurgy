@@ -26,6 +26,7 @@ public class HalvingMetallurgy : QuintessentialMod
     public const string RemissionPermission = "HalvingMetallurgy:remission";
     public const string ShearingPermission = "HalvingMetallurgy:shearing";
     public const string OsmosisPermission = "HalvingMetallurgy:osmosis";
+    public const string HarmonyPermission = "HalvingMetallurgy:harmony";
 
     public const string SoriaPermission = "HalvingMetallurgy:soria";
 
@@ -81,7 +82,6 @@ public class HalvingMetallurgy : QuintessentialMod
     public override void LoadPuzzleContent()
     {
         Logger.Log(LogPrefix + "Loading!");
-        Textures.TexturesPostProcessing();
         Atoms.AddAtomTypes();
         // Load sounds
         contentPath = Brimstone.API.GetContentPath("HalvingMetallurgy").method_1087();
@@ -122,6 +122,7 @@ public class HalvingMetallurgy : QuintessentialMod
         QApi.AddPuzzlePermission(RemissionPermission, "Glyph of Remission", "Halving Metallurgy");
         QApi.AddPuzzlePermission(ShearingPermission, "Glyph of Shearing", "Halving Metallurgy");
         QApi.AddPuzzlePermission(OsmosisPermission, "Glyph of Osmosis", "Halving Metallurgy");
+        QApi.AddPuzzlePermission(HarmonyPermission, "Glyph of Harmony", "Halving Metallurgy");
 
         QApi.AddPuzzlePermission(SoriaPermission, "Soria's Wheel", "Halving Metallurgy");
 

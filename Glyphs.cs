@@ -1,4 +1,7 @@
-﻿using HalvingMetallurgy.Utilities;
+﻿#pragma warning disable IDE0060 // Remove unused parameter
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+
+using HalvingMetallurgy.Utilities;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -20,12 +23,14 @@ public static class Glyphs
     static readonly ulong timerFactor = SDL.SDL_GetPerformanceFrequency() / 30;
 
     #region Glyphs
+
     public static PartType Halves;
     public static PartType Quake;
     public static PartType Sump;
     public static PartType Remission;
     public static PartType Shearing;
     public static PartType Osmosis;
+    public static PartType Harmony;
     #endregion
 
     #region Hexes
@@ -262,6 +267,18 @@ public static class Glyphs
             customPermission: HalvingMetallurgy.OsmosisPermission
         );
 
+        Harmony = Brimstone.API.CreateSimpleGlyph(
+            ID: "halving-metallurgy-harmony",
+            name: "Glyph of Harmony",
+            description: "The glyph of harmony does nothing expect stay where it is placed, some alchemists may place it in an appeasing spot.",
+            cost: 0,
+            glow: class_238.field_1989.field_97.field_382,
+            stroke: class_238.field_1989.field_97.field_383,
+            icon: class_238.field_1989.field_90.field_245.field_309,
+            hoveredIcon: class_238.field_1989.field_90.field_245.field_310,
+            usedHexes: new HexIndex[] { new(0, 0) },
+            customPermission: HalvingMetallurgy.HarmonyPermission
+        );
         #endregion
 
         QApi.AddPartTypeToPanel(Halves, false);
@@ -270,6 +287,7 @@ public static class Glyphs
         QApi.AddPartTypeToPanel(Remission, false);
         QApi.AddPartTypeToPanel(Shearing, false);
         QApi.AddPartTypeToPanel(Osmosis, false);
+        QApi.AddPartTypeToPanel(Harmony, false);
     }
 
     public static void DefinePartRendering()
@@ -280,6 +298,7 @@ public static class Glyphs
         QApi.AddPartType(Remission, RemissionRenderer);
         QApi.AddPartType(Shearing, ShearingRenderer);
         QApi.AddPartType(Osmosis, OsmosisRenderer);
+        QApi.AddPartType(Harmony, HarmonyRenderer);
     }
 
     public static void DefinePartBehaviors()
@@ -510,11 +529,14 @@ public static class Glyphs
             // "We have sinusoid at home"
             // Sinusoid at home:
             float shakeX = (float)(-Math.Pow(x, 5) + (10 * Math.Pow(x, 4)) - (28 * Math.Pow(x, 3)) + (8 * Math.Pow(x, 2)) + (32 * x)) / 7;
-            renderer.method_529(Textures.Quake.BowlShaking, quakeBowlHex, new Vector2(shakeX, 0));
+            Vector2 offset = new(shakeX, 0);
+            renderer.method_529(Textures.Quake.BowlShaking, quakeBowlHex, offset);
+            renderer.method_529(Textures.Quake.SednumSymbol, quakeBowlHex, offset);
         }
         else
         {
-            renderer.method_529(Textures.Quake.Bowl, quakeBowlHex, Vector2.Zero);
+            renderer.method_528(Textures.Quake.Bowl, quakeBowlHex, Vector2.Zero);
+            renderer.method_529(Textures.Quake.SednumSymbol, quakeBowlHex, Vector2.Zero);
         }
     }
     public static void QuakeBehavior(Sim sim, Part part, PartSimState pss, bool first, SolutionEditorBase seb)
@@ -990,9 +1012,9 @@ public static class Glyphs
 
         renderer.method_523(Textures.GlyphCommon.DoubleBase, offset, pivot, 0f);
         renderer.method_528(class_238.field_1989.field_90.field_255.field_292, osmosisMetalHex, Vector2.Zero);
-        renderer.method_529(Textures.GlyphSymbols.OsmiumDemote, osmosisMetalHex, Vector2.Zero);
+        renderer.method_529(Textures.Osmosis.OsmiumDemote, osmosisMetalHex, Vector2.Zero);
         renderer.method_528(class_238.field_1989.field_90.field_255.field_292, osmosisQuickcopperHex, Vector2.Zero);
-        renderer.method_529(Textures.GlyphSymbols.QuickcopperPromote, osmosisQuickcopperHex, Vector2.Zero);
+        renderer.method_529(Textures.Osmosis.QuickcopperPromote, osmosisQuickcopperHex, Vector2.Zero);
 
         renderer.method_522(Textures.Osmosis.Connector, new Vector2(-28f, 23f), 0f);
     }
@@ -1075,6 +1097,16 @@ public static class Glyphs
         quickcopper.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quickcopper.field_2280, class_238.field_1989.field_81.field_614, 30f);
         Brimstone.API.PlaySound(sim, Sounds.Osmosis);
         return;
+    }
+
+    public static void HarmonyRenderer(Part part, Vector2 pos, SolutionEditorBase editor, class_195 renderer)
+    {
+        Brimstone.API.GetRenderingHelpers(part, pos, editor, out PartSimState pss, out class_236 partDataWrapper, out float time);
+        Vector2 pivot = new(42f, 49f);
+        renderer.method_521(class_238.field_1989.field_90.field_185, pivot);
+        HexIndex center = new(0, 0);
+        renderer.method_528(class_238.field_1989.field_90.field_187, center, Vector2.Zero);
+        renderer.method_527(Textures.Harmony.TrefoilIndent, center, Vector2.Zero, pivot, 0f);
     }
 
     public static void TriplexBonderBehavior(Sim sim, Part part, PartSimState pss, bool first, SolutionEditorBase seb)
@@ -1167,7 +1199,7 @@ public static class Glyphs
             return;
         }
 
-        AtomType projection = null;
+        AtomType projection;
         if (isMetalSoria)
         {
             if (projectAmount == 0 || !API.QuicksilverProjectionBehavior(metal.field_2280, projectAmount).method_99(out projection))
