@@ -67,8 +67,6 @@ public static class Glyphs
 
     #region Code Modification
 
-    public static ValueTweaker tweaker;
-
     internal static List<HexIndexPair> simBonders = new();
 
     private static Hook AtomSwapHook;
@@ -78,7 +76,6 @@ public static class Glyphs
         On.Editor.method_927 += Atoms.OnAtomRender;
         IL.SolutionEditorScreen.method_2097 += InjectSimStartup;
         AtomSwapHook = new(typeof(Sim).GetMethod("method_1832", BindingFlags.Instance | BindingFlags.NonPublic), AtomSwap);
-        tweaker = new ValueTweaker(false);
     }
 
     internal static void UnloadHooks()
@@ -87,7 +84,6 @@ public static class Glyphs
         IL.SolutionEditorScreen.method_2097 -= InjectSimStartup;
         On.Editor.method_927 -= Atoms.OnAtomRender;
         AtomSwapHook.Dispose();
-        tweaker.Unload();
     }
 
     internal static void InjectSimStartup(ILContext context)
