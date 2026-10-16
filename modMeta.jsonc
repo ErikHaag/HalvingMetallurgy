@@ -1,0 +1,16 @@
+﻿{
+    "mod_id": "halving_metallurgy",
+    "version": "6.0.0",
+    "mod_page_url": "https://github.com/ErikHaag/HalvingMetallurgy",
+    "dll": "HalvingMetallurgy.dll",
+    "authors": [
+        "Greenfield"
+    ],
+    "icon": "hm_icon",
+    "mappings": "",
+    "dependencies": {
+        "quintessential_core": "[0.8.0,)",
+        "quintessential_data": "[0.8.0,)"
+    },
+    "conflicts": []
+}

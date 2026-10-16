@@ -1,9 +1,4 @@
 ﻿using MonoMod.ModInterop;
-using MonoMod.Utils;
-using System;
-using PartType = class_139;
-using Texture = class_256;
-
 namespace HalvingMetallurgy;
 
 public static class Exports

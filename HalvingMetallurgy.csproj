@@ -1,12 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net452</TargetFramework>
-		<LangVersion>10</LangVersion>
+		<TargetFramework>net10.0</TargetFramework>
+		<RootNamespace />
+		<AssemblyName>HalvingMetallurgy</AssemblyName>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<OpusPath>C:\Program Files (x86)\Steam\steamapps\common\Opus Magnum Old</OpusPath>
+		<OpusPath>C:\Users\green\source\repos\HalvingMetallurgy\TestEnvironment\modded</OpusPath>
+		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -14,68 +17,20 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Reference Include="Brimstone">
-			<HintPath>..\Brimstone\bin\Release\net452\Brimstone.dll</HintPath>
-		</Reference>
-		<Reference Include="FTSIGCTU">
-			<HintPath>..\FTSIGCTU_0.7.4\FTSIGCTU.dll</HintPath>
-		</Reference>
-		<Reference Include="Lightning">
-			<HintPath>$(OpusPath)\ModdedLightning.exe</HintPath>
-		</Reference>
-		<Reference Include="MMHOOK_ModdedLightning">
-			<HintPath>$(OpusPath)\MMHOOK_ModdedLightning.dll</HintPath>
+		<Reference Include="DevLightning">
+			<HintPath>$(OpusPath)\DevLightning.exe</HintPath>
+			<CopyLocal>False</CopyLocal>
 		</Reference>
 		<Reference Include="Mono.Cecil">
 			<HintPath>$(OpusPath)\Mono.Cecil.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
 		</Reference>
 		<Reference Include="MonoMod">
-			<HintPath>$(OpusPath)\MonoMod.exe</HintPath>
-		</Reference>
-		<Reference Include="MonoMod.RuntimeDetour">
-			<HintPath>$(OpusPath)\MonoMod.RuntimeDetour.dll</HintPath>
-		</Reference>
-		<Reference Include="MonoMod.RuntimeDetour.HookGen">
-			<HintPath>$(OpusPath)\MonoMod.RuntimeDetour.HookGen.exe</HintPath>
+			<HintPath>$(OpusPath)\MonoMod.Patcher.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
 		</Reference>
 		<Reference Include="MonoMod.Utils">
 			<HintPath>$(OpusPath)\MonoMod.Utils.dll</HintPath>
-		</Reference>
-		<Reference Include="ReductiveMetallurgy">
-			<HintPath>..\ReductiveMetallurgy_1.0.1\ReductiveMetallurgy.dll</HintPath>
-			<CopyLocal>False</CopyLocal>
-		</Reference>
-		<Reference Include="ScaffoldingGlyphs">
-			<HintPath>..\ScaffoldingGlyphs_0.0.3\ScaffoldingGlyphs.dll</HintPath>
-		</Reference>
-		<Reference Include="Vaca">
-			<HintPath>..\Vaca_1.0.1\Vaca.dll</HintPath>
-		</Reference>
-		<Reference Include="YamlDotNet">
-			<HintPath>$(OpusPath)\YamlDotNet.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Update="System">
-			<CopyLocal>False</CopyLocal>
-		</Reference>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Update="System.Core">
-			<CopyLocal>False</CopyLocal>
-		</Reference>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Update="System.Data">
-			<CopyLocal>False</CopyLocal>
-		</Reference>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Update="System.Drawing">
 			<CopyLocal>False</CopyLocal>
 		</Reference>
 	</ItemGroup>

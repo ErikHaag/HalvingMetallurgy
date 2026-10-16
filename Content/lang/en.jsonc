@@ -1,0 +1,45 @@
+﻿{
+    "halving_metallurgy": {
+        "": "Halving Metallurgy",
+        "description": "Adds new planetary metals with half-integer metallicities, and the manners to convert between them.",
+        "atoms": {
+            "quicklime": {
+                "": "Quicklime",
+                "elemental": "Elemental Quicklime"
+            },
+            "quickcopper": {
+                "": "Quickcopper",
+                "elemental": "Elemental Quickcopper"
+            },
+            "beryl": {
+                "": "Beryl",
+                "elemental": "Elemental Beryl"
+            },
+            "wolfram": {
+                "": "Wolfram",
+                "elemental": "Elemental Wolfram"
+            },
+            "vulcan": {
+                "": "Vulcan",
+                "elemental": "Elemental Vulcan"
+            },
+            "nickel": {
+                "": "Nickel",
+                "elemental": "Elemental Nickel"
+            },
+            "zinc": {
+                "": "Zinc",
+                "elemental": "Elemental Zinc"
+            },
+            "sednum": {
+                "": "Sednum",
+                "elemental": "Elemental Sednum"
+            },
+            "osmium": {
+                "": "Osmium",
+                "elemental": "Elemental Osmium"
+            }
+        }
+    }
+
+}
