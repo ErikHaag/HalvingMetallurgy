@@ -12,7 +12,7 @@ public static class Textures
     public static class Atom
     {
         public static readonly Texture PartyHatTexture = AssetLoaderHelper.LoadTexture(atomPath + "party_hat");
-        public static readonly Texture[] QuickcopperAnimation = new Texture[64];
+        public static readonly Texture[] QuickcopperAnimation = AssetLoaderHelper.LoadAnimation(atomPath + "cloud_trails.array", "trails", 64);
 
         public static readonly Texture QuicklimeSymbol = AssetLoaderHelper.LoadTexture(atomPath + "quicklime_symbol");
         public static readonly Texture QuicklimeDiffuse = AssetLoaderHelper.LoadTexture(atomPath + "quicklime_diffuse");
@@ -75,13 +75,13 @@ public static class Textures
     public static class Halves
     {
         public static readonly Texture Base = AssetLoaderHelper.LoadTexture(partPath + "halves/base");
-        public static readonly Texture Glow = UI.AssignOffset(UI.AssignScale(AssetLoaderHelper.LoadTexture(selectPath + "halves_glow"), new Vector2(96, 58)), new Vector2(-1, -1));
-        public static readonly Texture Stroke = UI.AssignOffset(UI.AssignScale(AssetLoaderHelper.LoadTexture(selectPath + "halves_stroke"), new Vector2(83, 51)), new Vector2(-1, -1));
+        public static readonly Texture Glow = UI.AssignOffset(UI.AssignCentre(AssetLoaderHelper.LoadTexture(selectPath + "halves_glow"), new Vector2(96, 58)), new Vector2(-1, -1));
+        public static readonly Texture Stroke = UI.AssignOffset(UI.AssignCentre(AssetLoaderHelper.LoadTexture(selectPath + "halves_stroke"), new Vector2(83, 51)), new Vector2(-1, -1));
         public static readonly Texture Connectors = AssetLoaderHelper.LoadTexture(partPath + "halves/connectors");
         public static readonly Texture GlossMask = AssetLoaderHelper.LoadTexture(partPath + "halves/gloss_mask");
 
-        public static readonly Texture[] ConnectorFlash = Brimstone.API.GetAnimation(partPath + "halves_connector_glow.array", "glow", 16);
-        public static readonly Texture[] BowlFlashAnimation = Brimstone.API.GetAnimation(partPath + "halves_bowl_flash.array", "halves_bowl", 10);
+        public static readonly Texture[] ConnectorFlash = AssetLoaderHelper.LoadAnimation(partPath + "halves_connector_glow.array", "glow", 16);
+        public static readonly Texture[] BowlFlashAnimation = AssetLoaderHelper.LoadAnimation(partPath + "halves_bowl_flash.array", "halves_bowl", 10);
     }
 
     public static class Quake
@@ -90,29 +90,29 @@ public static class Textures
         public static readonly Texture Bowl = AssetLoaderHelper.LoadTexture(partPath + "quake/bowl");
         public static readonly Texture BowlShaking = AssetLoaderHelper.LoadTexture(partPath + "quake/bowl_shaking");
         public static readonly Texture SednumSymbol = AssetLoaderHelper.LoadTexture(partPath + "quake/sednum_symbol");
-        public static readonly Texture[] UnbondResistedAnimation = Brimstone.API.GetAnimation("textures/bonds/erikhaag/HalvingMetallurgy/unbond_resist.array", "unbond_resist", 22);
+        public static readonly Texture[] UnbondResistedAnimation = AssetLoaderHelper.LoadAnimation("textures/bonds/erikhaag/HalvingMetallurgy/unbond_resist.array", "unbond_resist", 22);
     }
 
     public static class Sump
     {
-        public static readonly Texture[] DrainFlashAnimation = Brimstone.API.GetAnimation(partPath + "sump_drain_flash.array", "sump_flash", 8);
+        public static readonly Texture[] DrainFlashAnimation = AssetLoaderHelper.LoadAnimation(partPath + "sump_drain_flash.array", "sump_flash", 8);
     }
 
     public static class Remission
     {
         public static readonly Texture Arrow = AssetLoaderHelper.LoadTexture(partPath + "remission/arrow");
         public static readonly Texture Connectors = AssetLoaderHelper.LoadTexture(partPath + "remission/connectors");
-        public static readonly Texture[] BowlGlow = new Texture[64];
+        public static readonly Texture[] BowlGlow = AssetLoaderHelper.LoadAnimation(partPath + (DateTime.Now.Month == 6 ? "remission_bowl_glow_rainbow.array" : "remission_bowl_glow.array"), "glow", 64);
     }
 
     public static class Shearing
     {
 
         public static readonly Texture SednumLine = AssetLoaderHelper.LoadTexture(partPath + "shearing/sednum_line");
-        public static readonly Texture[] BowlFlash = Brimstone.API.GetAnimation(partPath + "shearing_flash.array", "shearing_flash", 8);
+        public static readonly Texture[] BowlFlash = AssetLoaderHelper.LoadAnimation(partPath + "shearing_flash.array", "shearing_flash", 8);
         // not to be confused with a banana split.
-        public static Texture[] Split = Brimstone.API.GetAnimation(atomPath + "shearing_split.array", "split", 16);
-        public static readonly Texture[] Spawn = Brimstone.API.GetAnimation(atomPath + "shearing_spawn.array", "spawn", 16);
+        public static Texture[] Split = AssetLoaderHelper.LoadAnimation(atomPath + "shearing_split.array", "split", 16);
+        public static readonly Texture[] Spawn = AssetLoaderHelper.LoadAnimation(atomPath + "shearing_spawn.array", "spawn", 16);
     }
 
     public static class Osmosis
@@ -124,29 +124,17 @@ public static class Textures
 
     public static class Harmony
     {
-        public static readonly class_126 TrefoilIndent = Brimstone.API.GetLighting(partPath + "trefoil_marker.lighting");
+        public static readonly LightDirTextures TrefoilIndent = AssetLoaderHelper.LoadLightDir(partPath + "trefoil_marker.lighting");
     }
 
     public static class Soria
     {
-        public static readonly Texture[] Flash = Brimstone.API.GetAnimation(partPath + "soria_flash.array", "soria_flash", 10);
+        public static readonly Texture[] Flash = AssetLoaderHelper.LoadAnimation(partPath + "soria_flash.array", "soria_flash", 10);
     }
 
     public static class Irises
     {
-        public static readonly Texture[] Crossout = Brimstone.API.GetAnimation(partPath + "iris_full_crossout.array", "iris", 16);
-        public static readonly Texture[] Quicksilver = Brimstone.API.GetAnimation(partPath + "iris_full_quicksilver.array", "iris_full_quicksilver", 16);
-    }
-
-    public static void LoadOtherTextures()
-    {
-        string remissionGlowPath = (DateTime.Now.Month == 6 ? "remission_bowl_glow_rainbow.array" : "remission_bowl_glow.array");
-        for (int i = 0; i < 64; i++)
-        {
-            string index = (i + 1).ToString().PadLeft(4, '0');
-            Atom.QuickcopperAnimation[i] = AssetLoaderHelper.LoadTexture(atomPath + "cloud_trails.array/trails_" + index);
-            Remission.BowlGlow[i] = AssetLoaderHelper.LoadTexture(partPath + remissionGlowPath + "/glow_" + index);
-        }    
-    
+        public static readonly Texture[] Crossout = AssetLoaderHelper.LoadAnimation(partPath + "iris_full_crossout.array", "iris", 16);
+        public static readonly Texture[] Quicksilver = AssetLoaderHelper.LoadAnimation(partPath + "iris_full_quicksilver.array", "iris_full_quicksilver", 16);
     }
 }

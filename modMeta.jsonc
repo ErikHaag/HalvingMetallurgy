@@ -9,8 +9,9 @@
     "icon": "hm_icon",
     "mappings": "",
     "dependencies": {
-        "quintessential_core": "[0.8.0,)",
-        "quintessential_data": "[0.8.0,)"
+        "quintessential_core": "[0.8.1,)",
+        "quintessential_data": "[0.8.1,)",
+        "lithos": "[0.0.2,)"
     },
     "conflicts": []
 }

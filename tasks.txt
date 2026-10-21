@@ -3,13 +3,13 @@ Tasks:
 * intermediary --onlyOnChange
 * newMod -name "HalvingMetallurgy"
 * copy -toMod "HalvingMetallurgy" -from "C:\Users\green\source\repos\HalvingMetallurgy\modMeta.jsonc"
-* copy -toMod "HalvingMetallurgy" -from "C:\Users\green\source\repos\HalvingMetallurgy\bin\Debug\net10.0\TemplateMod.dll"
-* copy -toMod "HalvingMetallurgy" -from "C:\Users\green\source\repos\HalvingMetallurgy\bin\Debug\net10.0\TemplateMod.pdb"
-* copy -toMod "HalvingMetallurgy" -from "C:\Users\green\source\repos\HalvingMetallurgy\bin\Debug\net10.0\TemplateMod.xml"
+* copy -toMod "HalvingMetallurgy" -from "C:\Users\green\source\repos\HalvingMetallurgy\bin\Debug\net10.0\HalvingMetallurgy.dll"
+* copy -toMod "HalvingMetallurgy" -from "C:\Users\green\source\repos\HalvingMetallurgy\bin\Debug\net10.0\HalvingMetallurgy.pdb"
+* copy -toMod "HalvingMetallurgy" -from "C:\Users\green\source\repos\HalvingMetallurgy\bin\Debug\net10.0\HalvingMetallurgy.xml"
 * copy -toMod "HalvingMetallurgy" -from "C:\Users\green\source\repos\HalvingMetallurgy\Content"
-* devMerge --onlyOnChange --mergeXML -id "halving_metallurgy" 
+* devMerge --onlyOnChange --mergeXML -id "halving_metallurgy" -nameOverride "DevLightning_HalvingMetallurgy.dll"
 * merge --onlyOnChange --asNamed
-* export -name "TemplateModFolderName" -outputPath "C:\Users\green\source\repos\HalvingMetallurgy\TestEnvironment\_builds"
+* export -name "HalvingMetallurgy" -outputPath "C:\Users\green\source\repos\HalvingMetallurgy\TestEnvironment\_builds"
 * run --readLogs -args "-devEnv -pseudoLang"
 
 AutoExit:

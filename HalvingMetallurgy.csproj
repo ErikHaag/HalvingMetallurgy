@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<OpusPath>C:\Users\green\source\repos\HalvingMetallurgy\TestEnvironment\modded</OpusPath>
+		<OpusPath>C:\Users\green\source\repos\OpusMagnumTestEnvironment\modded</OpusPath>
 		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
@@ -18,7 +18,7 @@
 
 	<ItemGroup>
 		<Reference Include="DevLightning">
-			<HintPath>$(OpusPath)\DevLightning.exe</HintPath>
+			<HintPath>$(OpusPath)\DevLightning_HalvingMetallurgy.dll</HintPath>
 			<CopyLocal>False</CopyLocal>
 		</Reference>
 		<Reference Include="Mono.Cecil">

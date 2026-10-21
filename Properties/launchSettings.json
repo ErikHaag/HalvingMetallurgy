@@ -5,8 +5,8 @@
         },
         "Run With Opus Mutatum": {
             "commandName": "Executable",
-            "executablePath": "C:\\Users\\green\\source\\repos\\HalvingMetallurgy\\TestEnvironment\\OpusMutatum.exe",
-            "workingDirectory": "C:\\Users\\green\\source\\repos\\HalvingMetallurgy\\TestEnvironment"
+            "executablePath": "C:\\Users\\green\\source\\repos\\OpusMagnumTestEnvironment\\OpusMutatum.exe",
+            "workingDirectory": "C:\\Users\\green\\source\\repos\\OpusMagnumTestEnvironment"
         }
     }
 }

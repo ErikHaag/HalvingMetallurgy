@@ -7,7 +7,6 @@ public static class ConditionOutputHelpers
     public static bool AlwaysAllow(Sim sim, Part part) => true;
 }
 
-
 public class ShearingOutput
 {
     public AtomType Split;

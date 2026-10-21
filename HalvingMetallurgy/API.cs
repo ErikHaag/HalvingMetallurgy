@@ -1,5 +1,4 @@
 ﻿using HalvingMetallurgy.Utilities;
-using Quintessential;
 using System;
 using System.Collections.Generic;
 
@@ -7,6 +6,7 @@ namespace HalvingMetallurgy;
 
 public static class API
 {
+/*
     public static Dictionary<AtomType, AtomType> HalvesDictionary = new();
     public static Dictionary<AtomType, ShearingOutput> ShearingDictionary = new();
     public static Dictionary<AtomType, OsmosisOutput> OsmosisDictionary = new();
@@ -72,4 +72,5 @@ public static class API
         }
         return struct_18.field_1431;
     }
+    */
 }

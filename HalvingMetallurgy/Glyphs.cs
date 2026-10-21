@@ -2,18 +2,12 @@
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
 
 using HalvingMetallurgy.Utilities;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
-using MonoMod.Utils;
 using Quintessential;
 using SDL2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using PartType = class_139;
-using Texture = class_256;
 
 namespace HalvingMetallurgy;
 
@@ -54,6 +48,7 @@ public static class Glyphs
     public static readonly HexIndex osmosisMetalHex = new(0, 0);
     public static readonly HexIndex osmosisQuickcopperHex = new(1, 0);
 
+    /*
     public static HexIndex[] DoubleNeighbors;
     public static HexIndex[] DiamondNeighbors;
 
@@ -62,28 +57,22 @@ public static class Glyphs
         DoubleNeighbors = API.GetGlyphNeighbors(Osmosis.field_1540);
         DiamondNeighbors = API.GetGlyphNeighbors(Remission.field_1540);
     }
+    */
 
     #endregion
 
+    /*
     #region Code Modification
-
-    internal static List<HexIndexPair> simBonders = new();
-
-    private static Hook AtomSwapHook;
 
     internal static void LoadHooking()
     {
-        On.Editor.method_927 += Atoms.OnAtomRender;
         IL.SolutionEditorScreen.method_2097 += InjectSimStartup;
-        AtomSwapHook = new(typeof(Sim).GetMethod("method_1832", BindingFlags.Instance | BindingFlags.NonPublic), AtomSwap);
     }
 
     internal static void UnloadHooks()
     {
         Logger.Log(HalvingMetallurgy.LogPrefix + "Removing Hooks!");
         IL.SolutionEditorScreen.method_2097 -= InjectSimStartup;
-        On.Editor.method_927 -= Atoms.OnAtomRender;
-        AtomSwapHook.Dispose();
     }
 
     internal static void InjectSimStartup(ILContext context)
@@ -119,38 +108,6 @@ public static class Glyphs
         });
     }
 
-    public delegate void orig_method_1832(Sim self, bool param_5369);
-
-    public static void AtomSwap(orig_method_1832 orig, Sim self, bool param_5369)
-    {
-        if (!Atoms.quickcopperRadioactive)
-        {
-            orig(self, param_5369);
-            return;
-        }
-        foreach (Molecule m in self.field_3823)
-        {
-            foreach (KeyValuePair<HexIndex, Atom> kvp in m.method_1100())
-            {
-                if (kvp.Value.field_2275 == Atoms.ActiveQuickcopper)
-                {
-                    m.method_1106(Atoms.Quickcopper, kvp.Key);
-                }
-            }
-        }
-        orig(self, param_5369);
-        foreach (Molecule m in self.field_3823)
-        {
-            foreach (KeyValuePair<HexIndex, Atom> kvp in m.method_1100())
-            {
-                if (kvp.Value.field_2275 == Atoms.Quickcopper)
-                {
-                    m.method_1106(Atoms.ActiveQuickcopper, kvp.Key);
-                }
-            }
-        }
-    }
-
     #endregion
 
     public static void DefineParts()
@@ -158,23 +115,29 @@ public static class Glyphs
 
         #region Glyph Definitions
 
-        Halves = Brimstone.API.CreateSimpleGlyph(
-            ID: "halving-metallurgy-halves",
-            name: "Glyph of Halves",
-            description: "The glyph of halves consumes an atom of quicksilver to half-promote two metal atoms.",
-            cost: 30,
-            glow: Textures.Halves.Glow,
-            stroke: Textures.Halves.Stroke,
-            icon: Textures.Icons.Halves,
-            hoveredIcon: Textures.Icons.HalvesHover,
-            usedHexes: new HexIndex[]
-            {
-                halvesInputHex,
-                halvesMetal1Hex,
-                halvesMetal2Hex
-            },
-            customPermission: HalvingMetallurgy.HalvingPermission
-        );
+        Halves = new PartType()
+        {
+
+        };
+
+
+        //Halves = new PartType() {
+        //    Id = new Identifier(HalvingMetallurgy., "halves"),
+        //    name: "Glyph of Halves",
+        //    description: "The glyph of halves consumes an atom of quicksilver to half-promote two metal atoms.",
+        //    cost: 30,
+        //    glow: Textures.Halves.Glow,
+        //    stroke: Textures.Halves.Stroke,
+        //    icon: Textures.Icons.Halves,
+        //    hoveredIcon: Textures.Icons.HalvesHover,
+        //    usedHexes: new HexIndex[]
+        //    {
+        //        halvesInputHex,
+        //        halvesMetal1Hex,
+        //        halvesMetal2Hex
+        //    },
+        //    customPermission: HalvingMetallurgy.HalvingPermission
+        //};
 
         Quake = Brimstone.API.CreateSimpleGlyph(
             ID: "halving-metallurgy-quake",
@@ -339,19 +302,19 @@ public static class Glyphs
                 return;
             }
 
-            if (type == class_191.field_1775) /* Triplex bonder */
+            if (type == class_191.field_1775) // Triplex bonder
             {
                 TriplexBonderBehavior(sim, part, pss, first, seb);
                 return;
             }
 
-            if (type == class_191.field_1778) /* Projection */
+            if (type == class_191.field_1778) // Projection
             {
                 ProjectionBehavior(sim, part, pss, first, seb);
                 return;
             }
 
-            if (type == class_191.field_1779) /* Purification */
+            if (type == class_191.field_1779) // Purification
             {
                 PurificationBehavior(sim, part, pss, first, seb);
                 return;
@@ -1265,4 +1228,5 @@ public static class Glyphs
         return;
     }
 
+*/
 }

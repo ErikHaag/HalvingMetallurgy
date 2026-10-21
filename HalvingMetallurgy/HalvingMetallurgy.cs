@@ -24,19 +24,14 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
 
     public const string SoriaPermission = "HalvingMetallurgy:soria";
 
-    private static string contentPath;
-
     public override void Load()
-    {}
-
-    public override void Unload()
     {}
 
     public override void LoadContent()
     {
         Logger.Log(LogPrefix + "Loading!");
         Atoms.AddAtomTypes();
-
+        Components.AtomDecorationComponent.Register();
         /*
 
         Sounds.LoadSounds();
@@ -105,5 +100,21 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
         }
         */
         Logger.Log(LogPrefix + "Loading complete, have fun!");
+    }
+
+    public override void LoadCompatContent()
+    {
+    }
+
+    public override void FinaliseContent()
+    {
+    }
+
+    public override void PostLoad()
+    {
+    }
+
+    public override void Unload()
+    {
     }
 }
