@@ -33,6 +33,7 @@ public static class Textures
         public static readonly Texture VulcanRimlight = AssetLoaderHelper.LoadTexture(atomPath + "vulcan_rimlight");
 
         public static readonly Texture NickelSymbol = AssetLoaderHelper.LoadTexture(atomPath + "nickel_symbol");
+        public static readonly Texture NickelSymbolOxide = AssetLoaderHelper.LoadTexture(atomPath + "nickel_symbol_oxide");
         public static readonly Texture NickelLightramp = AssetLoaderHelper.LoadTexture(atomPath + "nickel_lightramp");
         public static readonly Texture NickelRimlight = AssetLoaderHelper.LoadTexture(atomPath + "nickel_rimlight");
 
@@ -80,7 +81,7 @@ public static class Textures
         public static readonly Texture Connectors = AssetLoaderHelper.LoadTexture(partPath + "halves/connectors");
         public static readonly Texture GlossMask = AssetLoaderHelper.LoadTexture(partPath + "halves/gloss_mask");
 
-        public static readonly Texture[] ConnectorFlash = AssetLoaderHelper.LoadAnimation(partPath + "halves_connector_glow.array", "glow", 16);
+        public static readonly Texture[] ConnectorFlash = AssetLoaderHelper.LoadAnimation(partPath + "halves_connector_glow.array", "glow", 15);
         public static readonly Texture[] BowlFlashAnimation = AssetLoaderHelper.LoadAnimation(partPath + "halves_bowl_flash.array", "halves_bowl", 10);
     }
 

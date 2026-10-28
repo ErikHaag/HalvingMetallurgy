@@ -14,15 +14,15 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
     public const string LogPrefix = "Halving Metallurgy: ";
 
     // permissions
-    public const string HalvingPermission = "HalvingMetallurgy:halving";
-    public const string QuakePermission = "HalvingMetallurgy:quake";
-    public const string SumpPermission = "HalvingMetallurgy:sump";
-    public const string RemissionPermission = "HalvingMetallurgy:remission";
-    public const string ShearingPermission = "HalvingMetallurgy:shearing";
-    public const string OsmosisPermission = "HalvingMetallurgy:osmosis";
-    public const string HarmonyPermission = "HalvingMetallurgy:harmony";
+    public const string HalvesPermission = "halves";
+    public const string QuakePermission = "quake";
+    public const string SumpPermission = "sump";
+    public const string RemissionPermission = "remission";
+    public const string ShearingPermission = "shearing";
+    public const string OsmosisPermission = "osmosis";
+    public const string HarmonyPermission = "harmony";
 
-    public const string SoriaPermission = "HalvingMetallurgy:soria";
+    public const string SoriaPermission = "soria";
 
     public override void Load()
     {}
@@ -32,12 +32,13 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
         Logger.Log(LogPrefix + "Loading!");
         Atoms.AddAtomTypes();
         Components.AtomDecorationComponent.Register();
-        /*
-
         Sounds.LoadSounds();
         Glyphs.DefineParts();
         Glyphs.DefinePartRendering();
         Glyphs.DefinePartBehaviors();
+        Recipes.AddRecipes();
+
+        /*
         Wheel.LoadWheel();
 
         Exports.ExportContent();
@@ -63,18 +64,18 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
         API.AddQuicksilverToDictionary(Atoms.Quicklime, 0);
         API.AddQuicksilverToDictionary(Atoms.Quickcopper, 1);
         API.AddQuicksilverToDictionary(VanillaAtoms.quicksilver, 2);
-
+        */
         // Add permissions
-        QApi.AddPuzzlePermission(HalvingPermission, "Glyph of Halves", "Halving Metallurgy");
-        QApi.AddPuzzlePermission(QuakePermission, "Glyph of Quake", "Halving Metallurgy");
-        QApi.AddPuzzlePermission(SumpPermission, "Quicksilver Sump", "Halving Metallurgy");
-        QApi.AddPuzzlePermission(RemissionPermission, "Glyph of Remission", "Halving Metallurgy");
-        QApi.AddPuzzlePermission(ShearingPermission, "Glyph of Shearing", "Halving Metallurgy");
-        QApi.AddPuzzlePermission(OsmosisPermission, "Glyph of Osmosis", "Halving Metallurgy");
-        QApi.AddPuzzlePermission(HarmonyPermission, "Glyph of Harmony", "Halving Metallurgy");
+        QApi.AddPuzzlePermission(Instance, HalvesPermission);
+        QApi.AddPuzzlePermission(Instance, QuakePermission);
+        QApi.AddPuzzlePermission(Instance, SumpPermission);
+        QApi.AddPuzzlePermission(Instance, RemissionPermission);
+        //QApi.AddPuzzlePermission(ShearingPermission, "Glyph of Shearing", "Halving Metallurgy");
+        //QApi.AddPuzzlePermission(OsmosisPermission, "Glyph of Osmosis", "Halving Metallurgy");
+        //QApi.AddPuzzlePermission(HarmonyPermission, "Glyph of Harmony", "Halving Metallurgy");
 
-        QApi.AddPuzzlePermission(SoriaPermission, "Soria's Wheel", "Halving Metallurgy");
-
+        //QApi.AddPuzzlePermission(SoriaPermission, "Soria's Wheel", "Halving Metallurgy");
+        /*
         // Hooking
         Logger.Log(LogPrefix + "Hooking!");
         Glyphs.LoadHooking();
@@ -112,6 +113,7 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
 
     public override void PostLoad()
     {
+        Quintessential.AtomTag.DumpTags();
     }
 
     public override void Unload()

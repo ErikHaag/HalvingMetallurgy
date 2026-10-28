@@ -41,7 +41,7 @@ public class AtomDecorationComponent : IAtomComponent
             TextureRenderer.Render(Textures.Atom.QuickcopperAnimation[particleFrame], translation - new Vector2(60f, 60f));
         }
         doRender();
-        if (true)
+        if (Atoms.wearPartyHat)
         {
             TextureRenderer.Render(Textures.Atom.PartyHatTexture, translation - new Vector2(45f, 45f));
         }
@@ -53,10 +53,7 @@ public class AtomDecorationComponent : IAtomComponent
 
     public void OnReplace(AtomType newType)
     {
-        if (newType.Id.namespc != HalvingMetallurgy.Instance.ModId)
-        {
-            referencedAtom.RemoveComponent(Id);
-        }
+        referencedAtom.RemoveComponent(Id);
     }
     public void OnUnbind(Atom self, Molecule arg1)
     {
@@ -69,8 +66,8 @@ public class AtomDecorationComponent : IAtomComponent
         for (int i = 0; i < atomNames.Length; i++)
         {
             Identifier atomId = HalvingMetallurgy.Instance.GetIdentifier(atomNames[i]);
-            QApi.AddComponentToAtom(atomId, (_) => new AtomDecorationComponent());
-            QApi.AddComponentToAtomOnReplace(atomId, (_, _) => new AtomDecorationComponent());
+            QApi.AddComponentToAtom(atomId, static (_) => new AtomDecorationComponent());
+            QApi.AddComponentToAtomOnReplace(atomId, static (_, _) => new AtomDecorationComponent());
         }
     }
 }

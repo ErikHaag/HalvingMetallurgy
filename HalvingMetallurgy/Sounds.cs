@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿namespace HalvingMetallurgy;
 
-namespace HalvingMetallurgy;
-
-internal static class Sounds
+public static class Sounds
 {
     public static Sound Halves;
     public static Sound Quake;
@@ -33,33 +30,17 @@ internal static class Sounds
         ShearingMakingQuickcopper = AssetLoaderHelper.LoadSound("sounds/erikhaag/HalvingMetallurgy/glyph_hm_shearing_making_quickcopper");
         Osmosis = AssetLoaderHelper.LoadSound("sounds/erikhaag/HalvingMetallurgy/glyph_hm_osmosis");
 
-        Volume.SetVoulme("halves", 0.5f);
-        Volume.SetVoulme("quake", 0.3f);
-        Volume.SetVoulme("sump_consume", 0.3f);
-        Volume.SetVoulme("sump_eject", 0.3f);
-        Volume.SetVoulme("sump_discard", 0.3f);
-        Volume.SetVoulme("remission", 0.3f);
-        Volume.SetVoulme("remission_half_demote", 0.3f);
-        Volume.SetVoulme("remission_half_promote", 0.3f);
-        Volume.SetVoulme("remission_promote", 0.3f);
-        Volume.SetVoulme("shearing", 0.3f);
-        Volume.SetVoulme("shearing_making_quickcopper", 0.2f);
-        Volume.SetVoulme("osmosis", 0.3f);
-    }
-
-    public static void ResetHMSounds()
-    {
-        Halves.isPlaying = false;
-        Quake.isPlaying = false;
-        SumpConsume.isPlaying = false;
-        SumpEject.isPlaying = false;
-        SumpDiscard.isPlaying = false;
-        Remission.isPlaying = false;
-        RemissionHalfDemote.isPlaying = false;
-        RemissionHalfPromote.isPlaying = false;
-        RemissionPromote.isPlaying = false;
-        Shearing.isPlaying = false;
-        ShearingMakingQuickcopper.isPlaying = false;
-        Osmosis.isPlaying = false;
+        Volume.SetVolume("halves", 0.3f);
+        Volume.SetVolume("quake", 0.3f);
+        Volume.SetVolume("sump_consume", 0.3f);
+        Volume.SetVolume("sump_eject", 0.3f);
+        Volume.SetVolume("sump_discard", 0.3f);
+        Volume.SetVolume("remission", 0.3f);
+        Volume.SetVolume("remission_half_demote", 0.3f);
+        Volume.SetVolume("remission_half_promote", 0.3f);
+        Volume.SetVolume("remission_promote", 0.3f);
+        Volume.SetVolume("shearing", 0.3f);
+        Volume.SetVolume("shearing_making_quickcopper", 0.2f);
+        Volume.SetVolume("osmosis", 0.3f);
     }
 }

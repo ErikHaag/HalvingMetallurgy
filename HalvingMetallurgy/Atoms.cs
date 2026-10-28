@@ -72,7 +72,7 @@ public static class Atoms
         Nickel = new AtomType()
         {
             isMetallic = true,
-            symbol = Textures.Atom.NickelSymbol,
+            symbol = Textures.Atom.NickelSymbolOxide,
             metallicTextures = new MetallicAtomTextures()
             {
                 diffuse = Assets.textures.atoms.copper_diffuse,
@@ -121,7 +121,7 @@ public static class Atoms
             shadow = Assets.textures.atoms.shadow
         };
 
-        QApi.AddAtomType(HalvingMetallurgy.Instance,  Quicklime, "quicklime");
+        QApi.AddAtomType(HalvingMetallurgy.Instance, Quicklime, "quicklime");
         QApi.AddAtomType(HalvingMetallurgy.Instance, Quickcopper, "quickcopper");
         QApi.AddAtomType(HalvingMetallurgy.Instance, Beryl, "beryl");
         QApi.AddAtomType(HalvingMetallurgy.Instance, Wolfram, "wolfram");

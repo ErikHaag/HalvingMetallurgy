@@ -12,6 +12,31 @@
             "zinc": "Zinc",
             "sednum": "Sednum",
             "osmium": "Osmium"
+        },
+        "permission_sections": "Halving Metallurgy",
+        "permissions": {
+            "halves": "Glyph of Halves",
+            "quake": "Glyph of Quake",
+            "sump": "Quicksilver Sump",
+            "remission": "Glyph of Remission"
+        },
+        "parts": {
+            "halves": {
+                "": "Glyph of Halves",
+                "description": "The glyph of halves consumes an atom of quicksilver to half-promote two metal atoms."
+            },
+            "quake": {
+                "": "Glyph of Quake",
+                "description": "The glyph of quake heats a molecule by shaking it, triggering strange effects from specific atoms."
+            },
+            "sump": {
+                "": "Quicksilver Sump",
+                "description": "The quicksilver sump can hold 5 quicksilver internally for storage, excess quicksilver is drained out of the engine."
+            },
+            "remission": {
+                "": "Glyph of Remission",
+                "description": "The glyph of remission transmutes two metal atoms to their next higher form, preventing further transmutations until the metallicity reserve is restored through the bowl."
+            }
         }
     }
 

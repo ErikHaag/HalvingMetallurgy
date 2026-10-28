@@ -1,0 +1,112 @@
+﻿{
+    "om:$successor_proj": {
+        "halving_metallurgy:beryl": "halving_metallurgy:wolfram",
+        "halving_metallurgy:wolfram": "halving_metallurgy:vulcan",
+        "halving_metallurgy:vulcan": "halving_metallurgy:nickel",
+        "halving_metallurgy:nickel": "halving_metallurgy:zinc",
+        "halving_metallurgy:zinc": "halving_metallurgy:sednum",
+        "halving_metallurgy:sednum": "halving_metallurgy:osmium"
+    },
+    "om:$successor_purif": {
+        "halving_metallurgy:beryl": "om:lead",
+        "halving_metallurgy:wolfram": "halving_metallurgy:vulcan",
+        "halving_metallurgy:vulcan": "halving_metallurgy:nickel",
+        "halving_metallurgy:nickel": "halving_metallurgy:zinc",
+        "halving_metallurgy:zinc": "halving_metallurgy:sednum",
+        "halving_metallurgy:sednum": "halving_metallurgy:osmium"
+    },
+    "om:$predecessor": {
+        "halving_metallurgy:wolfram": "halving_metallurgy:beryl",
+        "halving_metallurgy:vulcan": "halving_metallurgy:wolfram",
+        "halving_metallurgy:nickel": "halving_metallurgy:vulcan",
+        "halving_metallurgy:zinc": "halving_metallurgy:nickel",
+        "halving_metallurgy:sednum": "halving_metallurgy:zinc",
+        "halving_metallurgy:osmium": "halving_metallurgy:sednum"
+    },
+    "om:$division_upper": {
+        "halving_metallurgy:wolfram": "om:lead",
+        "halving_metallurgy:vulcan": "halving_metallurgy:wolfram",
+        "halving_metallurgy:nickel": "om:tin",
+        "halving_metallurgy:zinc": "halving_metallurgy:vulcan",
+        "halving_metallurgy:sednum": "om:iron",
+        "halving_metallurgy:osmium": "halving_metallurgy:nickel"
+    },
+    "om:$division_lower": {
+        "halving_metallurgy:wolfram": "halving_metallurgy:beryl",
+        "halving_metallurgy:vulcan": "om:lead",
+        "halving_metallurgy:nickel": "halving_metallurgy:wolfram",
+        "halving_metallurgy:zinc": "om:tin",
+        "halving_metallurgy:sednum": "halving_metallurgy:vulcan",
+        "halving_metallurgy:osmium": "om:iron"
+    },
+    "om:proliferatable": [
+        "halving_metallurgy:beryl",
+        "halving_metallurgy:wolfram",
+        "halving_metallurgy:vulcan",
+        "halving_metallurgy:nickel",
+        "halving_metallurgy:zinc",
+        "halving_metallurgy:sednum",
+        "halving_metallurgy:osmium"
+    ],
+    "halving_metallurgy:quicklime_proj_target": [
+        "halving_metallurgy:beryl",
+        "om:lead",
+        "halving_metallurgy:wolfram",
+        "om:tin",
+        "halving_metallurgy:vulcan",
+        "om:iron",
+        "halving_metallurgy:nickel",
+        "om:copper",
+        "halving_metallurgy:zinc",
+        "om:silver",
+        "halving_metallurgy:sednum",
+        "om:gold",
+        "halving_metallurgy:osmium"
+    ],
+    "halving_metallurgy:$successor_half": {
+        "halving_metallurgy:beryl": "om:lead",
+        "om:lead": "halving_metallurgy:wolfram",
+        "halving_metallurgy:wolfram": "om:tin",
+        "om:tin": "halving_metallurgy:vulcan",
+        "halving_metallurgy:vulcan": "om:iron",
+        "om:iron": "halving_metallurgy:nickel",
+        "halving_metallurgy:nickel": "om:copper",
+        "om:copper": "halving_metallurgy:zinc",
+        "halving_metallurgy:zinc": "om:silver",
+        "om:silver": "halving_metallurgy:sednum",
+        "halving_metallurgy:sednum": "om:gold",
+        "om:gold": "halving_metallurgy:osmium"
+    },
+    "halving_metallurgy:$predecessor_half": {
+        "om:lead": "halving_metallurgy:beryl",
+        "halving_metallurgy:wolfram": "om:lead",
+        "om:tin": "halving_metallurgy:wolfram",
+        "halving_metallurgy:vulcan": "om:tin",
+        "om:iron": "halving_metallurgy:vulcan",
+        "halving_metallurgy:nickel": "om:iron",
+        "om:copper": "halving_metallurgy:nickel",
+        "halving_metallurgy:zinc": "om:copper",
+        "om:silver": "halving_metallurgy:zinc",
+        "halving_metallurgy:sednum": "om:silver",
+        "om:gold": "halving_metallurgy:sednum",
+        "halving_metallurgy:osmium": "om:gold"
+    },
+    "halving_metallurgy:$successor_proj_quix": {
+        "halving_metallurgy:quicklime": "om:quicksilver"
+    },
+    "halving_metallurgy:$predecessor_quix": {
+        "om:quicksilver": "halving_metallurgy:quicklime"
+    },
+    "halving_metallurgy:$successor_half_quix": {
+        "halving_metallurgy:quicklime": "halving_metallurgy:quickcopper",
+        "halving_metallurgy:quickcopper": "om:quicksilver"
+    },
+    "halving_metallurgy:$predecessor_half_quix": {
+        "halving_metallurgy:quickcopper": "halving_metallurgy:quicklime",
+        "om:quicksilver": "halving_metallurgy:quickcopper"
+    },
+    "halving_metallurgy:quake_sednum_suppressor": [],
+    "halving_metallurgy:quake_sednum_immune": [
+        "halving_metallurgy:zinc"
+    ]
+}
