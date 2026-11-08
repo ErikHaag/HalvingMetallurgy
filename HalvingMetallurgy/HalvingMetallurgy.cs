@@ -38,17 +38,17 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
         Glyphs.DefinePartBehaviors();
         Recipes.AddRecipes();
 
+        // Add metallicity lookup
+        AtomType[] metals = [Atoms.Beryl, AtomTypes.lead, Atoms.Wolfram, AtomTypes.tin, Atoms.Vulcan, AtomTypes.iron, Atoms.Nickel, AtomTypes.copper, Atoms.Zinc, AtomTypes.silver, Atoms.Sednum, AtomTypes.gold, Atoms.Osmium];
+        for (int i = 0; i < metals.Length; i++)
+        {
+            API.AddAtomToRemissionTable(metals[i].Id, i + 1);
+        }
+
         /*
         Wheel.LoadWheel();
 
         Exports.ExportContent();
-
-        // Add metallicity lookup
-        AtomType[] metals = new AtomType[] { Atoms.Beryl, VanillaAtoms.lead, Atoms.Wolfram, VanillaAtoms.tin, Atoms.Vulcan, VanillaAtoms.iron, Atoms.Nickel, VanillaAtoms.copper, Atoms.Zinc, VanillaAtoms.silver, Atoms.Sednum, VanillaAtoms.gold, Atoms.Osmium };
-        for (int i = 0; i < metals.Length; i++)
-        {
-            API.AddMetalToMetallicityDictionary(metals[i], i + 1);
-        }
 
         for (int i = 0; i < metals.Length - 1; i++)
         {
