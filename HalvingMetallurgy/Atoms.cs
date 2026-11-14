@@ -40,7 +40,7 @@ public static class Atoms
                 lightramp = Textures.Atom.BerylLightramp,
                 rimlight = Textures.Atom.BerylRimlight
             },
-            shadow = Assets.textures.atoms.shadow
+            shadow = Textures.Atom.BerylShadow
         };
 
         Wolfram = new AtomType()

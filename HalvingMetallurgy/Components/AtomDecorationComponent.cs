@@ -35,7 +35,8 @@ public class AtomDecorationComponent : IAtomComponent
 
     public void OnRender(Action doRender, ref AtomType type, ref Vector2 translation, ref float scaleMultiplier, ref float opacityMultiplier, ref float height, ref float shadowStrength, ref float shadowOffset, ref float shadowAngle, Texture shadow, Texture overlayEffect, bool isOutputRender, SolutionEditorBase solutionEditor)
     {
-        if (!isOutputRender && referencedAtom.atomType.Id == HalvingMetallurgy.Instance.GetIdentifier("quickcopper"))
+        bool haltParticles = solutionEditor is not null && solutionEditor.GetSimPlayState() == SimPlayState.Stopped;
+        if (!haltParticles && !isOutputRender && referencedAtom.atomType.Id == HalvingMetallurgy.Instance.GetIdentifier("quickcopper"))
         {
             int particleFrame = ((int)(Time.NowInSeconds() * 30f) + frameOffset) & 0x3f;
             TextureRenderer.Render(Textures.Atom.QuickcopperAnimation[particleFrame], translation - new Vector2(60f, 60f));

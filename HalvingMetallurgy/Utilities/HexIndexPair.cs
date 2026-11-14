@@ -2,20 +2,14 @@
 
 namespace HalvingMetallurgy.Utilities;
 
-internal struct HexIndexPair : IEquatable<HexIndexPair>
+internal struct HexIndexPair(HexIndex a, HexIndex b) : IEquatable<HexIndexPair>
 {
-    public HexIndexPair(HexIndex a, HexIndex b)
-    {
-        Left = a;
-        Right = b;
-    }
-
     public static bool operator ==(HexIndexPair l, HexIndexPair r) => (l.Left == r.Left && l.Right == r.Right) || (l.Left == r.Right && l.Right == r.Left);
 
     public static bool operator !=(HexIndexPair l, HexIndexPair r) => !(l == r);
 
-    public HexIndex Left;
-    public HexIndex Right;
+    public HexIndex Left = a;
+    public HexIndex Right = b;
     public readonly int Q1
     {
         get => Left.Q;
@@ -35,15 +29,7 @@ internal struct HexIndexPair : IEquatable<HexIndexPair>
 
     public override readonly bool Equals(object obj) => obj is HexIndexPair pair && this == pair;
 
-    public override readonly int GetHashCode()
-    {
-        int hashCode = 898849194;
-        hashCode = hashCode * -1521134295 + Q1.GetHashCode();
-        hashCode = hashCode * -1521134295 + R1.GetHashCode();
-        hashCode = hashCode * -1521134295 + Q2.GetHashCode();
-        hashCode = hashCode * -1521134295 + R2.GetHashCode();
-        return hashCode;
-    }
+    public override readonly int GetHashCode() => HashCode.Combine(Q1, R1, Q2, R2);
 
     readonly bool IEquatable<HexIndexPair>.Equals(HexIndexPair other) => Equals(other);
 }

@@ -23,6 +23,7 @@ public static class Textures
         public static readonly Texture BerylSymbol = AssetLoaderHelper.LoadTexture(atomPath + "beryl_symbol");
         public static readonly Texture BerylLightramp = AssetLoaderHelper.LoadTexture(atomPath + "beryl_lightramp");
         public static readonly Texture BerylRimlight = AssetLoaderHelper.LoadTexture(atomPath + "beryl_rimlight");
+        public static readonly Texture BerylShadow = AssetLoaderHelper.LoadTexture(atomPath + "beryl_shadow");
 
         public static readonly Texture WolframSymbol = AssetLoaderHelper.LoadTexture(atomPath + "wolfram_symbol");
         public static readonly Texture WolframLightramp = AssetLoaderHelper.LoadTexture(atomPath + "wolfram_lightramp");
@@ -112,8 +113,9 @@ public static class Textures
         public static readonly Texture SednumLine = AssetLoaderHelper.LoadTexture(partPath + "shearing/sednum_line");
         public static readonly Texture[] BowlFlash = AssetLoaderHelper.LoadAnimation(partPath + "shearing_flash.array", "shearing_flash", 8);
         // not to be confused with a banana split.
-        public static Texture[] Split = AssetLoaderHelper.LoadAnimation(atomPath + "shearing_split.array", "split", 16);
-        public static readonly Texture[] Spawn = AssetLoaderHelper.LoadAnimation(atomPath + "shearing_spawn.array", "spawn", 16);
+        public static readonly Texture[] Split = AssetLoaderHelper.LoadAnimation(atomPath + "shearing_split.array", "split", 16);
+        public static readonly Texture[] SpawnBloom = AssetLoaderHelper.LoadAnimation(partPath + "shearing_swarf_bowl_glow.array", "bloom", 8);
+        public static readonly Texture[] Spawn = AssetLoaderHelper.LoadAnimation(atomPath + "shearing_swarf_atom_glow.array", "dissipate", 7);
     }
 
     public static class Osmosis

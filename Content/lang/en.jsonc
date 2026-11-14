@@ -18,7 +18,10 @@
             "halves": "Glyph of Halves",
             "quake": "Glyph of Quake",
             "sump": "Quicksilver Sump",
-            "remission": "Glyph of Remission"
+            "remission": "Glyph of Remission",
+            "shearing": "Glyph of Shearing",
+            "osmosis": "Glyph of Osmosis",
+            "soria": "Soria's Wheel"
         },
         "parts": {
             "halves": {
@@ -27,7 +30,7 @@
             },
             "quake": {
                 "": "Glyph of Quake",
-                "description": "The glyph of quake heats a molecule by shaking it, triggering strange effects from specific atoms."
+                "description": "The glyph of quake heats a dropped molecule by shaking it, triggering peculiar effects from specific atoms."
             },
             "sump": {
                 "": "Quicksilver Sump",
@@ -36,6 +39,18 @@
             "remission": {
                 "": "Glyph of Remission",
                 "description": "The glyph of remission transmutes two metal atoms to their next higher form, preventing further transmutations until the metallicity reserve is restored through the bowl."
+            },
+            "shearing": {
+                "": "Glyph of Shearing",
+                "description": "The glyph of shearing cuts a metal in half, collecting the swarf into the adjacent bowl."
+            },
+            "osmosis": {
+                "": "Glyph of Osmosis",
+                "description": "The glyph of osmosis half-demotes an atom of metal to promote an atom of quix."
+            },
+            "soria": {
+                "": "Soria's Wheel",
+                "description": "By using Soria's wheel with certain metal glyphs, metal and quix requirements can be substituted."
             }
         }
     }

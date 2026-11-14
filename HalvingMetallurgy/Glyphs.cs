@@ -2,12 +2,14 @@
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
 
 using HalvingMetallurgy.Utilities;
+using Lithos;
 using MonoMod.Utils;
 using Quintessential;
 using SDL2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Sim;
 
 namespace HalvingMetallurgy;
 
@@ -26,6 +28,8 @@ public static class Glyphs
     public static PartType Remission;
     public static PartType Shearing;
     public static PartType Osmosis;
+
+    public static MutableWheel Soria;
     public static PartType Harmony;
     #endregion
 
@@ -48,7 +52,7 @@ public static class Glyphs
     public static readonly HexIndex shearingOutputHex = new(1, 0);
 
     public static readonly HexIndex osmosisMetalHex = new(0, 0);
-    public static readonly HexIndex osmosisQuickcopperHex = new(1, 0);
+    public static readonly HexIndex osmosisQuixHex = new(1, 0);
 
     /*
     public static HexIndex[] DoubleNeighbors;
@@ -77,7 +81,7 @@ public static class Glyphs
                 {
                     continue;
                 }
-                QuakeNormalBonders.Add(new HexIndexPair(part.InFrontBy(bonder.hexPos1), part.InFrontBy(bonder.hexPos2)));
+                QuakeNormalBonders.Add(new HexIndexPair(part.GlobalPosFromLocal(bonder.hexPos1), part.GlobalPosFromLocal(bonder.hexPos2)));
             }
         }
     }
@@ -87,14 +91,14 @@ public static class Glyphs
 
         #region Glyph Definitions
 
-        Halves = new PartType()
+        Halves = new()
         {
             Id = HalvingMetallurgy.Instance.GetIdentifier("halves"),
             cost = 30,
             glowTexture = Textures.Halves.Glow,
             strokeTexture = Textures.Halves.Stroke,
-            baseTexture = Textures.Icons.Halves,
-            hoverTexture = Textures.Icons.HalvesHover,
+            iconTexture = Textures.Icons.Halves,
+            iconHoverTexture = Textures.Icons.HalvesHover,
             glyphHexes = [
                 halvesInputHex,
                 halvesMetal1Hex,
@@ -104,14 +108,14 @@ public static class Glyphs
             CustomPermissionCheck = (ids) => ids.Contains(HalvingMetallurgy.Instance.GetIdentifier(HalvingMetallurgy.HalvesPermission))
         };
 
-        Quake = new PartType()
+        Quake = new()
         {
             Id = HalvingMetallurgy.Instance.GetIdentifier("quake"),
             cost = 15,
             glowTexture = Assets.textures.select.single_glow,
             strokeTexture = Assets.textures.select.single_stroke,
-            baseTexture = Textures.Icons.Quake,
-            hoverTexture = Textures.Icons.QuakeHover,
+            iconTexture = Textures.Icons.Quake,
+            iconHoverTexture = Textures.Icons.QuakeHover,
             glyphHexes = [
                 quakeBowlHex
             ],
@@ -119,14 +123,14 @@ public static class Glyphs
             CustomPermissionCheck = (ids) => ids.Contains(HalvingMetallurgy.Instance.GetIdentifier(HalvingMetallurgy.QuakePermission))
         };
 
-        Sump = new PartType()
+        Sump = new()
         {
             Id = HalvingMetallurgy.Instance.GetIdentifier("sump"),
             cost = 15,
             glowTexture = Assets.textures.select.double_glow,
             strokeTexture = Assets.textures.select.double_stroke,
-            baseTexture = Textures.Icons.Sump,
-            hoverTexture = Textures.Icons.SumpHover,
+            iconTexture = Textures.Icons.Sump,
+            iconHoverTexture = Textures.Icons.SumpHover,
             glyphHexes = [
                 sumpInputHex,
                 sumpOutputHex
@@ -136,14 +140,14 @@ public static class Glyphs
             CustomPermissionCheck = (ids) => ids.Contains(HalvingMetallurgy.Instance.GetIdentifier(HalvingMetallurgy.SumpPermission))
         };
 
-        Remission = new PartType()
+        Remission = new()
         {
             Id = HalvingMetallurgy.Instance.GetIdentifier("remission"),
             cost = 30,
             glowTexture = Assets.textures.select.diamond_glow,
             strokeTexture = Assets.textures.select.diamond_stroke,
-            baseTexture = Textures.Icons.Remission,
-            hoverTexture = Textures.Icons.RemissionHover,
+            iconTexture = Textures.Icons.Remission,
+            iconHoverTexture = Textures.Icons.RemissionHover,
             glyphHexes = [
                 remissionInput1Hex,
                 remissionInput2Hex,
@@ -153,41 +157,58 @@ public static class Glyphs
             isFullHexCover = true,
             CustomPermissionCheck = (ids) => ids.Contains(HalvingMetallurgy.Instance.GetIdentifier(HalvingMetallurgy.RemissionPermission))
         };
+
+        Shearing = new()
+        {
+
+            Id = HalvingMetallurgy.Instance.GetIdentifier("shearing"),
+            cost = 25,
+            glowTexture = Assets.textures.select.double_glow,
+            strokeTexture = Assets.textures.select.double_stroke,
+            iconTexture = Textures.Icons.Shearing,
+            iconHoverTexture = Textures.Icons.ShearingHover,
+            glyphHexes = [
+                shearingBowlHex,
+                shearingOutputHex
+            ],
+            isFullHexCover = true,
+            CustomPermissionCheck = (ids) => ids.Contains(HalvingMetallurgy.Instance.GetIdentifier(HalvingMetallurgy.ShearingPermission))
+        };
+
+        Osmosis = new()
+        {
+            Id = HalvingMetallurgy.Instance.GetIdentifier("osmosis"),
+            cost = 25,
+            glowTexture = Assets.textures.select.double_glow,
+            strokeTexture = Assets.textures.select.double_stroke,
+            iconTexture = Textures.Icons.Osmosis,
+            iconHoverTexture = Textures.Icons.OsmosisHover,
+            glyphHexes = [
+                osmosisMetalHex,
+                osmosisQuixHex
+            ],
+            isFullHexCover = true,
+            CustomPermissionCheck = (ids) => ids.Contains(HalvingMetallurgy.Instance.GetIdentifier(HalvingMetallurgy.OsmosisPermission))
+        };
+
+        Soria = new(
+            HalvingMetallurgy.Instance,
+            "soria",
+            Textures.Icons.Soria,
+            Textures.Icons.SoriaHover,
+            [
+                AtomTypes.quicksilver,
+                Atoms.Quickcopper,
+                AtomTypes.quicksilver,
+                Atoms.Quickcopper,
+                AtomTypes.quicksilver,
+                Atoms.Quickcopper
+            ],
+            30,
+            HalvingMetallurgy.SoriaPermission
+        );
+
         /*
-        Shearing = Brimstone.API.CreateSimpleGlyph(
-            ID: "halving-metallurgy-shearing",
-            name: "Glyph of Shearing",
-            description: "The glyph of shearing cuts a metal in half, collecting the swarf into the adjacent bowl.",
-            cost: 25,
-            glow: class_238.field_1989.field_97.field_374,
-            stroke: class_238.field_1989.field_97.field_375,
-            icon: Textures.Icons.Shearing,
-            hoveredIcon: Textures.Icons.ShearingHover,
-            usedHexes: new HexIndex[]
-            {
-                        shearingBowlHex,
-                        shearingOutputHex
-            },
-            customPermission: HalvingMetallurgy.ShearingPermission
-        );
-
-        Osmosis = Brimstone.API.CreateSimpleGlyph(
-            ID: "halving-metallurgy-osmosis",
-            name: "Glyph of Osmosis",
-            description: "The glyph of osmosis half-demotes a metal to promote an atom of quix.",
-            cost: 25,
-            glow: class_238.field_1989.field_97.field_374,
-            stroke: class_238.field_1989.field_97.field_375,
-            icon: Textures.Icons.Osmosis,
-            hoveredIcon: Textures.Icons.OsmosisHover,
-            usedHexes: new HexIndex[]
-            {
-                        osmosisMetalHex,
-                        osmosisQuickcopperHex
-            },
-            customPermission: HalvingMetallurgy.OsmosisPermission
-        );
-
         Harmony = Brimstone.API.CreateSimpleGlyph(
             ID: "halving-metallurgy-harmony",
             name: "Glyph of Harmony",
@@ -207,16 +228,16 @@ public static class Glyphs
         QApi.AddPartTypeToPanel(Quake, false);
         QApi.AddPartTypeToPanel(Sump, false);
         QApi.AddPartTypeToPanel(Remission, false);
-        //QApi.AddPartTypeToPanel(Shearing, false);
-        //QApi.AddPartTypeToPanel(Osmosis, false);
+        QApi.AddPartTypeToPanel(Shearing, false);
+        QApi.AddPartTypeToPanel(Osmosis, false);
         //QApi.AddPartTypeToPanel(Harmony, false);
 
         QApi.AddPartType(HalvingMetallurgy.Instance, Halves, "halves");
         QApi.AddPartType(HalvingMetallurgy.Instance, Quake, "quake");
         QApi.AddPartType(HalvingMetallurgy.Instance, Sump, "sump");
         QApi.AddPartType(HalvingMetallurgy.Instance, Remission, "remission");
-        //QApi.AddPartType(Shearing, ShearingRenderer);
-        //QApi.AddPartType(Osmosis, OsmosisRenderer);
+        QApi.AddPartType(HalvingMetallurgy.Instance, Shearing, "shearing");
+        QApi.AddPartType(HalvingMetallurgy.Instance, Osmosis, "osmosis");
         //QApi.AddPartType(Harmony, HarmonyRenderer);
     }
 
@@ -226,13 +247,21 @@ public static class Glyphs
         QApi.AddPartTypesRenderer(HalvingMetallurgy.Instance, QuakeRenderer, (part) => part.GetType() == Quake);
         QApi.AddPartTypesRenderer(HalvingMetallurgy.Instance, SumpRenderer, (part) => part.GetType() == Sump);
         QApi.AddPartTypesRenderer(HalvingMetallurgy.Instance, RemissionRenderer, (part) => part.GetType() == Remission);
+        QApi.AddPartTypesRenderer(HalvingMetallurgy.Instance, ShearingRenderer, (part) => part.GetType() == Shearing);
+        QApi.AddPartTypesRenderer(HalvingMetallurgy.Instance, OsmosisRenderer, (part) => part.GetType() == Osmosis);
     }
 
     public static void DefinePartBehaviors()
     {
-        QApi.AddCycleEvent(new(CycleEvent.CycleEventExecutionType.BeforeEarlyGlyphs | CycleEvent.CycleEventExecutionType.AfterEarlyGlyphs | CycleEvent.CycleEventExecutionType.AfterLateGlyphs, ExtraBehavior));
+        QApi.AddCycleEvent(new(CycleEvent.CycleEventExecutionType.BeforeEarlyGlyphs, ExtraBehavior));
         QApi.BindGlyphCycle(Halves, new PartCycleDelegate(PartCycleDelegate.PartCycleExecutionType.Normal, HalvesBehavior));
+        LApi.AddHandler(Sump.Id, HalvingMetallurgy.Instance.GetIdentifier("sump_native_handler"), SumpBehavior);
+        LApi.AddHandler(Remission.Id, HalvingMetallurgy.Instance.GetIdentifier("remission_projection_native_handler"), RemissionStateMachineBehavior);
         QApi.BindGlyphCycle(Remission, new PartCycleDelegate(PartCycleDelegate.PartCycleExecutionType.Normal, RemissionBehavior));
+        QApi.BindGlyphCycle(Shearing, new PartCycleDelegate(PartCycleDelegate.PartCycleExecutionType.Normal, ShearingBehavior));
+        QApi.BindGlyphCycle(Osmosis, new PartCycleDelegate(PartCycleDelegate.PartCycleExecutionType.Normal, OsmosisBehavior));
+
+        LApi.AddHandler(PartTypes.projectionGlyph.Id, HalvingMetallurgy.Instance.GetIdentifier("soria_handler"), ProjectionSoriaBehavior);
     }
 
     private static void ExtraBehavior(Sim sim, CycleEvent.CycleEventExecutionType executionType)
@@ -244,32 +273,7 @@ public static class Glyphs
             PartSimState pss = sim.simulationDict[part];
             if (partType == Quake)
             {
-                if (executionType == CycleEvent.CycleEventExecutionType.BeforeEarlyGlyphs)
-                {
-                    QuakeBehavior(sim, part, pss, seb);
-                }
-            }
-            else if (partType == Sump)
-            {
-                if (executionType == CycleEvent.CycleEventExecutionType.AfterEarlyGlyphs)
-                {
-                    SumpBehavior(sim, part, pss, true, seb);
-                }
-                else if (executionType == CycleEvent.CycleEventExecutionType.AfterLateGlyphs)
-                {
-                    SumpBehavior(sim, part, pss, false, seb);
-                }
-            }
-            else if (partType == Remission)
-            {
-                if (executionType == CycleEvent.CycleEventExecutionType.AfterEarlyGlyphs)
-                {
-                    RemissionStateMachineBehavior(sim, part, pss, true, seb);
-                }
-                else if (executionType == CycleEvent.CycleEventExecutionType.AfterLateGlyphs)
-                {
-                    RemissionStateMachineBehavior(sim, part, pss, false, seb);
-                }
+                QuakeBehavior(sim, part, pss, seb);
             }
         }
     }
@@ -321,8 +325,8 @@ public static class Glyphs
         metal1Ref.molecule.ReplaceAtom(newMetal1, metal1Ref.pos);
         metal2Ref.molecule.ReplaceAtom(newMetal2, metal2Ref.pos);
         // Play promotion 
-        HexIndex bowl1 = part.InFrontBy(halvesMetal1Hex);
-        HexIndex bowl2 = part.InFrontBy(halvesMetal2Hex);
+        HexIndex bowl1 = part.GlobalPosFromLocal(halvesMetal1Hex);
+        HexIndex bowl2 = part.GlobalPosFromLocal(halvesMetal2Hex);
         metal1Ref.atom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect, metal1Ref.atomType, Assets.textures.atoms.projection_effect, 7.5f, 7);
         metal2Ref.atom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect, metal2Ref.atomType, Assets.textures.atoms.projection_effect, 7.5f, 7);
 
@@ -363,7 +367,7 @@ public static class Glyphs
     }
     public static void QuakeBehavior(Sim sim, Part part, PartSimState pss, SolutionEditorBase seb)
     {
-        HexIndex bowl = part.InFrontBy(quakeBowlHex);
+        HexIndex bowl = part.GlobalPosFromLocal(quakeBowlHex);
         Molecule moleculeAboveBowl = null;
         foreach (Molecule molecule in sim.molecules)
         {
@@ -388,7 +392,7 @@ public static class Glyphs
             IReadOnlyDictionary<HexIndex, Atom> atoms = moleculeAboveBowl.GetAtoms();
             foreach (KeyValuePair<HexIndex, Atom> entry in atoms)
             {
-                if (entry.Value.atomType == Atoms.Sednum)
+                if (AtomTag.AtomTags["halving_metallurgy:quake_sednum_like"].HasAtom(entry.Value.atomType))
                 {
                     List<HexIndexPair> toRemove = [];
                     foreach (var bond in moleculeAboveBowl.GetBonds().Where(bond => bond.hexPos1 == entry.Key || bond.hexPos2 == entry.Key))
@@ -401,7 +405,7 @@ public static class Glyphs
                                 toRemove.Clear();
                                 break;
                             }
-                            else if (AtomTag.AtomTags["halving_metallurgy:quake_sednum_immune"].HasAtom(other.atomType))
+                            else if (AtomTag.AtomTags["halving_metallurgy:quake_zinc_like"].HasAtom(other.atomType) || AtomTag.AtomTags["halving_metallurgy:quake_sednum_immune"].HasAtom(other.atomType))
                             {
                                 continue;
                             }
@@ -426,7 +430,7 @@ public static class Glyphs
                         removals.Add(removed);
                     }
                 }
-                else if (entry.Value.atomType == Atoms.Zinc)
+                else if (AtomTag.AtomTags["halving_metallurgy:quake_zinc_like"].HasAtom(entry.Value.atomType))
                 {
                     foreach (HexIndex offset in HexIndex.AdjacentOffsets)
                     {
@@ -438,7 +442,7 @@ public static class Glyphs
                             continue;
                         }
                         Atom neighbor = otherMolecule.GetAtoms()[neighborPos];
-                        if (neighbor.atomType == Atoms.Sednum)
+                        if (AtomTag.AtomTags["halving_metallurgy:quake_sednum_like"].HasAtom(neighbor.atomType))
                         {
                             // Sednum vs. Zinc is tie
                             continue;
@@ -480,7 +484,7 @@ public static class Glyphs
                     {
                         Vector2 midpoint = Utils.InterpolateVect(HexGrid.standardGrid.ToPixelCoords(pair.Left), HexGrid.standardGrid.ToPixelCoords(pair.Right), 0.5f);
                         float angle = HexGrid.standardGrid.ToPixelCoords(pair.Right - pair.Left).Angle();
-                        seb.field_3936.Add(new GlyphEffect(seb, EffectTimescaleType.RealTime, midpoint, bondType.unbondAnim, 75f, bondType.bondTexture.textureOffset, angle));
+                        seb.underneathPartsGlyphEffects.Add(new GlyphEffect(seb, EffectTimescaleType.RealTime, midpoint, bondType.unbondAnim, 75f, bondType.bondTexture.textureOffset, angle));
                     }
                     moleculeAboveBowl.RemoveBond(pair.Left, pair.Right);
                 }
@@ -522,8 +526,9 @@ public static class Glyphs
 
         renderer.RenderIris(ips, sumpOutputHex, time, Textures.Irises.Quicksilver, state.QuicksilverEject ? AtomTypes.quicksilver : null);
     }
-    public static void SumpBehavior(Sim sim, Part part, PartSimState pss, bool first, SolutionEditorBase seb)
+    public static void SumpBehavior(Sim sim, Part part, PartSimState pss, bool first)
     {
+        SolutionEditorBase seb = sim.solutionEditor;
         DynamicData data = new(pss);
         object stateOb = data.Get("state");
         SumpState state = stateOb is not null ? (SumpState)stateOb : new();
@@ -678,8 +683,9 @@ public static class Glyphs
         }
         return false;
     }
-    public static void RemissionStateMachineBehavior(Sim sim, Part part, PartSimState pss, bool first, SolutionEditorBase seb)
+    public static void RemissionStateMachineBehavior(Sim sim, Part part, PartSimState pss, bool first)
     {
+        SolutionEditorBase seb = sim.solutionEditor;
         DynamicData data = new(pss);
         object stateOb = data.Get("state");
         RemissionState state = stateOb is not null ? (RemissionState)stateOb : new RemissionState();
@@ -747,7 +753,7 @@ public static class Glyphs
             // Promote the metal
             metalOnBowl.molecule.ReplaceAtom(projectionResult, metalOnBowl.pos);
             // Play promotion animations
-            seb.field_3936.Add(new GlyphEffect(seb, EffectTimescaleType.RealTime, HexGrid.standardGrid.ToPixelCoords(part.InFrontBy(remissionBowlHex)), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
+            seb.underneathPartsGlyphEffects.Add(new GlyphEffect(seb, EffectTimescaleType.RealTime, HexGrid.standardGrid.ToPixelCoords(part.GlobalPosFromLocal(remissionBowlHex)), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
             metalOnBowl.atom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect, metalOnBowl.atomType, Assets.textures.atoms.projection_effect, 7.5f, 7);
         }
         else
@@ -765,175 +771,145 @@ public static class Glyphs
         data.Set("state", state);
     }
 
+    public static void ShearingRenderer(Part part, Vector2 pos, SolutionEditorBase editor, PartRenderer renderer)
+    {
+        Vector2 pivot = new(41f, 48f);
+        Vector2 offset = new(-1f, -1f);
+
+        renderer.RenderBase(Textures.GlyphCommon.DoubleBase, offset, pivot, 0f);
+        renderer.RenderRotating(Assets.textures.parts.projection_glyph.metal_bowl, shearingBowlHex, Vector2.Zero);
+        renderer.RenderUpright(Textures.Shearing.SednumLine, osmosisMetalHex, Vector2.Zero);
+
+        renderer.RenderRotating(Assets.textures.parts.projection_glyph.metal_bowl, shearingOutputHex, Vector2.Zero);
+    }
+
+    public static bool ShearingBehavior(Sim sim, Part part, PartSimState pss, GlyphRecipe recipe, bool first)
+    {
+        if (!recipe.Predicate.InvokeAndClear(sim, part))
+        {
+            return false;
+        }
+
+        AtomReference bowlAtom = (AtomReference)sim.RecipeInputs[shearingBowlHex];
+        AtomType newBowlAtom = (AtomType)sim.RecipeOutputs[shearingBowlHex];
+        AtomType outputAtom = (AtomType)sim.RecipeOutputs[shearingOutputHex];
+        bool madeQuickcopper = Atoms.quickcopperRadioactive && (newBowlAtom == Atoms.Quickcopper || outputAtom == Atoms.Quickcopper);
+
+        SolutionEditorBase seb = sim.solutionEditor;
+
+        bowlAtom.molecule.ReplaceAtom(newBowlAtom, bowlAtom.pos);
+        bowlAtom.atom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect, bowlAtom.atomType, Textures.Shearing.Split, 7f, 7);
+        seb.underneathPartsGlyphEffects.Add(new GlyphEffect(seb, EffectTimescaleType.RealTime, HexGrid.standardGrid.ToPixelCoords(part.GetHexPos()), Textures.Shearing.BowlFlash, 30f, Vector2.Zero, 0f));
+        Atom spawnedAtom = sim.SpawnAtomRelative(outputAtom, part, shearingOutputHex);
+        spawnedAtom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect, outputAtom, Textures.Shearing.Spawn, 7.5f);
+
+        sim.PlaySound(madeQuickcopper ? Sounds.ShearingMakingQuickcopper : Sounds.Shearing);
+        return true;
+    }
+    public static void OsmosisRenderer(Part part, Vector2 pos, SolutionEditorBase editor, PartRenderer renderer)
+    {
+        Vector2 pivot = new(41f, 48f);
+        Vector2 offset = new(-1f, -1f);
+
+        renderer.RenderBase(Textures.GlyphCommon.DoubleBase, offset, pivot, 0f);
+        renderer.RenderRotating(Assets.textures.parts.projection_glyph.metal_bowl, osmosisMetalHex, Vector2.Zero);
+        renderer.RenderUpright(Textures.Osmosis.OsmiumDemote, osmosisMetalHex, Vector2.Zero);
+        renderer.RenderRotating(Assets.textures.parts.projection_glyph.metal_bowl, osmosisQuixHex, Vector2.Zero);
+        renderer.RenderUpright(Textures.Osmosis.QuickcopperPromote, osmosisQuixHex, Vector2.Zero);
+
+        renderer.RenderBase(Textures.Osmosis.Connector, new Vector2(-28f, 23f), 0f);
+    }
+    public static bool OsmosisBehavior(Sim sim, Part part, PartSimState pss, GlyphRecipe recipe, bool first)
+    {
+        if (first)
+        {
+            return true;
+        }
+        if (recipe.Predicate.InvokeAndClear(sim, part))
+        {
+            AtomReference metal = (AtomReference)sim.RecipeInputs[osmosisMetalHex];
+            AtomReference quix = (AtomReference)sim.RecipeInputs[osmosisQuixHex];
+            AtomType newMetal = (AtomType)sim.RecipeOutputs[osmosisMetalHex];
+            AtomType newQuix = (AtomType)sim.RecipeOutputs[osmosisQuixHex];
+
+            metal.molecule.ReplaceAtom(newMetal, metal.pos);
+            quix.molecule.ReplaceAtom(newQuix, quix.pos);
+
+            SolutionEditorBase seb = sim.solutionEditor;
+            pss.isProcessing = true;
+            seb.glyphEffects.Add(new GlyphEffect(seb, EffectTimescaleType.RealTime, HexGrid.standardGrid.ToPixelCoords(part.GlobalPosFromLocal(osmosisMetalHex)), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
+            metal.atom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect, metal.atomType, Assets.textures.atoms.rejection_effect_metal, 7f, 7);
+            seb.glyphEffects.Add(new GlyphEffect(seb, EffectTimescaleType.RealTime, HexGrid.standardGrid.ToPixelCoords(part.GlobalPosFromLocal(osmosisQuixHex)), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
+            quix.atom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect, quix.atomType, Assets.textures.atoms.projection_effect, 7f, 7);
+            sim.PlaySound(Sounds.Osmosis);
+            return true;
+        }
+
+        return false;
+    }
     /*
-        public static void ShearingRenderer(Part part, Vector2 pos, SolutionEditorBase editor, class_195 renderer)
-        {
-            Brimstone.API.GetRenderingHelpers(part, pos, editor, out PartSimState pss, out class_236 partDataWrapper, out float time);
-            Vector2 pivot = new(41f, 48f);
-            Vector2 offset = new(-1f, -1f);
-
-            renderer.method_523(Textures.GlyphCommon.DoubleBase, offset, pivot, 0f);
-            renderer.RenderRotating(class_238.field_1989.field_90.field_255.field_292, shearingBowlHex, Vector2.Zero);
-            renderer.RenderUpright(Textures.Shearing.SednumLine, osmosisMetalHex, Vector2.Zero);
-
-            renderer.RenderRotating(class_238.field_1989.field_90.field_255.field_292, shearingOutputHex, Vector2.Zero);
-        }
-        public static void ShearingBehavior(Sim sim, Part part, PartSimState pss, bool first, SolutionEditorBase seb)
-        {
-            if (sim.FindAtomRelative(part, shearingOutputHex).method_1085())
-            {
-                // blocked!
-                return;
-            }
-            if (!sim.FindAtomRelative(part, shearingBowlHex).method_99(out AtomReference bowlAtom)
-            && !Wheel.MaybeFindSoriaWheelAtom(sim, part, shearingBowlHex).method_99(out bowlAtom))
-            {
-                return;
-            }
-
-            if (!API.ShearingDictionary.TryGetValue(bowlAtom.field_2280, out ShearingOutput result) || !result.Predicate(sim, part))
-            {
-                return;
-            }
-
-            AtomType newBowlAtom = result.Split;
-            AtomType outputAtom = result.Eject;
-            bool madeQuickcopper = Atoms.quickcopperRadioactive && (newBowlAtom == Atoms.Quickcopper || outputAtom == Atoms.Quickcopper);
-
-            Brimstone.API.ChangeAtom(bowlAtom, newBowlAtom);
-            bowlAtom.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, bowlAtom.field_2280, Textures.Shearing.Split, 30f);
-            seb.field_3936.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(part.method_1161()) + new Vector2(0f, 0f), Textures.Shearing.BowlFlash, 30f, Vector2.Zero, 0f));
-            Atom spawnedAtom = new(outputAtom)
-            {
-                field_2276 = new class_168(seb, 0, (enum_132)1, outputAtom, Textures.Shearing.Spawn, 30f)
-            };
-
-            Molecule molecule = new();
-            molecule.method_1105(spawnedAtom, part.method_1184(shearingOutputHex));
-            sim.field_3823.Add(molecule);
-            Brimstone.API.PlaySound(sim, madeQuickcopper ? Sounds.ShearingMakingQuickcopper : Sounds.Shearing);
-            return;
-        }
-
-        public static void OsmosisRenderer(Part part, Vector2 pos, SolutionEditorBase editor, class_195 renderer)
-        {
-            Brimstone.API.GetRenderingHelpers(part, pos, editor, out PartSimState pss, out class_236 partDataWrapper, out float time);
-            Vector2 pivot = new(41f, 48f);
-            Vector2 offset = new(-1f, -1f);
-
-            renderer.method_523(Textures.GlyphCommon.DoubleBase, offset, pivot, 0f);
-            renderer.RenderRotating(class_238.field_1989.field_90.field_255.field_292, osmosisMetalHex, Vector2.Zero);
-            renderer.RenderUpright(Textures.Osmosis.OsmiumDemote, osmosisMetalHex, Vector2.Zero);
-            renderer.RenderRotating(class_238.field_1989.field_90.field_255.field_292, osmosisQuickcopperHex, Vector2.Zero);
-            renderer.RenderUpright(Textures.Osmosis.QuickcopperPromote, osmosisQuickcopperHex, Vector2.Zero);
-
-            renderer.method_522(Textures.Osmosis.Connector, new Vector2(-28f, 23f), 0f);
-        }
-        public static void OsmosisBehavior(Sim sim, Part part, PartSimState pss, bool first, SolutionEditorBase seb)
-        {
-            HexIndex metalHex = part.method_1184(osmosisMetalHex);
-            HexIndex quickcopperHex = part.method_1184(osmosisQuickcopperHex);
-
-            bool quickcopperIsSoria = false;
-            bool quickcopperExists = false;
-            if (sim.FindAtom(quickcopperHex).method_99(out AtomReference quickcopper))
-            {
-                quickcopperExists = true;
-            }
-            else if (Wheel.MaybeFindSoriaWheelAtom(sim, quickcopperHex).method_99(out quickcopper))
-            {
-                quickcopperExists = true;
-                quickcopperIsSoria = true;
-            }
-
-            if (!quickcopperExists)
-            {
-                return;
-            }
-
-            bool metalIsSoria = false;
-
-            if (Wheel.MaybeFindSoriaWheelAtom(sim, metalHex).method_99(out AtomReference metal))
-            {
-                metalIsSoria = true;
-            }
-            else if (!sim.FindAtom(metalHex).method_99(out metal)
-            && !ReductiveMetallurgyImports.findRavariAtom(sim, part, osmosisMetalHex).method_99(out metal))
-            {
-                return;
-            }
-
-            if (quickcopperIsSoria && metalIsSoria && first)
-            {
-                // "Soria special" only allow one transfer per cycle.
-                return;
-            }
-
-            bool dilutionSpecial = false;
-            AtomType output = null;
-            if (quickcopperIsSoria && quickcopper.field_2280 == Atoms.Quickcopper && metal.field_2280 == Atoms.Quickcopper)
-            {
-                output = Atoms.Quicklime;
-            }
-            else if (quickcopper.field_2280 == Atoms.Quicklime && metal.field_2280 == Brimstone.API.VanillaAtoms.quicksilver)
-            {
-                dilutionSpecial = true;
-                output = Atoms.Quickcopper;
-            }
-            else if (API.OsmosisDictionary.TryGetValue(metal.field_2280, out OsmosisOutput temp) && temp.Predicate(sim, part))
-            {
-                if (quickcopper.field_2280 == Atoms.Quickcopper)
-                {
-                    output = temp.HalfDemotion;
-                }
-                else if (quickcopper.field_2280 == Atoms.Quicklime)
-                {
-                    output = temp.HalfDemotion;
-                    dilutionSpecial = true;
-                }
-                else
-                {
-                    return;
-                }
-            }
-            else
-            {
-                return;
-            }
-            Brimstone.API.ChangeAtom(metal, output);
-            Brimstone.API.ChangeAtom(quickcopper, dilutionSpecial ? Atoms.Quickcopper : Brimstone.API.VanillaAtoms.quicksilver);
-            seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(metalHex), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
-            metal.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, metal.field_2280, class_238.field_1989.field_81.field_614, 30f);
-            seb.field_3935.Add(new class_228(seb, (enum_7)1, class_187.field_1742.method_492(quickcopperHex), Textures.Halves.BowlFlashAnimation, 30f, Vector2.Zero, 0f));
-            quickcopper.field_2279.field_2276 = new class_168(seb, 0, (enum_132)1, quickcopper.field_2280, class_238.field_1989.field_81.field_614, 30f);
-            Brimstone.API.PlaySound(sim, Sounds.Osmosis);
-            return;
-        }
-
-        public static void HarmonyRenderer(Part part, Vector2 pos, SolutionEditorBase editor, class_195 renderer)
-        {
-            Brimstone.API.GetRenderingHelpers(part, pos, editor, out PartSimState pss, out class_236 partDataWrapper, out float time);
-            Vector2 pivot = new(42f, 49f);
-            renderer.method_521(class_238.field_1989.field_90.field_185, pivot);
-            HexIndex center = new(0, 0);
-            renderer.RenderRotating(class_238.field_1989.field_90.field_187, center, Vector2.Zero);
-            renderer.method_527(Textures.Harmony.TrefoilIndent, center, Vector2.Zero, pivot, 0f);
-        }
-
-        public static void TriplexBonderBehavior(Sim sim, Part part, PartSimState pss, bool first, SolutionEditorBase seb)
-        {
-            foreach (class_222 bonder in class_191.field_1775.field_1538)
-            {
-                if (!sim.FindAtomRelative(part, bonder.field_1920).method_99(out AtomReference leftAtom) || !sim.FindAtomRelative(part, bonder.field_1921).method_99(out AtomReference rightAtom))
-                {
-                    continue;
-                }
-                if ((leftAtom.field_2280 == Atoms.Vulcan && rightAtom.field_2280 == Brimstone.API.VanillaAtoms.fire) || (leftAtom.field_2280 == Brimstone.API.VanillaAtoms.fire && rightAtom.field_2280 == Atoms.Vulcan) || (leftAtom.field_2280 == Atoms.Vulcan && rightAtom.field_2280 == Atoms.Vulcan))
-                {
-                    Brimstone.API.JoinMolecules(sim, leftAtom.field_2277, rightAtom.field_2277, out Molecule joined);
-                    Brimstone.API.AddBond(sim, joined, part.method_1184(bonder.field_1920), part.method_1184(bonder.field_1921), bonder.field_1922);
-                }
-            }
-        }
+    public static void HarmonyRenderer(Part part, Vector2 pos, SolutionEditorBase editor, class_195 renderer)
+    {
+        Brimstone.API.GetRenderingHelpers(part, pos, editor, out PartSimState pss, out class_236 partDataWrapper, out float time);
+        Vector2 pivot = new(42f, 49f);
+        renderer.method_521(class_238.field_1989.field_90.field_185, pivot);
+        HexIndex center = new(0, 0);
+        renderer.RenderRotating(class_238.field_1989.field_90.field_187, center, Vector2.Zero);
+        renderer.method_527(Textures.Harmony.TrefoilIndent, center, Vector2.Zero, pivot, 0f);
+    }
     */
+    public static void ProjectionSoriaBehavior(Sim sim, Part part, PartSimState pss, bool first)
+    {
+        SolutionEditorBase seb = sim.solutionEditor;
+        if (pss.wasActivated)
+        {
+            // don't double-activate
+            return;
+        }
+        if (GlyphRecipe.Recipes.TryGetValue(HalvingMetallurgy.Instance.GetIdentifier("projection"), out OrderedDictionary<Identifier, GlyphRecipe> recipes)) {
+            HexIndex hole = new(0, 0);
+            HexIndex bowl = new(1, 0);
+            foreach (GlyphRecipe recipe in recipes.Values)
+            {
+                if (recipe.Predicate.InvokeAndClear(sim, part))
+                {
+                    AtomReference quix = (AtomReference)sim.RecipeInputs[hole];
+                    AtomReference metal = (AtomReference)sim.RecipeInputs[bowl];
+                    AtomType newQuix = (AtomType)sim.RecipeOutputs[hole];
+                    AtomType newMetal = (AtomType)sim.RecipeOutputs[bowl];
+
+                    quix.molecule.ReplaceAtom(newQuix, quix.pos);
+                    metal.molecule.ReplaceAtom(newMetal, metal.pos);
+
+                    quix.atom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect, quix.atomType, Assets.textures.atoms.rejection_effect_metal, 7.5f, 5);
+                    seb.glyphEffects.Add(new GlyphEffect(
+                        seb,
+                        EffectTimescaleType.RealTime,
+                        HexGrid.standardGrid.ToPixelCoords(part.GetHexPos()),
+                        Textures.Soria.Flash,
+                        30f,
+                        Vector2.Zero,
+                        0f
+                    ));
+
+                    metal.atom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect, metal.atomType, Assets.textures.atoms.projection_effect, 7.5f, 7);
+                    seb.glyphEffects.Add(new GlyphEffect(
+                        seb,
+                        EffectTimescaleType.RealTime,
+                        HexGrid.standardGrid.ToPixelCoords(part.GlobalPosFromLocal(bowl)),
+                        Assets.textures.parts.projection_glyph_flash,
+                        30f,
+                        Vector2.Zero,
+                        part.GetRotation().ToRadians()
+                    ));
+
+                    pss.isProcessing = true;
+                    sim.PlaySound(Assets.sounds.glyph_projection);
+                    pss.wasActivated = true;
+                    break;
+                }
+            }
+        }
+    }
+
 }
