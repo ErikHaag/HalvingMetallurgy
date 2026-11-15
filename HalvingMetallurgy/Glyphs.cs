@@ -309,8 +309,18 @@ public static class Glyphs
         AtomReference quicksilver = (AtomReference)sim.RecipeInputs[halvesInputHex];
         if (sim.RecipeOutputs.TryGetValue(halvesInputHex, out IRecipeOutput temp) && temp is AtomType newQuicksilver)
         {
+            // assume Soria's wheel
             quicksilver.molecule.ReplaceAtom(newQuicksilver, quicksilver.pos);
-            quicksilver.atom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect, quicksilver.atomType, Assets.textures.atoms.projection_effect, 30f);
+            quicksilver.atom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect, quicksilver.atomType, Assets.textures.atoms.rejection_effect_metal, 7.5f, 5);
+            seb.glyphEffects.Add(new GlyphEffect(
+                seb,
+                EffectTimescaleType.RealTime,
+                HexGrid.standardGrid.ToPixelCoords(part.GetHexPos()),
+                Textures.Soria.Flash,
+                30f,
+                Vector2.Zero,
+                0f
+            ));
         }
         else
         {

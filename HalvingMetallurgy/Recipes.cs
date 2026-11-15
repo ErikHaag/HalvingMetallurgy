@@ -25,16 +25,51 @@ public static class Recipes
 
     public static bool HalvesRecipes(Sim sim, Part part)
     {
-        if (!sim.FindAtomRelative(part, Glyphs.halvesInputHex).GetOrDefault(out AtomReference quicksilver) || quicksilver.inMultiAtomMolecule || quicksilver.isHeldByArm || quicksilver.atomType.Id != AtomTypes.quicksilver.Id)
+        bool isQuicksilverSoria = false;
+        if (sim.FindAtomRelative(part, Glyphs.halvesInputHex).GetOrDefault(out AtomReference quicksilver))
+        {
+            if (quicksilver.inMultiAtomMolecule || quicksilver.isHeldByArm)
+            {
+                return false;
+            }
+        }
+        else if (Glyphs.Soria.TryFindWheelAtomRelative(sim, part, Glyphs.halvesInputHex, out quicksilver))
+        {
+            isQuicksilverSoria = true;
+        }
+        else
         {
             return false;
         }
-        if (!sim.FindAtomRelative(part, Glyphs.halvesMetal1Hex).GetOrDefault(out AtomReference metal1) || !sim.FindAtomRelative(part, Glyphs.halvesMetal2Hex).GetOrDefault(out AtomReference metal2))
+        if (quicksilver.atomType != AtomTypes.quicksilver)
         {
             return false;
         }
-        var promotionTable = AtomTag.AtomTags["halving_metallurgy:$successor_half"];
-        if (!promotionTable.HasAtom(metal1, out Identifier? newMetal1) || !promotionTable.HasAtom(metal2, out Identifier? newMetal2))
+
+        bool isMetal1Soria = false;
+        if (!sim.FindAtomRelative(part, Glyphs.halvesMetal1Hex).GetOrDefault(out AtomReference metal1))
+        {
+            if (!Glyphs.Soria.TryFindWheelAtomRelative(sim, part, Glyphs.halvesMetal1Hex, out metal1))
+            {
+                return false;
+            }
+            isMetal1Soria = true;
+        }
+
+        bool isMetal2Soria = false;
+        if (!sim.FindAtomRelative(part, Glyphs.halvesMetal2Hex).GetOrDefault(out AtomReference metal2))
+        {
+            if (!Glyphs.Soria.TryFindWheelAtomRelative(sim, part, Glyphs.halvesMetal2Hex, out metal2))
+            {
+                return false;
+            }
+            isMetal2Soria = true;
+        }
+
+        var metalPromotionTable = AtomTag.AtomTags["halving_metallurgy:$successor_half"];
+        var quixPromotionTable = AtomTag.AtomTags["halving_metallurgy:$successor_half_quix"];
+        if (!((isMetal1Soria ? quixPromotionTable : metalPromotionTable).HasAtom(metal1, out Identifier? newMetal1)
+            && (isMetal2Soria ? quixPromotionTable : metalPromotionTable).HasAtom(metal2, out Identifier? newMetal2)))
         {
             return false;
         }
@@ -42,6 +77,11 @@ public static class Recipes
         sim.RecipeInputs[Glyphs.halvesInputHex] = quicksilver;
         sim.RecipeInputs[Glyphs.halvesMetal1Hex] = metal1;
         sim.RecipeInputs[Glyphs.halvesMetal2Hex] = metal2;
+
+        if (isQuicksilverSoria)
+        {
+            sim.RecipeOutputs[Glyphs.halvesInputHex] = Atoms.Quicklime;
+        }
         sim.RecipeOutputs[Glyphs.halvesMetal1Hex] = AtomTypes.GetByID(newMetal1.Value);
         sim.RecipeOutputs[Glyphs.halvesMetal2Hex] = AtomTypes.GetByID(newMetal2.Value);
 
@@ -178,7 +218,7 @@ public static class Recipes
                 return false;
             }
         }
-        else if (Glyphs.Soria.TryFindWheelAtRelative(sim, part, metalBowl, out metalRef))
+        else if (Glyphs.Soria.TryFindWheelAtomRelative(sim, part, metalBowl, out metalRef))
         {
             isMetalSoria = true;
         }
@@ -234,7 +274,7 @@ public static class Recipes
     public static bool ProjectionSoriaRecipes(Sim sim, Part part)
     {
         HexIndex quicksilverHole = new(0, 0);
-        if (!Glyphs.Soria.TryFindWheelAtRelative(sim, part, quicksilverHole, out AtomReference quixRef))
+        if (!Glyphs.Soria.TryFindWheelAtomRelative(sim, part, quicksilverHole, out AtomReference quixRef))
         {
             return false;
         }
@@ -250,7 +290,7 @@ public static class Recipes
         {
             // wow, much code.
         }
-        else if (Glyphs.Soria.TryFindWheelAtRelative(sim, part, metalBowl, out metalRef))
+        else if (Glyphs.Soria.TryFindWheelAtomRelative(sim, part, metalBowl, out metalRef))
         {
             isMetalSoria = true;
         }

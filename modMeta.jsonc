@@ -11,7 +11,7 @@
     "dependencies": {
         "quintessential_core": "[0.10.1,)",
         "quintessential_data": "[0.10.1,)",
-        "lithos": "[0.0.5,)"
+        "lithos": "[0.0.6,)"
     },
     "conflicts": []
 }

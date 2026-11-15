@@ -93,7 +93,7 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
 
     public override void PostLoad()
     {
-        Quintessential.AtomTag.DumpTags();
+        //Quintessential.AtomTag.DumpTags();
     }
 
     public override void Unload()
