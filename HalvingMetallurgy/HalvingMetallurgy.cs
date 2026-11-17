@@ -52,7 +52,7 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
         QApi.AddPuzzlePermission(Instance, RemissionPermission);
         QApi.AddPuzzlePermission(Instance, ShearingPermission);
         QApi.AddPuzzlePermission(Instance, OsmosisPermission);
-        //QApi.AddPuzzlePermission(HarmonyPermission, "Glyph of Harmony", "Halving Metallurgy");
+        QApi.AddPuzzlePermission(Instance, HarmonyPermission);
 
         QApi.AddPuzzlePermission(Instance, SoriaPermission);
         /*

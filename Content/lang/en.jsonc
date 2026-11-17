@@ -21,6 +21,7 @@
             "remission": "Glyph of Remission",
             "shearing": "Glyph of Shearing",
             "osmosis": "Glyph of Osmosis",
+            "harmony": "Glyph of Harmony",
             "soria": "Soria's Wheel"
         },
         "parts": {
@@ -47,6 +48,10 @@
             "osmosis": {
                 "": "Glyph of Osmosis",
                 "description": "The glyph of osmosis half-demotes an atom of metal to promote an atom of quix."
+            },
+            "harmony": {
+                "": "Glyph of Harmony",
+                "description": "The glyph of harmony does nothing expect stay where it is placed, some alchemists may place it in an appeasing spot."
             },
             "soria": {
                 "": "Soria's Wheel",

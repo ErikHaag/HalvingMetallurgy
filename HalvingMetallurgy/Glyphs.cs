@@ -208,20 +208,18 @@ public static class Glyphs
             HalvingMetallurgy.SoriaPermission
         );
 
-        /*
-        Harmony = Brimstone.API.CreateSimpleGlyph(
-            ID: "halving-metallurgy-harmony",
-            name: "Glyph of Harmony",
-            description: "The glyph of harmony does nothing expect stay where it is placed, some alchemists may place it in an appeasing spot.",
-            cost: 0,
-            glow: class_238.field_1989.field_97.field_382,
-            stroke: class_238.field_1989.field_97.field_383,
-            icon: class_238.field_1989.field_90.field_245.field_309,
-            hoveredIcon: class_238.field_1989.field_90.field_245.field_310,
-            usedHexes: new HexIndex[] { new(0, 0) },
-            customPermission: HalvingMetallurgy.HarmonyPermission
-        );
-        */
+        Harmony = new PartType()
+        {
+            Id = HalvingMetallurgy.Instance.GetIdentifier("Harmony"),
+            cost = 0,
+            glowTexture = Assets.textures.select.single_glow,
+            strokeTexture = Assets.textures.select.single_stroke,
+            iconTexture = Assets.textures.parts.icons.marker,
+            iconHoverTexture = Assets.textures.parts.icons.marker_hover,
+            glyphHexes = [new(0, 0)],
+            isFullHexCover = true,
+            CustomPermissionCheck = (ids) => ids.Contains(HalvingMetallurgy.Instance.GetIdentifier(HalvingMetallurgy.HarmonyPermission))
+        };
         #endregion
 
         QApi.AddPartTypeToPanel(Halves, false);
@@ -230,7 +228,7 @@ public static class Glyphs
         QApi.AddPartTypeToPanel(Remission, false);
         QApi.AddPartTypeToPanel(Shearing, false);
         QApi.AddPartTypeToPanel(Osmosis, false);
-        //QApi.AddPartTypeToPanel(Harmony, false);
+        QApi.AddPartTypeToPanel(Harmony, false);
 
         QApi.AddPartType(HalvingMetallurgy.Instance, Halves, "halves");
         QApi.AddPartType(HalvingMetallurgy.Instance, Quake, "quake");
@@ -238,7 +236,7 @@ public static class Glyphs
         QApi.AddPartType(HalvingMetallurgy.Instance, Remission, "remission");
         QApi.AddPartType(HalvingMetallurgy.Instance, Shearing, "shearing");
         QApi.AddPartType(HalvingMetallurgy.Instance, Osmosis, "osmosis");
-        //QApi.AddPartType(Harmony, HarmonyRenderer);
+        QApi.AddPartType(HalvingMetallurgy.Instance, Harmony, "harmony");
     }
 
     public static void DefinePartRendering()
@@ -249,6 +247,7 @@ public static class Glyphs
         QApi.AddPartTypesRenderer(HalvingMetallurgy.Instance, RemissionRenderer, (part) => part.GetType() == Remission);
         QApi.AddPartTypesRenderer(HalvingMetallurgy.Instance, ShearingRenderer, (part) => part.GetType() == Shearing);
         QApi.AddPartTypesRenderer(HalvingMetallurgy.Instance, OsmosisRenderer, (part) => part.GetType() == Osmosis);
+        QApi.AddPartTypesRenderer(HalvingMetallurgy.Instance, HarmonyRenderer, (part) => part.GetType() == Harmony);
     }
 
     public static void DefinePartBehaviors()
@@ -544,27 +543,38 @@ public static class Glyphs
         SumpState state = stateOb is not null ? (SumpState)stateOb : new();
         if (first)
         {
-            if (!sim.FindAtomRelative(part, sumpInputHex).GetOrDefault(out AtomReference quicksilver) || quicksilver.isHeldByArm || quicksilver.inMultiAtomMolecule)
+            if (sim.FindAtomRelative(part, sumpInputHex).GetOrDefault(out AtomReference quicksilver))
             {
-                goto trySumpDrain;
+                if (quicksilver.atomType == AtomTypes.quicksilver && !quicksilver.isHeldByArm && !quicksilver.inMultiAtomMolecule)
+                {
+                    // Delete the quicksilver
+                    quicksilver.molecule.RemoveAtom(quicksilver.pos);
+                    // Play deletion animation
+                    seb.DrawFallingAtom(quicksilver);
+                    if (state.QuicksilverCount < 5)
+                    {
+                        state.QuicksilverCount++;
+                        sim.PlaySound(Sounds.SumpConsume);
+                    }
+                    else
+                    {
+                        state.DrainFlash = true;
+                        sim.PlaySound(Sounds.SumpDiscard);
+                    }
+                }
+            }
+            else if (Soria.TryFindWheelAtomRelative(sim, part, sumpInputHex, out quicksilver))
+            {
+                if (quicksilver.atomType == AtomTypes.quicksilver && state.QuicksilverCount < 5)
+                {
+                    quicksilver.molecule.ReplaceAtom(Atoms.Quicklime, quicksilver.pos);
+                    quicksilver.atom.transmutationEffect = new TransmutationEffect(seb, TransmutationEffectRenderMode.AsEffect,quicksilver.atomType, Assets.textures.atoms.rejection_effect_metal, 7.5f, 5);
+                    seb.glyphEffects.Add(new GlyphEffect(seb, EffectTimescaleType.RealTime, HexGrid.standardGrid.ToPixelCoords(part.GetHexPos()), Textures.Soria.Flash, 30f, Vector2.Zero, 0f));
+                    state.QuicksilverCount++;
+                    sim.PlaySound(Sounds.SumpConsume);
+                }
             }
 
-            // Delete the quicksilver
-            quicksilver.molecule.RemoveAtom(quicksilver.pos);
-            // Play deletion animation
-            seb.DrawFallingAtom(quicksilver);
-
-            if (state.QuicksilverCount < 5)
-            {
-                state.QuicksilverCount++;
-                sim.PlaySound(Sounds.SumpConsume);
-            }
-            else
-            {
-                state.DrainFlash = true;
-                sim.PlaySound(Sounds.SumpDiscard);
-            }
-        trySumpDrain:
             if (state.QuicksilverCount > 0 && !sim.FindAtomRelative(part, sumpOutputHex).HasValue())
             {
                 state.QuicksilverEject = true;
@@ -738,7 +748,7 @@ public static class Glyphs
             }
             if (state.CanHalfDemote)
             {
-                if (!GlyphRecipe.Recipes.TryGetValue(HalvingMetallurgy.Instance.GetIdentifier("remission_half_demote"), out OrderedDictionary<Identifier, GlyphRecipe> halfDemotionRecipes))
+                if (GlyphRecipe.Recipes.TryGetValue(HalvingMetallurgy.Instance.GetIdentifier("remission_half_demote"), out OrderedDictionary<Identifier, GlyphRecipe> halfDemotionRecipes))
                 {
                     foreach (GlyphRecipe recipe in halfDemotionRecipes.Values)
                     {
@@ -857,17 +867,16 @@ public static class Glyphs
 
         return false;
     }
-    /*
-    public static void HarmonyRenderer(Part part, Vector2 pos, SolutionEditorBase editor, class_195 renderer)
+
+    public static void HarmonyRenderer(Part part, Vector2 pos, SolutionEditorBase editor, PartRenderer renderer)
     {
-        Brimstone.API.GetRenderingHelpers(part, pos, editor, out PartSimState pss, out class_236 partDataWrapper, out float time);
         Vector2 pivot = new(42f, 49f);
-        renderer.method_521(class_238.field_1989.field_90.field_185, pivot);
+        renderer.RenderBase(Assets.textures.parts.marker_base, pivot);
         HexIndex center = new(0, 0);
-        renderer.RenderRotating(class_238.field_1989.field_90.field_187, center, Vector2.Zero);
-        renderer.method_527(Textures.Harmony.TrefoilIndent, center, Vector2.Zero, pivot, 0f);
+        renderer.RenderRotating(Assets.textures.parts.marker_lighting, center, Vector2.Zero);
+        renderer.RenderTrackLights(Textures.Harmony.TrefoilIndent, center, Vector2.Zero, pivot, 0f);
     }
-    */
+
     public static void ProjectionSoriaBehavior(Sim sim, Part part, PartSimState pss, bool first)
     {
         SolutionEditorBase seb = sim.solutionEditor;
@@ -876,7 +885,8 @@ public static class Glyphs
             // don't double-activate
             return;
         }
-        if (GlyphRecipe.Recipes.TryGetValue(HalvingMetallurgy.Instance.GetIdentifier("projection"), out OrderedDictionary<Identifier, GlyphRecipe> recipes)) {
+        if (GlyphRecipe.Recipes.TryGetValue(HalvingMetallurgy.Instance.GetIdentifier("projection"), out OrderedDictionary<Identifier, GlyphRecipe> recipes))
+        {
             HexIndex hole = new(0, 0);
             HexIndex bowl = new(1, 0);
             foreach (GlyphRecipe recipe in recipes.Values)

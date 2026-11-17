@@ -13,9 +13,12 @@ public static class Recipes
         QApi.AddRecipe(HalvingMetallurgy.Instance, new GlyphRecipe(RemissionRecipes), HalvingMetallurgy.Instance.GetIdentifier("remission_native"), Glyphs.Remission.Id);
         QApi.AddRecipe(HalvingMetallurgy.Instance, new GlyphRecipe(RemissionFullPromoteRecipes), HalvingMetallurgy.Instance.GetIdentifier("remission_fp_native"), HalvingMetallurgy.Instance.GetIdentifier("remission_full_promote"));
         QApi.AddRecipe(HalvingMetallurgy.Instance, new GlyphRecipe(RemissionHalfPromoteRecipes), HalvingMetallurgy.Instance.GetIdentifier("remission_hp_native"), HalvingMetallurgy.Instance.GetIdentifier("remission_half_promote"));
+        QApi.AddRecipe(HalvingMetallurgy.Instance, new GlyphRecipe(RemissionHalfPromoteSoriaRecipes), HalvingMetallurgy.Instance.GetIdentifier("remission_hp_soria"), HalvingMetallurgy.Instance.GetIdentifier("remission_half_promote"));
         QApi.AddRecipe(HalvingMetallurgy.Instance, new GlyphRecipe(RemissionHalfDemoteRecipes), HalvingMetallurgy.Instance.GetIdentifier("remission_hd_native"), HalvingMetallurgy.Instance.GetIdentifier("remission_half_demote"));
+        QApi.AddRecipe(HalvingMetallurgy.Instance, new GlyphRecipe(RemissionHalfDemoteSoriaRecipes), HalvingMetallurgy.Instance.GetIdentifier("remission_hd_soria"), HalvingMetallurgy.Instance.GetIdentifier("remission_half_demote"));
 
         QApi.AddRecipe(HalvingMetallurgy.Instance, new GlyphRecipe(ShearingRecipes), HalvingMetallurgy.Instance.GetIdentifier("shearing_native"), Glyphs.Shearing.Id);
+        QApi.AddRecipe(HalvingMetallurgy.Instance, new GlyphRecipe(ShearingSoriaRecipes), HalvingMetallurgy.Instance.GetIdentifier("shearing_soria"), Glyphs.Shearing.Id);
 
         QApi.AddRecipe(HalvingMetallurgy.Instance, new GlyphRecipe(OsmosisRecipes), HalvingMetallurgy.Instance.GetIdentifier("osmosis_native"), Glyphs.Osmosis.Id);
 
@@ -149,15 +152,39 @@ public static class Recipes
         return true;
     }
 
+    public static bool RemissionHalfPromoteSoriaRecipes(Sim sim, Part part)
+    {
+        if (!(Glyphs.Soria.TryFindWheelAtomRelative(sim, part, Glyphs.remissionBowlHex, out AtomReference quix)
+            && AtomTag.AtomTags["halving_metallurgy:$successor_half_quix"].HasAtom(quix, out Identifier? proj)))
+        {
+            return false;
+        }
+        sim.RecipeInputs[Glyphs.remissionBowlHex] = quix;
+        sim.RecipeOutputs[Glyphs.remissionBowlHex] = AtomTypes.GetByID(proj.Value);
+        return true;
+    }
+
     public static bool RemissionHalfDemoteRecipes(Sim sim, Part part)
     {
         if (!(sim.FindAtomRelative(part, Glyphs.remissionBowlHex).GetOrDefault(out AtomReference metal)
-              && AtomTag.AtomTags["halving_metallurgy:$predecessor_half"].HasAtom(metal, out Identifier? proj)))
+              && AtomTag.AtomTags["halving_metallurgy:$predecessor_half"].HasAtom(metal, out Identifier? rej)))
         {
             return false;
         }
         sim.RecipeInputs[Glyphs.remissionBowlHex] = metal;
-        sim.RecipeOutputs[Glyphs.remissionBowlHex] = AtomTypes.GetByID(proj.Value);
+        sim.RecipeOutputs[Glyphs.remissionBowlHex] = AtomTypes.GetByID(rej.Value);
+        return true;
+    }
+
+    public static bool RemissionHalfDemoteSoriaRecipes(Sim sim, Part part)
+    {
+        if (!(Glyphs.Soria.TryFindWheelAtomRelative(sim, part, Glyphs.remissionBowlHex, out AtomReference quix)
+            && AtomTag.AtomTags["halving_metallurgy:$predecessor_half_quix"].HasAtom(quix, out Identifier? rej)))
+        {
+            return false;
+        }
+        sim.RecipeInputs[Glyphs.remissionBowlHex] = quix;
+        sim.RecipeOutputs[Glyphs.remissionBowlHex] = AtomTypes.GetByID(rej.Value);
         return true;
     }
 
@@ -181,14 +208,44 @@ public static class Recipes
         return true;
     }
 
-    public static bool OsmosisRecipes(Sim sim, Part part)
+    public static bool ShearingSoriaRecipes(Sim sim, Part part)
     {
-        if (!(sim.FindAtomRelative(part, Glyphs.osmosisMetalHex).GetOrDefault(out AtomReference metal)
-              && sim.FindAtomRelative(part, Glyphs.osmosisQuixHex).GetOrDefault(out AtomReference quix)))
+        if (sim.FindAtomRelative(part, Glyphs.shearingOutputHex).HasValue())
         {
             return false;
         }
-        if (!(AtomTag.AtomTags["halving_metallurgy:$predecessor_half"].HasAtom(metal, out Identifier? newMetal)
+        if (!Glyphs.Soria.TryFindWheelAtomRelative(sim, part, Glyphs.shearingBowlHex, out AtomReference metal))
+        {
+            return false;
+        }
+        if (!AtomTag.AtomTags["halving_metallurgy:$shearing_upper"].HasAtom(metal, out Identifier? cut) || !AtomTag.AtomTags["halving_metallurgy:$shearing_lower"].HasAtom(metal, out Identifier? swarf))
+        {
+            return false;
+        }
+        sim.RecipeInputs[Glyphs.shearingBowlHex] = metal;
+        sim.RecipeOutputs[Glyphs.shearingBowlHex] = AtomTypes.GetByID(cut.Value);
+        sim.RecipeOutputs[Glyphs.shearingOutputHex] = AtomTypes.GetByID(swarf.Value);
+        return true;
+    }
+
+    public static bool OsmosisRecipes(Sim sim, Part part)
+    {
+        bool isMetalSoria = false;
+        if (!sim.FindAtomRelative(part, Glyphs.osmosisMetalHex).GetOrDefault(out AtomReference metal))
+        {
+            if (!Glyphs.Soria.TryFindWheelAtomRelative(sim, part, Glyphs.osmosisMetalHex, out metal))
+            {
+                return false;
+            }
+            isMetalSoria = true;
+        }
+        if (!sim.FindAtomRelative(part, Glyphs.osmosisQuixHex).GetOrDefault(out AtomReference quix)
+            && !Glyphs.Soria.TryFindWheelAtomRelative(sim, part, Glyphs.osmosisQuixHex, out quix))
+        {
+            return false;
+        }
+
+        if (!(AtomTag.AtomTags[isMetalSoria ? "halving_metallurgy:$predecessor_half_quix" : "halving_metallurgy:$predecessor_half"].HasAtom(metal, out Identifier? newMetal)
               && AtomTag.AtomTags["halving_metallurgy:$successor_half_quix"].HasAtom(quix, out Identifier? newQuix)))
         {
             return false;
