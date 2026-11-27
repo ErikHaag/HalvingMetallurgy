@@ -9,7 +9,6 @@ using SDL2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static Sim;
 
 namespace HalvingMetallurgy;
 
@@ -214,8 +213,8 @@ public static class Glyphs
             cost = 0,
             glowTexture = Assets.textures.select.single_glow,
             strokeTexture = Assets.textures.select.single_stroke,
-            iconTexture = Assets.textures.parts.icons.marker,
-            iconHoverTexture = Assets.textures.parts.icons.marker_hover,
+            iconTexture = Textures.Icons.Harmony,
+            iconHoverTexture = Textures.Icons.HarmonyHover,
             glyphHexes = [new(0, 0)],
             isFullHexCover = true,
             CustomPermissionCheck = (ids) => ids.Contains(HalvingMetallurgy.Instance.GetIdentifier(HalvingMetallurgy.HarmonyPermission))

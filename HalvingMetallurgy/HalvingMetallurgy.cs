@@ -1,7 +1,5 @@
-﻿using HalvingMetallurgy.Utilities;
-using Quintessential;
+﻿using Quintessential;
 using System;
-using System.Reflection;
 
 namespace HalvingMetallurgy;
 
@@ -10,6 +8,8 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
     public static HalvingMetallurgy Instance { get; }
 
     public override string ModId => "halving_metallurgy";
+
+    public override Type SettingsType => typeof(HalvingMetallurgySettings);
 
     public const string LogPrefix = "Halving Metallurgy: ";
 
@@ -55,31 +55,6 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
         QApi.AddPuzzlePermission(Instance, HarmonyPermission);
 
         QApi.AddPuzzlePermission(Instance, SoriaPermission);
-        /*
-        // Hooking
-        Logger.Log(LogPrefix + "Hooking!");
-        Glyphs.LoadHooking();
-        Wheel.LoadHooks();
-
-        if (FTSIGCTULoaded)
-        {
-            LoadMapRules();
-        }
-        if (ReductiveMetallurgyLoaded)
-        {
-            ReductiveMetallurgyImports.Load();
-            ReductiveMetallurgyImports.LoadRules();
-        }
-        if (VacancyLoaded)
-        {
-            VacancyImports.Load();
-            VacancyImports.LoadRules();
-        }
-        if (ScaffoldingLoaded)
-        {
-            LoadScaffoldingGlyphs();
-        }
-        */
         Instance.Log.Info(LogPrefix + "Loading complete, have fun!");
     }
 
@@ -98,5 +73,11 @@ public class HalvingMetallurgy : QuintessentialMod, IDataMod
 
     public override void Unload()
     {
+    }
+
+    public override void ApplySettings()
+    {
+        HalvingMetallurgySettings hms = (HalvingMetallurgySettings)Settings;
+        Atoms.quickcopperRadioactive = hms.quickcopperRadioactive;
     }
 }

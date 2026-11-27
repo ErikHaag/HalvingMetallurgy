@@ -57,6 +57,9 @@
                 "": "Soria's Wheel",
                 "description": "By using Soria's wheel with certain metal glyphs, metal and quix requirements can be substituted."
             }
+        },
+        "settings": {
+            "quickcopper_radioactive": "Radioactive Quickcopper"
         }
     }
 

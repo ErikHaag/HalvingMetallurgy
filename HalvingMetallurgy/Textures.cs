@@ -67,6 +67,8 @@ public static class Textures
         public static readonly Texture OsmosisHover = AssetLoaderHelper.LoadTexture(partPath + "icons/osmosis_icon_hover");
         public static readonly Texture Soria = AssetLoaderHelper.LoadTexture(partPath + "icons/soria_icon");
         public static readonly Texture SoriaHover = AssetLoaderHelper.LoadTexture(partPath + "icons/soria_icon_hover");
+        public static readonly Texture Harmony = AssetLoaderHelper.LoadTexture(partPath + "icons/harmony_icon");
+        public static readonly Texture HarmonyHover = AssetLoaderHelper.LoadTexture(partPath + "icons/harmony_icon_hover");
     }
 
     public static class GlyphCommon
